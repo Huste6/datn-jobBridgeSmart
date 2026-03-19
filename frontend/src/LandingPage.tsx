@@ -1,18 +1,17 @@
-import React from 'react';
 import { Search, Briefcase, Bot, LineChart, CheckCircle, ArrowRight } from 'lucide-react';
 
-const LandingPage = () => {
+const LandingPage = ({ onNavigate }: { onNavigate?: (page: 'landing' | 'login' | 'register') => void }) => {
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col">
             {/* Header */}
             <header className="bg-white shadow-sm sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16 items-center">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 cursor-pointer" onClick={() => onNavigate?.('landing')}>
                             <div className="bg-blue-600 p-2 rounded-lg">
                                 <Briefcase className="h-6 w-6 text-white" />
                             </div>
-                            <span className="text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent">
+                            <span className="text-2xl font-bold bg-linear-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent">
                                 JobBridge AI
                             </span>
                         </div>
@@ -22,13 +21,16 @@ const LandingPage = () => {
                             <a href="#" className="text-slate-600 hover:text-blue-600 font-medium">AI Tư vấn</a>
                         </nav>
                         <div className="flex items-center gap-4">
-                            <button className="text-slate-600 hover:text-blue-600 font-medium px-4 py-2">
+                            <button
+                                onClick={() => onNavigate?.('login')}
+                                className="text-slate-600 hover:text-blue-600 font-medium px-4 py-2"
+                            >
                                 Đăng nhập
                             </button>
-                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition-colors shadow-sm">
-                                Đăng ký
-                            </button>
-                            <button className="hidden md:block border border-slate-300 hover:border-blue-600 text-slate-700 hover:text-blue-600 px-5 py-2 rounded-lg font-medium transition-colors">
+                            <button
+                                onClick={() => onNavigate?.('register')}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition-colors shadow-sm"
+                            >
                                 Nhà tuyển dụng
                             </button>
                         </div>
@@ -37,10 +39,10 @@ const LandingPage = () => {
             </header>
 
             {/* Hero Section */}
-            <main className="flex-grow">
+            <main className="grow">
                 <section className="relative bg-white pt-16 pb-24 overflow-hidden">
                     <div className="absolute inset-0 z-0">
-                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-50 via-white to-white"></div>
+                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-blue-50 via-white to-white"></div>
                     </div>
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                         <div className="text-center max-w-3xl mx-auto">
@@ -206,7 +208,7 @@ const LandingPage = () => {
 
                 {/* CTA Section */}
                 <section className="bg-blue-600 py-16 relative overflow-hidden">
-                    <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-transparent"></div>
+                    <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,var(--tw-gradient-stops))] from-white to-transparent"></div>
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
                         <h2 className="text-3xl font-bold text-white mb-6">Sẵn sàng để bước vào kỷ nguyên tuyển dụng mới?</h2>
                         <div className="flex justify-center gap-4">
