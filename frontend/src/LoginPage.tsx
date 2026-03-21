@@ -1,6 +1,36 @@
+import { useState } from 'react'
+import type { FormEvent } from 'react'
 import { Mail, Lock, ArrowLeft, Briefcase } from 'lucide-react';
+import { loginUser } from './api/auth';
+import type { AuthUser } from './api/auth';
 
-const LoginPage = ({ onNavigate }: { onNavigate: (page: 'landing' | 'login' | 'register') => void }) => {
+const LoginPage = ({
+    onNavigate,
+    onAuthSuccess,
+}: {
+    onNavigate: (page: 'landing' | 'login' | 'register') => void
+    onAuthSuccess: (user: AuthUser) => void
+}) => {
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [error, setError] = useState('')
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        setError('')
+        setIsSubmitting(true)
+
+        try {
+            const user = await loginUser({ email, password })
+            onAuthSuccess(user)
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Đăng nhập thất bại')
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
             <div className="max-w-4xl w-full bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row">
@@ -51,7 +81,7 @@ const LoginPage = ({ onNavigate }: { onNavigate: (page: 'landing' | 'login' | 'r
                         <p className="text-slate-600">Nhập email và mật khẩu của bạn để truy cập</p>
                     </div>
 
-                    <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+                    <form className="space-y-5" onSubmit={handleSubmit}>
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
                             <div className="relative">
@@ -60,6 +90,8 @@ const LoginPage = ({ onNavigate }: { onNavigate: (page: 'landing' | 'login' | 'r
                                 </div>
                                 <input
                                     type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                     className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl focus:ring-blue-500 focus:border-blue-500 bg-slate-50 focus:bg-white transition-colors"
                                     placeholder="name@example.com"
                                     required
@@ -78,6 +110,8 @@ const LoginPage = ({ onNavigate }: { onNavigate: (page: 'landing' | 'login' | 'r
                                 </div>
                                 <input
                                     type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
                                     className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl focus:ring-blue-500 focus:border-blue-500 bg-slate-50 focus:bg-white transition-colors"
                                     placeholder="••••••••"
                                     required
@@ -85,8 +119,10 @@ const LoginPage = ({ onNavigate }: { onNavigate: (page: 'landing' | 'login' | 'r
                             </div>
                         </div>
 
-                        <button type="submit" className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                            Đăng nhập
+                        {error && <p className="text-sm text-red-600">{error}</p>}
+
+                        <button type="submit" disabled={isSubmitting} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                            {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
                         </button>
                     </form>
 

@@ -1,6 +1,15 @@
 import { Search, Briefcase, Bot, LineChart, CheckCircle, ArrowRight } from 'lucide-react';
+import type { AuthUser } from './api/auth';
 
-const LandingPage = ({ onNavigate }: { onNavigate?: (page: 'landing' | 'login' | 'register') => void }) => {
+const LandingPage = ({
+    onNavigate,
+    currentUser,
+    onLogout,
+}: {
+    onNavigate?: (page: 'landing' | 'login' | 'register') => void
+    currentUser: AuthUser | null
+    onLogout: () => void
+}) => {
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col">
             {/* Header */}
@@ -21,18 +30,32 @@ const LandingPage = ({ onNavigate }: { onNavigate?: (page: 'landing' | 'login' |
                             <a href="#" className="text-slate-600 hover:text-blue-600 font-medium">AI Tư vấn</a>
                         </nav>
                         <div className="flex items-center gap-4">
-                            <button
-                                onClick={() => onNavigate?.('login')}
-                                className="text-slate-600 hover:text-blue-600 font-medium px-4 py-2"
-                            >
-                                Đăng nhập
-                            </button>
-                            <button
-                                onClick={() => onNavigate?.('register')}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition-colors shadow-sm"
-                            >
-                                Nhà tuyển dụng
-                            </button>
+                            {currentUser ? (
+                                <>
+                                    <span className="text-sm text-slate-600">Xin chao, <strong>{currentUser.full_name}</strong></span>
+                                    <button
+                                        onClick={onLogout}
+                                        className="text-slate-600 hover:text-blue-600 font-medium px-4 py-2"
+                                    >
+                                        Đăng xuất
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <button
+                                        onClick={() => onNavigate?.('login')}
+                                        className="text-slate-600 hover:text-blue-600 font-medium px-4 py-2"
+                                    >
+                                        Đăng nhập
+                                    </button>
+                                    <button
+                                        onClick={() => onNavigate?.('register')}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition-colors shadow-sm"
+                                    >
+                                        Nhà tuyển dụng
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
