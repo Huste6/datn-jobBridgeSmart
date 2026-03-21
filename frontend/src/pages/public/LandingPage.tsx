@@ -1,4 +1,5 @@
-import { Search, Briefcase, Bot, LineChart, CheckCircle, ArrowRight } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Search, Briefcase, Bot, LineChart, CheckCircle, ArrowRight, UserCircle2, LogOut, ChevronDown } from 'lucide-react';
 import type { AuthUser } from '../../features/auth/api/auth';
 import type { AppPage } from '../../shared/routes/appRoutes';
 
@@ -11,6 +12,34 @@ const LandingPage = ({
     currentUser: AuthUser | null
     onLogout: () => void
 }) => {
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const profileMenuRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        const onMouseDown = (event: MouseEvent) => {
+            if (!profileMenuRef.current) {
+                return;
+            }
+
+            const target = event.target as Node;
+            if (!profileMenuRef.current.contains(target)) {
+                setIsProfileMenuOpen(false);
+            }
+        };
+
+        window.addEventListener('mousedown', onMouseDown);
+        return () => {
+            window.removeEventListener('mousedown', onMouseDown);
+        };
+    }, []);
+
+    const initials = (currentUser?.full_name ?? '')
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase() ?? '')
+        .join('');
+
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col">
             {/* Header */}
@@ -32,15 +61,49 @@ const LandingPage = ({
                         </nav>
                         <div className="flex items-center gap-4">
                             {currentUser ? (
-                                <>
-                                    <span className="text-sm text-slate-600">Xin chao, <strong>{currentUser.full_name}</strong></span>
+                                <div className="relative" ref={profileMenuRef}>
                                     <button
-                                        onClick={onLogout}
-                                        className="text-slate-600 hover:text-blue-600 font-medium px-4 py-2"
+                                        onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+                                        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-2 py-1.5 hover:bg-slate-50"
                                     >
-                                        Đăng xuất
+                                        <span className="w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-semibold grid place-items-center">
+                                            {currentUser.avatar_url ? (
+                                                <img src={currentUser.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                                            ) : (
+                                                initials || 'U'
+                                            )}
+                                        </span>
+                                        <span className="hidden sm:block text-sm text-slate-700 max-w-35 truncate">{currentUser.full_name}</span>
+                                        <ChevronDown className="w-4 h-4 text-slate-500" />
                                     </button>
-                                </>
+
+                                    {isProfileMenuOpen && (
+                                        <div className="absolute right-0 mt-2 w-56 rounded-xl border border-slate-200 bg-white shadow-lg p-1 z-50">
+                                            <div className="px-3 py-2 border-b border-slate-100">
+                                                <p className="text-sm font-semibold text-slate-900 truncate">{currentUser.full_name}</p>
+                                                <p className="text-xs text-slate-500 truncate">{currentUser.email}</p>
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    setIsProfileMenuOpen(false);
+                                                    onNavigate?.('appProfile');
+                                                }}
+                                                className="w-full mt-1 px-3 py-2 rounded-lg text-left text-sm text-slate-700 hover:bg-slate-50 inline-flex items-center gap-2"
+                                            >
+                                                <UserCircle2 className="w-4 h-4" /> Trang cá nhân
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setIsProfileMenuOpen(false);
+                                                    onLogout();
+                                                }}
+                                                className="w-full px-3 py-2 rounded-lg text-left text-sm text-red-600 hover:bg-red-50 inline-flex items-center gap-2"
+                                            >
+                                                <LogOut className="w-4 h-4" /> Đăng xuất
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             ) : (
                                 <>
                                     <button

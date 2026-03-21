@@ -9,6 +9,7 @@ import RoleSelectPage from './pages/onboarding/RoleSelectPage'
 import BasicProfilePage from './pages/onboarding/BasicProfilePage'
 import AppLayout from './layouts/AppLayout'
 import AppHomeContent from './pages/app/AppHomeContent'
+import ProfilePage from './pages/app/ProfilePage'
 import { clearStoredAccessToken, completeOnboarding, fetchMe, getStoredAccessToken } from './features/auth/api/auth'
 import type { AuthUser } from './features/auth/api/auth'
 import {
@@ -109,11 +110,6 @@ function App() {
     }
 
     if (currentPage === 'roleSelect' && role && profileCompleted) {
-      navigate(defaultAppPageForRole(role), { replace: true })
-      return
-    }
-
-    if (currentPage === 'basicProfile' && role && profileCompleted) {
       navigate(defaultAppPageForRole(role), { replace: true })
       return
     }
@@ -236,6 +232,20 @@ function App() {
       {currentPage === 'register' && <RegisterPage onNavigate={navigate} onAuthSuccess={handleAuthSuccess} />}
       {currentPage === 'roleSelect' && <RoleSelectPage onNavigate={navigate} onSelectRole={handleSelectRole} />}
       {currentPage === 'basicProfile' && <BasicProfilePage defaultName={currentUser?.full_name ?? ''} onNavigate={navigate} onSubmitProfile={handleProfileSubmit} />}
+      {currentPage === 'appProfile' && currentUser && (
+        <div className="min-h-screen bg-slate-50 p-4 sm:p-8">
+          <div className="max-w-4xl mx-auto">
+            <ProfilePage
+              currentUser={currentUser}
+              onNavigate={navigate}
+              onUserUpdated={(nextUser) => {
+                setCurrentUser(nextUser)
+                setSelectedRole(toUserRole(nextUser.role))
+              }}
+            />
+          </div>
+        </div>
+      )}
       {isAppPage(currentPage) && renderAppContent()}
       {currentPage === 'unauthorized' && <UnauthorizedPage onNavigate={navigate} />}
       {currentPage === 'forbidden' && <ForbiddenPage onNavigate={navigate} />}

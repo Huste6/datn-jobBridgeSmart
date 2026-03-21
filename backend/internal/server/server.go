@@ -1,6 +1,7 @@
 package server
 
 import (
+	"log"
 	"net/http"
 	"time"
 
@@ -20,6 +21,7 @@ func NewRouter(cfg config.Config, userRepo *auth.UserRepository) *gin.Engine {
 		cfg.JWTSecret,
 		cfg.JWTIssuer,
 		time.Duration(cfg.AccessTokenTTLMinutes)*time.Minute,
+		mustAvatarUploader(cfg.CloudinaryURL, cfg.CloudinaryFolder),
 	)
 
 	r.GET("/health", func(c *gin.Context) {
@@ -40,9 +42,23 @@ func NewRouter(cfg config.Config, userRepo *auth.UserRepository) *gin.Engine {
 		userRoutes.Use(auth.AuthMiddleware(cfg.JWTSecret))
 		{
 			userRoutes.GET("/me", authHandler.Me)
+			userRoutes.PATCH("/me", authHandler.UpdateMe)
+			userRoutes.POST("/me/avatar", authHandler.UploadAvatar)
 			userRoutes.POST("/me/onboarding", authHandler.CompleteOnboarding)
 		}
 	}
 
 	return r
+}
+
+func mustAvatarUploader(cloudinaryURL, folder string) *auth.AvatarUploader {
+	uploader, err := auth.NewAvatarUploader(cloudinaryURL, folder)
+	if err != nil {
+		log.Printf("avatar uploader disabled: %v", err)
+		return nil
+	}
+	if uploader == nil {
+		log.Printf("avatar uploader disabled: missing cloudinary configuration")
+	}
+	return uploader
 }

@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"errors"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -17,14 +18,16 @@ type Handler struct {
 	jwtSecret string
 	jwtIssuer string
 	tokenTTL  time.Duration
+	uploader  *AvatarUploader
 }
 
-func NewHandler(repo *UserRepository, jwtSecret, jwtIssuer string, tokenTTL time.Duration) *Handler {
+func NewHandler(repo *UserRepository, jwtSecret, jwtIssuer string, tokenTTL time.Duration, uploader *AvatarUploader) *Handler {
 	return &Handler{
 		repo:      repo,
 		jwtSecret: jwtSecret,
 		jwtIssuer: jwtIssuer,
 		tokenTTL:  tokenTTL,
+		uploader:  uploader,
 	}
 }
 
@@ -45,6 +48,14 @@ type completeOnboardingRequest struct {
 	Phone    string `json:"phone" binding:"required,min=8"`
 	City     string `json:"city" binding:"required,min=2"`
 	Headline string `json:"headline" binding:"required,min=6"`
+}
+
+type updateSelfRequest struct {
+	FullName  *string `json:"full_name" binding:"omitempty,min=2"`
+	Phone     *string `json:"phone" binding:"omitempty,min=8"`
+	City      *string `json:"city" binding:"omitempty,min=2"`
+	Headline  *string `json:"headline" binding:"omitempty,min=6"`
+	AvatarURL *string `json:"avatar_url"`
 }
 
 func (h *Handler) Register(c *gin.Context) {
@@ -223,6 +234,122 @@ func (h *Handler) CompleteOnboarding(c *gin.Context) {
 	}
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not update profile"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"user": u.ToPublic()})
+}
+
+func (h *Handler) UpdateMe(c *gin.Context) {
+	rawID, exists := c.Get(ContextUserIDKey)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	userIDHex, ok := rawID.(string)
+	if !ok || userIDHex == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	userID, err := bson.ObjectIDFromHex(userIDHex)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	var req updateSelfRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid payload"})
+		return
+	}
+
+	if req.FullName == nil && req.Phone == nil && req.City == nil && req.Headline == nil && req.AvatarURL == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "no fields to update"})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
+	defer cancel()
+
+	u, err := h.repo.UpdateSelf(ctx, userID, UserSelfUpdate{
+		FullName:  req.FullName,
+		Phone:     req.Phone,
+		City:      req.City,
+		Headline:  req.Headline,
+		AvatarURL: req.AvatarURL,
+	})
+	if errors.Is(err, ErrUserNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not update profile"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"user": u.ToPublic()})
+}
+
+func (h *Handler) UploadAvatar(c *gin.Context) {
+	if h.uploader == nil || !h.uploader.Enabled() {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "avatar upload is not configured"})
+		return
+	}
+
+	rawID, exists := c.Get(ContextUserIDKey)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	userIDHex, ok := rawID.(string)
+	if !ok || userIDHex == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	userID, err := bson.ObjectIDFromHex(userIDHex)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	file, header, err := c.Request.FormFile("avatar")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "missing avatar file"})
+		return
+	}
+	defer file.Close()
+
+	const maxAvatarBytes = 2 * 1024 * 1024
+	data, readErr := io.ReadAll(io.LimitReader(file, maxAvatarBytes+1))
+	if readErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "could not read avatar file"})
+		return
+	}
+	if len(data) > maxAvatarBytes {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "avatar must be <= 2MB"})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 20*time.Second)
+	defer cancel()
+
+	avatarURL, err := h.uploader.UploadImage(ctx, userIDHex, header.Filename, data)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "could not upload avatar"})
+		return
+	}
+
+	u, err := h.repo.UpdateSelf(ctx, userID, UserSelfUpdate{AvatarURL: &avatarURL})
+	if errors.Is(err, ErrUserNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not update user avatar"})
 		return
 	}
 

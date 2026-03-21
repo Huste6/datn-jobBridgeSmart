@@ -9,6 +9,7 @@ export type AppPage =
     | 'notfound'
     | 'roleSelect'
     | 'basicProfile'
+    | 'appProfile'
     | 'appHome'
     | 'appJobs'
     | 'appApplications'
@@ -33,6 +34,8 @@ export function pathFromPage(page: AppPage): string {
             return '/onboarding/role'
         case 'basicProfile':
             return '/onboarding/profile'
+        case 'appProfile':
+            return '/profile'
         case 'appHome':
             return '/app'
         case 'appJobs':
@@ -66,6 +69,8 @@ export function pageFromPath(pathname: string): AppPage {
             return 'roleSelect'
         case '/onboarding/profile':
             return 'basicProfile'
+        case '/profile':
+            return 'appProfile'
         case '/app':
             return 'appHome'
         case '/app/jobs':
@@ -84,6 +89,7 @@ export function pageFromPath(pathname: string): AppPage {
 export function isProtectedPage(page: AppPage): boolean {
     return page === 'roleSelect'
         || page === 'basicProfile'
+        || page === 'appProfile'
         || page === 'appHome'
         || page === 'appJobs'
         || page === 'appApplications'

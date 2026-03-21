@@ -12,6 +12,7 @@ type User struct {
 	Email        string        `bson:"email" json:"email"`
 	FullName     string        `bson:"full_name" json:"full_name"`
 	Role         string        `bson:"role" json:"role"`
+	AvatarURL    string        `bson:"avatar_url,omitempty" json:"avatar_url,omitempty"`
 	Phone        string        `bson:"phone,omitempty" json:"phone,omitempty"`
 	City         string        `bson:"city,omitempty" json:"city,omitempty"`
 	Headline     string        `bson:"headline,omitempty" json:"headline,omitempty"`
@@ -26,6 +27,7 @@ type PublicUser struct {
 	Email            string    `json:"email"`
 	FullName         string    `json:"full_name"`
 	Role             string    `json:"role"`
+	AvatarURL        string    `json:"avatar_url,omitempty"`
 	Phone            string    `json:"phone,omitempty"`
 	City             string    `json:"city,omitempty"`
 	Headline         string    `json:"headline,omitempty"`
@@ -39,6 +41,7 @@ func (u User) ToPublic() PublicUser {
 		Email:            u.Email,
 		FullName:         u.FullName,
 		Role:             u.Role,
+		AvatarURL:        u.AvatarURL,
 		Phone:            u.Phone,
 		City:             u.City,
 		Headline:         u.Headline,

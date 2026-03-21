@@ -1,6 +1,7 @@
-import { Home, Search, FileText, Briefcase, Users, LogOut, ShieldCheck } from 'lucide-react'
+import { Home, Search, FileText, Briefcase, Users, LogOut, ShieldCheck, UserCircle2, ChevronDown } from 'lucide-react'
 import type { AuthUser } from '../features/auth/api/auth'
 import type { AppPage, UserRole } from '../shared/routes/appRoutes'
+import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 
 type Props = {
@@ -19,6 +20,34 @@ type MenuItem = {
 }
 
 const AppLayout = ({ currentUser, role, currentPage, onNavigate, onLogout, children }: Props) => {
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
+    const profileMenuRef = useRef<HTMLDivElement | null>(null)
+
+    useEffect(() => {
+        const onMouseDown = (event: MouseEvent) => {
+            if (!profileMenuRef.current) {
+                return
+            }
+
+            const target = event.target as Node
+            if (!profileMenuRef.current.contains(target)) {
+                setIsProfileMenuOpen(false)
+            }
+        }
+
+        window.addEventListener('mousedown', onMouseDown)
+        return () => {
+            window.removeEventListener('mousedown', onMouseDown)
+        }
+    }, [])
+
+    const initials = currentUser.full_name
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase() ?? '')
+        .join('')
+
     const seekerMenu: MenuItem[] = [
         { page: 'appHome', label: 'Tổng quan', icon: <Home className="w-4 h-4" /> },
         { page: 'appJobs', label: 'Việc làm', icon: <Search className="w-4 h-4" /> },
@@ -44,13 +73,49 @@ const AppLayout = ({ currentUser, role, currentPage, onNavigate, onLogout, child
                     <span className="hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-sm">
                         <ShieldCheck className="w-4 h-4" /> {roleLabel}
                     </span>
-                    <span className="text-sm text-slate-600">{currentUser.full_name}</span>
-                    <button
-                        onClick={onLogout}
-                        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm"
-                    >
-                        <LogOut className="w-4 h-4" /> Đăng xuất
-                    </button>
+                    <div className="relative" ref={profileMenuRef}>
+                        <button
+                            onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+                            className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-2 py-1.5 hover:bg-slate-50"
+                        >
+                            <span className="w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-semibold grid place-items-center">
+                                {currentUser.avatar_url ? (
+                                    <img src={currentUser.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                                ) : (
+                                    initials || 'U'
+                                )}
+                            </span>
+                            <span className="hidden sm:block text-sm text-slate-700 max-w-30 truncate">{currentUser.full_name}</span>
+                            <ChevronDown className="w-4 h-4 text-slate-500" />
+                        </button>
+
+                        {isProfileMenuOpen && (
+                            <div className="absolute right-0 mt-2 w-56 rounded-xl border border-slate-200 bg-white shadow-lg p-1 z-50">
+                                <div className="px-3 py-2 border-b border-slate-100">
+                                    <p className="text-sm font-semibold text-slate-900 truncate">{currentUser.full_name}</p>
+                                    <p className="text-xs text-slate-500 truncate">{currentUser.email}</p>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        setIsProfileMenuOpen(false)
+                                        onNavigate('appProfile')
+                                    }}
+                                    className="w-full mt-1 px-3 py-2 rounded-lg text-left text-sm text-slate-700 hover:bg-slate-50 inline-flex items-center gap-2"
+                                >
+                                    <UserCircle2 className="w-4 h-4" /> Trang cá nhân
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setIsProfileMenuOpen(false)
+                                        onLogout()
+                                    }}
+                                    className="w-full px-3 py-2 rounded-lg text-left text-sm text-red-600 hover:bg-red-50 inline-flex items-center gap-2"
+                                >
+                                    <LogOut className="w-4 h-4" /> Đăng xuất
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </header>
 

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 
 	"jobbridge-ai/backend/internal/auth"
 	"jobbridge-ai/backend/internal/config"
@@ -14,6 +15,8 @@ import (
 )
 
 func main() {
+	_ = godotenv.Load()
+
 	cfg := config.Load()
 	gin.SetMode(cfg.Mode)
 

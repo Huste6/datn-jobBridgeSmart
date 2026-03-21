@@ -3,6 +3,7 @@ export type AuthUser = {
     email: string
     full_name: string
     role: string
+    avatar_url?: string
     phone?: string
     city?: string
     headline?: string
@@ -121,4 +122,52 @@ export async function completeOnboarding(payload: {
     })
 
     return data.user
+}
+
+export async function updateMe(payload: {
+    full_name?: string
+    phone?: string
+    city?: string
+    headline?: string
+    avatar_url?: string
+}): Promise<AuthUser> {
+    const token = getStoredAccessToken()
+    if (!token) {
+        throw new Error('Missing access token')
+    }
+
+    const data = await request<MeResponse>('/api/users/me', {
+        method: 'PATCH',
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+    })
+
+    return data.user
+}
+
+export async function uploadAvatar(file: File): Promise<AuthUser> {
+    const token = getStoredAccessToken()
+    if (!token) {
+        throw new Error('Missing access token')
+    }
+
+    const formData = new FormData()
+    formData.append('avatar', file)
+
+    const response = await fetch(buildUrl('/api/users/me/avatar'), {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+    })
+
+    const body = (await response.json().catch(() => ({}))) as { error?: string; user?: AuthUser }
+    if (!response.ok || !body.user) {
+        throw new Error(body.error ?? 'Upload avatar failed')
+    }
+
+    return body.user
 }

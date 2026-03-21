@@ -49,6 +49,12 @@ curl http://localhost:8080/health
 - `JWT_SECRET` (default/example in `.env.example`)
 - `JWT_ISSUER` (default/example in `.env.example`)
 - `ACCESS_TOKEN_TTL_MINUTES` (default/example in `.env.example`)
+- `CLOUDINARY_URL` (for avatar upload)
+- `CLOUDINARY_FOLDER` (default: `jobbridge/user`)
+- Alternative to `CLOUDINARY_URL`:
+	- `CLOUDINARY_CLOUD_NAME`
+	- `CLOUDINARY_API_KEY`
+	- `CLOUDINARY_API_SECRET`
 
 ## Auth API (User)
 - `POST /api/auth/register`
@@ -57,6 +63,14 @@ curl http://localhost:8080/health
 	- Request body: `{"email":"user@example.com","password":"secret123"}`
 - `GET /api/users/me`
 	- Header: `Authorization: Bearer <access_token>`
+- `PATCH /api/users/me`
+	- Header: `Authorization: Bearer <access_token>`
+	- Request body (any subset): `{"full_name":"Nguyen Van A","phone":"0901234567","city":"Ha Noi","headline":"Backend Developer"}`
+- `POST /api/users/me/avatar`
+	- Header: `Authorization: Bearer <access_token>`
+	- Content-Type: `multipart/form-data`
+	- Field: `avatar=<file>`
+	- Upload target folder: `jobbridge/user` (configurable via `CLOUDINARY_FOLDER`)
 - `POST /api/users/me/onboarding`
 	- Header: `Authorization: Bearer <access_token>`
 	- Request body: `{"role":"recruiter","phone":"0901234567","city":"Ha Noi","headline":"Talent Acquisition lead"}`

@@ -26,6 +26,14 @@ type UserProfileUpdate struct {
 	ProfileComplete bool
 }
 
+type UserSelfUpdate struct {
+	FullName  *string
+	Phone     *string
+	City      *string
+	Headline  *string
+	AvatarURL *string
+}
+
 func NewUserRepository(db *mongo.Database) *UserRepository {
 	return &UserRepository{col: db.Collection("users")}
 }
@@ -90,6 +98,38 @@ func (r *UserRepository) UpdateProfile(ctx context.Context, id bson.ObjectID, in
 		"city":              strings.TrimSpace(in.City),
 		"headline":          strings.TrimSpace(in.Headline),
 		"profile_completed": in.ProfileComplete,
+	}
+
+	res, err := r.col.UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": set})
+	if err != nil {
+		return nil, err
+	}
+	if res.MatchedCount == 0 {
+		return nil, ErrUserNotFound
+	}
+
+	return r.FindByID(ctx, id)
+}
+
+func (r *UserRepository) UpdateSelf(ctx context.Context, id bson.ObjectID, in UserSelfUpdate) (*User, error) {
+	set := bson.M{
+		"updated_at": time.Now().UTC(),
+	}
+
+	if in.FullName != nil {
+		set["full_name"] = strings.TrimSpace(*in.FullName)
+	}
+	if in.Phone != nil {
+		set["phone"] = strings.TrimSpace(*in.Phone)
+	}
+	if in.City != nil {
+		set["city"] = strings.TrimSpace(*in.City)
+	}
+	if in.Headline != nil {
+		set["headline"] = strings.TrimSpace(*in.Headline)
+	}
+	if in.AvatarURL != nil {
+		set["avatar_url"] = strings.TrimSpace(*in.AvatarURL)
 	}
 
 	res, err := r.col.UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": set})
