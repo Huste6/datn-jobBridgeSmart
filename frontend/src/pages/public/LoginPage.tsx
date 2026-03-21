@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Mail, Lock, ArrowLeft, Briefcase } from 'lucide-react';
-import { loginUser } from './api/auth';
-import type { AuthUser } from './api/auth';
+import { loginUser } from '../../features/auth/api/auth';
+import type { AuthUser } from '../../features/auth/api/auth';
+import type { AppPage } from '../../shared/routes/appRoutes';
 
 const LoginPage = ({
     onNavigate,
     onAuthSuccess,
 }: {
-    onNavigate: (page: 'landing' | 'login' | 'register') => void
+    onNavigate: (page: AppPage) => void
     onAuthSuccess: (user: AuthUser) => void
 }) => {
     const [email, setEmail] = useState('')

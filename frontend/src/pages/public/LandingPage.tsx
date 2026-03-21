@@ -1,12 +1,13 @@
 import { Search, Briefcase, Bot, LineChart, CheckCircle, ArrowRight } from 'lucide-react';
-import type { AuthUser } from './api/auth';
+import type { AuthUser } from '../../features/auth/api/auth';
+import type { AppPage } from '../../shared/routes/appRoutes';
 
 const LandingPage = ({
     onNavigate,
     currentUser,
     onLogout,
 }: {
-    onNavigate?: (page: 'landing' | 'login' | 'register') => void
+    onNavigate?: (page: AppPage) => void
     currentUser: AuthUser | null
     onLogout: () => void
 }) => {

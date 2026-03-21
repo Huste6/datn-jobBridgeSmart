@@ -1,18 +1,17 @@
-import { SearchX, ArrowLeft } from 'lucide-react'
+import { Ban, ArrowLeft } from 'lucide-react'
+import type { AppPage } from '../../shared/routes/appRoutes'
 
-type AppPage = 'landing' | 'login' | 'register' | 'unauthorized' | 'forbidden' | 'notfound'
-
-const NotFoundPage = ({ onNavigate }: { onNavigate: (page: AppPage) => void }) => {
+const ForbiddenPage = ({ onNavigate }: { onNavigate: (page: AppPage) => void }) => {
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
             <div className="max-w-lg w-full bg-white rounded-2xl shadow-xl p-8 text-center border border-slate-100">
-                <div className="mx-auto w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-6">
-                    <SearchX className="w-8 h-8 text-slate-600" />
+                <div className="mx-auto w-16 h-16 rounded-full bg-rose-100 flex items-center justify-center mb-6">
+                    <Ban className="w-8 h-8 text-rose-600" />
                 </div>
-                <p className="text-sm font-semibold text-slate-600 mb-2">404 Not Found</p>
-                <h1 className="text-3xl font-bold text-slate-900 mb-3">Trang không tồn tại</h1>
+                <p className="text-sm font-semibold text-rose-600 mb-2">403 Forbidden</p>
+                <h1 className="text-3xl font-bold text-slate-900 mb-3">Bạn không có quyền truy cập</h1>
                 <p className="text-slate-600 mb-8">
-                    Đường dẫn bạn truy cập không hợp lệ hoặc đã bị di chuyển.
+                    Tài khoản hiện tại không đủ quyền để xem nội dung này.
                 </p>
                 <button
                     onClick={() => onNavigate('landing')}
@@ -25,4 +24,4 @@ const NotFoundPage = ({ onNavigate }: { onNavigate: (page: AppPage) => void }) =
     )
 }
 
-export default NotFoundPage
+export default ForbiddenPage

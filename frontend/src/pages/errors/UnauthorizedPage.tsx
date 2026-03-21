@@ -1,6 +1,5 @@
 import { ShieldAlert, ArrowLeft } from 'lucide-react'
-
-type AppPage = 'landing' | 'login' | 'register' | 'unauthorized' | 'forbidden' | 'notfound'
+import type { AppPage } from '../../shared/routes/appRoutes'
 
 const UnauthorizedPage = ({ onNavigate }: { onNavigate: (page: AppPage) => void }) => {
     return (
