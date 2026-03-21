@@ -3,6 +3,10 @@ export type AuthUser = {
     email: string
     full_name: string
     role: string
+    phone?: string
+    city?: string
+    headline?: string
+    profile_completed: boolean
     created_at: string
 }
 
@@ -91,6 +95,29 @@ export async function fetchMe(): Promise<AuthUser> {
         headers: {
             Authorization: `Bearer ${token}`,
         },
+    })
+
+    return data.user
+}
+
+export async function completeOnboarding(payload: {
+    role: 'seeker' | 'recruiter'
+    full_name: string
+    phone: string
+    city: string
+    headline: string
+}): Promise<AuthUser> {
+    const token = getStoredAccessToken()
+    if (!token) {
+        throw new Error('Missing access token')
+    }
+
+    const data = await request<MeResponse>('/api/users/me/onboarding', {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
     })
 
     return data.user

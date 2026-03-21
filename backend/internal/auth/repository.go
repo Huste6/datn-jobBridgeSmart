@@ -17,6 +17,15 @@ type UserRepository struct {
 	col *mongo.Collection
 }
 
+type UserProfileUpdate struct {
+	Role            string
+	FullName        string
+	Phone           string
+	City            string
+	Headline        string
+	ProfileComplete bool
+}
+
 func NewUserRepository(db *mongo.Database) *UserRepository {
 	return &UserRepository{col: db.Collection("users")}
 }
@@ -27,8 +36,9 @@ func (r *UserRepository) Create(ctx context.Context, u *User) error {
 	u.FullName = strings.TrimSpace(u.FullName)
 	u.Role = strings.TrimSpace(u.Role)
 	if u.Role == "" {
-		u.Role = "user"
+		u.Role = ""
 	}
+	u.ProfileDone = false
 	u.CreatedAt = now
 	u.UpdatedAt = now
 
@@ -69,4 +79,26 @@ func (r *UserRepository) FindByID(ctx context.Context, id bson.ObjectID) (*User,
 	}
 
 	return &u, nil
+}
+
+func (r *UserRepository) UpdateProfile(ctx context.Context, id bson.ObjectID, in UserProfileUpdate) (*User, error) {
+	set := bson.M{
+		"updated_at":        time.Now().UTC(),
+		"role":              strings.TrimSpace(in.Role),
+		"full_name":         strings.TrimSpace(in.FullName),
+		"phone":             strings.TrimSpace(in.Phone),
+		"city":              strings.TrimSpace(in.City),
+		"headline":          strings.TrimSpace(in.Headline),
+		"profile_completed": in.ProfileComplete,
+	}
+
+	res, err := r.col.UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": set})
+	if err != nil {
+		return nil, err
+	}
+	if res.MatchedCount == 0 {
+		return nil, ErrUserNotFound
+	}
+
+	return r.FindByID(ctx, id)
 }

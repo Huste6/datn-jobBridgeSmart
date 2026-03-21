@@ -4,6 +4,7 @@ import { User, Phone, MapPin, FileText } from 'lucide-react'
 import type { AppPage } from '../../shared/routes/appRoutes'
 
 type ProfilePayload = {
+    full_name: string
     phone: string
     city: string
     headline: string
@@ -12,21 +13,34 @@ type ProfilePayload = {
 type Props = {
     defaultName: string
     onNavigate: (page: AppPage) => void
-    onSubmitProfile: (payload: ProfilePayload) => void
+    onSubmitProfile: (payload: ProfilePayload) => Promise<void>
 }
 
 const BasicProfilePage = ({ defaultName, onNavigate, onSubmitProfile }: Props) => {
+    const [fullName, setFullName] = useState(defaultName)
     const [phone, setPhone] = useState('')
     const [city, setCity] = useState('')
     const [headline, setHeadline] = useState('')
+    const [error, setError] = useState('')
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        onSubmitProfile({
-            phone: phone.trim(),
-            city: city.trim(),
-            headline: headline.trim(),
-        })
+        setError('')
+        setIsSubmitting(true)
+
+        try {
+            await onSubmitProfile({
+                full_name: fullName.trim(),
+                phone: phone.trim(),
+                city: city.trim(),
+                headline: headline.trim(),
+            })
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Cập nhật hồ sơ thất bại')
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     return (
@@ -44,9 +58,10 @@ const BasicProfilePage = ({ defaultName, onNavigate, onSubmitProfile }: Props) =
                                 <User className="w-5 h-5 text-slate-400" />
                             </div>
                             <input
-                                value={defaultName}
-                                readOnly
-                                className="w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl bg-slate-100 text-slate-600"
+                                value={fullName}
+                                onChange={(e) => setFullName(e.target.value)}
+                                required
+                                className="w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white"
                             />
                         </div>
                     </div>
@@ -102,12 +117,15 @@ const BasicProfilePage = ({ defaultName, onNavigate, onSubmitProfile }: Props) =
                         </div>
                     </div>
 
+                    {error && <p className="text-sm text-red-600">{error}</p>}
+
                     <div className="flex gap-3 pt-2">
                         <button
                             type="submit"
-                            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
+                            disabled={isSubmitting}
+                            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-lg font-semibold transition-colors"
                         >
-                            Hoàn tất hồ sơ
+                            {isSubmitting ? 'Đang lưu...' : 'Hoàn tất hồ sơ'}
                         </button>
                         <button
                             type="button"

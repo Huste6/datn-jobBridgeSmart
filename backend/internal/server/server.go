@@ -40,6 +40,7 @@ func NewRouter(cfg config.Config, userRepo *auth.UserRepository) *gin.Engine {
 		userRoutes.Use(auth.AuthMiddleware(cfg.JWTSecret))
 		{
 			userRoutes.GET("/me", authHandler.Me)
+			userRoutes.POST("/me/onboarding", authHandler.CompleteOnboarding)
 		}
 	}
 

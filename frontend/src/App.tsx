@@ -9,7 +9,7 @@ import RoleSelectPage from './pages/onboarding/RoleSelectPage'
 import BasicProfilePage from './pages/onboarding/BasicProfilePage'
 import AppLayout from './layouts/AppLayout'
 import AppHomeContent from './pages/app/AppHomeContent'
-import { clearStoredAccessToken, fetchMe, getStoredAccessToken } from './features/auth/api/auth'
+import { clearStoredAccessToken, completeOnboarding, fetchMe, getStoredAccessToken } from './features/auth/api/auth'
 import type { AuthUser } from './features/auth/api/auth'
 import {
   defaultAppPageForRole,
@@ -19,13 +19,18 @@ import {
   pathFromPage,
 } from './shared/routes/appRoutes'
 import type { AppPage, UserRole } from './shared/routes/appRoutes'
-import { getUserMeta, setUserMeta } from './features/auth/userMeta'
-import type { UserMeta } from './features/auth/userMeta'
+
+function toUserRole(rawRole: string): UserRole | null {
+  if (rawRole === 'recruiter' || rawRole === 'seeker') {
+    return rawRole
+  }
+  return null
+}
 
 function App() {
   const [currentPage, setCurrentPage] = useState<AppPage>(() => pageFromPath(window.location.pathname))
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null)
-  const [userMeta, setLocalUserMeta] = useState<UserMeta>({ profileCompleted: false })
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null)
   const [isBootstrapping, setIsBootstrapping] = useState(true)
 
   const navigate = useCallback((page: AppPage, options?: { replace?: boolean }) => {
@@ -63,11 +68,11 @@ function App() {
       try {
         const user = await fetchMe()
         setCurrentUser(user)
-        setLocalUserMeta(getUserMeta(user.id))
+        setSelectedRole(toUserRole(user.role))
       } catch {
         clearStoredAccessToken()
         setCurrentUser(null)
-        setLocalUserMeta({ profileCompleted: false })
+        setSelectedRole(null)
       } finally {
         setIsBootstrapping(false)
       }
@@ -90,99 +95,103 @@ function App() {
       return
     }
 
-    const role = userMeta.role
+    const role = selectedRole ?? toUserRole(currentUser.role)
+    const profileCompleted = currentUser.profile_completed
+
     if (!role && currentPage !== 'roleSelect') {
       navigate('roleSelect', { replace: true })
       return
     }
 
-    if (role && !userMeta.profileCompleted && currentPage !== 'basicProfile' && currentPage !== 'roleSelect') {
+    if (role && !profileCompleted && currentPage !== 'basicProfile' && currentPage !== 'roleSelect') {
       navigate('basicProfile', { replace: true })
       return
     }
 
-    if (currentPage === 'roleSelect' && role && userMeta.profileCompleted) {
+    if (currentPage === 'roleSelect' && role && profileCompleted) {
       navigate(defaultAppPageForRole(role), { replace: true })
       return
     }
 
-    if (currentPage === 'basicProfile' && role && userMeta.profileCompleted) {
+    if (currentPage === 'basicProfile' && role && profileCompleted) {
       navigate(defaultAppPageForRole(role), { replace: true })
       return
     }
 
     if (isAppPage(currentPage) && role) {
-      const seekerOnly = currentPage === 'appJobs' || currentPage === 'appApplications'
-      const recruiterOnly = currentPage === 'appRecruitment' || currentPage === 'appCandidates'
-      if ((seekerOnly && role !== 'seeker') || (recruiterOnly && role !== 'recruiter')) {
+      if (role !== 'recruiter') {
         navigate('forbidden', { replace: true })
       }
     }
-  }, [currentPage, currentUser, isBootstrapping, userMeta, navigate])
+  }, [currentPage, currentUser, isBootstrapping, selectedRole, navigate])
 
   const handleAuthSuccess = (user: AuthUser) => {
-    const meta = getUserMeta(user.id)
     setCurrentUser(user)
-    setLocalUserMeta(meta)
+    const role = toUserRole(user.role)
+    setSelectedRole(role)
 
-    if (!meta.role) {
+    if (!role) {
       navigate('roleSelect', { replace: true })
       return
     }
 
-    if (!meta.profileCompleted) {
+    if (!user.profile_completed) {
       navigate('basicProfile', { replace: true })
       return
     }
 
-    navigate(defaultAppPageForRole(meta.role), { replace: true })
-  }
-
-  const updateUserMeta = (next: UserMeta) => {
-    if (!currentUser) {
-      return
-    }
-    setUserMeta(currentUser.id, next)
-    setLocalUserMeta(next)
+    navigate(defaultAppPageForRole(role), { replace: true })
   }
 
   const handleSelectRole = (role: UserRole) => {
-    const nextMeta: UserMeta = {
-      ...userMeta,
-      role,
-      profileCompleted: userMeta.profileCompleted,
-    }
-    updateUserMeta(nextMeta)
+    setSelectedRole(role)
     navigate('basicProfile')
   }
 
-  const handleProfileSubmit = (payload: { phone: string; city: string; headline: string }) => {
-    const nextMeta: UserMeta = {
-      ...userMeta,
-      profileCompleted: true,
+  const handleProfileSubmit = async (payload: {
+    full_name: string
+    phone: string
+    city: string
+    headline: string
+  }) => {
+    if (!currentUser) {
+      navigate('unauthorized', { replace: true })
+      return
+    }
+
+    const role = selectedRole ?? toUserRole(currentUser.role)
+    if (!role) {
+      navigate('roleSelect', { replace: true })
+      return
+    }
+
+    const updatedUser = await completeOnboarding({
+      role,
+      full_name: payload.full_name,
       phone: payload.phone,
       city: payload.city,
       headline: payload.headline,
-    }
-    updateUserMeta(nextMeta)
+    })
+    setCurrentUser(updatedUser)
+    setSelectedRole(toUserRole(updatedUser.role) ?? role)
 
-    if (nextMeta.role) {
-      navigate(defaultAppPageForRole(nextMeta.role), { replace: true })
-    } else {
-      navigate('roleSelect', { replace: true })
-    }
+    navigate(defaultAppPageForRole(role), { replace: true })
   }
 
   const handleLogout = () => {
     clearStoredAccessToken()
     setCurrentUser(null)
-    setLocalUserMeta({ profileCompleted: false })
+    setSelectedRole(null)
     navigate('landing')
   }
 
   const renderAppContent = () => {
-    const role = userMeta.role
+    const role = selectedRole ?? (currentUser ? toUserRole(currentUser.role) : null)
     if (!currentUser || !role) {
+      return null
+    }
+
+    if (role !== 'recruiter') {
       return null
     }
 

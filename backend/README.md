@@ -57,6 +57,10 @@ curl http://localhost:8080/health
 	- Request body: `{"email":"user@example.com","password":"secret123"}`
 - `GET /api/users/me`
 	- Header: `Authorization: Bearer <access_token>`
+- `POST /api/users/me/onboarding`
+	- Header: `Authorization: Bearer <access_token>`
+	- Request body: `{"role":"recruiter","phone":"0901234567","city":"Ha Noi","headline":"Talent Acquisition lead"}`
+	- `full_name` is optional. If omitted, backend keeps current full name.
 
 ## Run with Tilt (auto-reload)
 Project root contains a `Tiltfile` configured for local orchestration.

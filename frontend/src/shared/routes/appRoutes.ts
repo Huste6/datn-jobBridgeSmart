@@ -100,5 +100,5 @@ export function isAppPage(page: AppPage): boolean {
 }
 
 export function defaultAppPageForRole(role: UserRole): AppPage {
-    return role === 'recruiter' ? 'appRecruitment' : 'appJobs'
+    return role === 'recruiter' ? 'appRecruitment' : 'landing'
 }
