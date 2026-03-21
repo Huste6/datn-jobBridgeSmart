@@ -55,7 +55,7 @@ const LandingPage = ({
                             </span>
                         </div>
                         <nav className="hidden md:flex space-x-8">
-                            <a href="#" className="text-slate-600 hover:text-blue-600 font-medium">Tìm việc làm</a>
+                            <button onClick={() => onNavigate?.('jobsList')} className="text-slate-600 hover:text-blue-600 font-medium">Tìm việc làm</button>
                             <a href="#" className="text-slate-600 hover:text-blue-600 font-medium">Công ty</a>
                             <a href="#" className="text-slate-600 hover:text-blue-600 font-medium">AI Tư vấn</a>
                         </nav>
@@ -163,7 +163,7 @@ const LandingPage = ({
                                         <option value="dn">Đà Nẵng</option>
                                     </select>
                                 </div>
-                                <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm">
+                                <button onClick={() => onNavigate?.('jobsList')} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm">
                                     Tìm Việc Ngay
                                 </button>
                             </div>
@@ -216,9 +216,9 @@ const LandingPage = ({
                                 <h2 className="text-3xl font-bold text-slate-900 mb-4">Việc Làm Nổi Bật</h2>
                                 <p className="text-slate-600">Những cơ hội nghề nghiệp tốt nhất được cập nhật liên tục.</p>
                             </div>
-                            <a href="#" className="hidden sm:inline-flex items-center gap-2 text-blue-600 font-medium hover:text-blue-700">
+                            <button onClick={() => onNavigate?.('jobsList')} className="hidden sm:inline-flex items-center gap-2 text-blue-600 font-medium hover:text-blue-700">
                                 Xem tất cả <ArrowRight className="w-4 h-4" />
-                            </a>
+                            </button>
                         </div>
 
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -265,9 +265,9 @@ const LandingPage = ({
                         </div>
 
                         <div className="mt-8 text-center sm:hidden">
-                            <a href="#" className="inline-flex items-center gap-2 text-blue-600 font-medium hover:text-blue-700">
+                            <button onClick={() => onNavigate?.('jobsList')} className="inline-flex items-center gap-2 text-blue-600 font-medium hover:text-blue-700">
                                 Xem tất cả việc làm <ArrowRight className="w-4 h-4" />
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </section>

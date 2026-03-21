@@ -6,15 +6,20 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 
 	"jobbridge-ai/backend/internal/auth"
 	"jobbridge-ai/backend/internal/config"
+	"jobbridge-ai/backend/internal/job"
 )
 
 // NewRouter creates and configures the HTTP routes.
-func NewRouter(cfg config.Config, userRepo *auth.UserRepository) *gin.Engine {
+func NewRouter(cfg config.Config, db *mongo.Database) *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Logger(), gin.Recovery())
+
+	userRepo := auth.NewUserRepository(db)
+	jobRepo := job.NewRepository(db)
 
 	authHandler := auth.NewHandler(
 		userRepo,
@@ -23,6 +28,8 @@ func NewRouter(cfg config.Config, userRepo *auth.UserRepository) *gin.Engine {
 		time.Duration(cfg.AccessTokenTTLMinutes)*time.Minute,
 		mustAvatarUploader(cfg.CloudinaryURL, cfg.CloudinaryFolder),
 	)
+
+	jobHandler := job.NewHandler(jobRepo)
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -46,6 +53,8 @@ func NewRouter(cfg config.Config, userRepo *auth.UserRepository) *gin.Engine {
 			userRoutes.POST("/me/avatar", authHandler.UploadAvatar)
 			userRoutes.POST("/me/onboarding", authHandler.CompleteOnboarding)
 		}
+
+		jobHandler.RegisterRoutes(api)
 	}
 
 	return r

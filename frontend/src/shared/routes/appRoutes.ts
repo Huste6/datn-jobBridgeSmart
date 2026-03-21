@@ -2,6 +2,7 @@ export type UserRole = 'seeker' | 'recruiter'
 
 export type AppPage =
     | 'landing'
+    | 'jobsList'
     | 'login'
     | 'register'
     | 'unauthorized'
@@ -20,6 +21,8 @@ export function pathFromPage(page: AppPage): string {
     switch (page) {
         case 'landing':
             return '/'
+        case 'jobsList':
+            return '/jobs'
         case 'login':
             return '/login'
         case 'register':
@@ -55,6 +58,8 @@ export function pageFromPath(pathname: string): AppPage {
     switch (pathname) {
         case '/':
             return 'landing'
+        case '/jobs':
+            return 'jobsList'
         case '/login':
             return 'login'
         case '/register':

@@ -9,6 +9,7 @@ import RoleSelectPage from './pages/onboarding/RoleSelectPage'
 import BasicProfilePage from './pages/onboarding/BasicProfilePage'
 import AppLayout from './layouts/AppLayout'
 import AppHomeContent from './pages/app/AppHomeContent'
+import JobsListPage from './pages/app/JobsListPage'
 import ProfilePage from './pages/app/ProfilePage'
 import { clearStoredAccessToken, completeOnboarding, fetchMe, getStoredAccessToken } from './features/auth/api/auth'
 import type { AuthUser } from './features/auth/api/auth'
@@ -191,13 +192,24 @@ function App() {
       return null
     }
 
+    if (currentPage === 'appJobs') {
+      return (
+        <AppLayout
+          currentUser={currentUser}
+          role={role}
+          currentPage={currentPage}
+          onNavigate={navigate}
+          onLogout={handleLogout}
+        >
+          <JobsListPage />
+        </AppLayout>
+      )
+    }
+
     let title = 'Dashboard'
     let subtitle = 'Theo dõi nhanh thông tin tổng quan của bạn trên JobBridge AI.'
 
-    if (currentPage === 'appJobs') {
-      title = 'Danh sách việc làm phù hợp'
-      subtitle = 'Khám phá cơ hội việc làm được cá nhân hóa theo hồ sơ của bạn.'
-    } else if (currentPage === 'appApplications') {
+    if (currentPage === 'appApplications') {
       title = 'Đơn ứng tuyển của tôi'
       subtitle = 'Theo dõi trạng thái từng đơn ứng tuyển theo thời gian thực.'
     } else if (currentPage === 'appRecruitment') {
@@ -228,6 +240,13 @@ function App() {
   return (
     <>
       {currentPage === 'landing' && <LandingPage onNavigate={navigate} currentUser={currentUser} onLogout={handleLogout} />}
+      {currentPage === 'jobsList' && (
+        <div className="min-h-screen bg-slate-50 p-4 sm:p-8">
+          <div className="max-w-5xl mx-auto">
+            <JobsListPage />
+          </div>
+        </div>
+      )}
       {currentPage === 'login' && <LoginPage onNavigate={navigate} onAuthSuccess={handleAuthSuccess} />}
       {currentPage === 'register' && <RegisterPage onNavigate={navigate} onAuthSuccess={handleAuthSuccess} />}
       {currentPage === 'roleSelect' && <RoleSelectPage onNavigate={navigate} onSelectRole={handleSelectRole} />}

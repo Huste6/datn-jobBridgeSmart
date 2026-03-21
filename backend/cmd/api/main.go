@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
-	"jobbridge-ai/backend/internal/auth"
 	"jobbridge-ai/backend/internal/config"
 	"jobbridge-ai/backend/internal/db"
 	"jobbridge-ai/backend/internal/server"
@@ -31,8 +30,8 @@ func main() {
 		_ = mongoClient.Disconnect(context.Background())
 	}()
 
-	userRepo := auth.NewUserRepository(mongoClient.Database(cfg.MongoDB))
-	r := server.NewRouter(cfg, userRepo)
+	database := mongoClient.Database(cfg.MongoDB)
+	r := server.NewRouter(cfg, database)
 	addr := ":" + cfg.Port
 
 	log.Printf("API server is running on %s", addr)
