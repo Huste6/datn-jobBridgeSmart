@@ -2,6 +2,33 @@
 
 ## Requirements
 - Go 1.24+
+- Docker or Podman (for local MongoDB)
+
+## Run local database with Podman Compose (MongoDB)
+From project root (`datn-jobBridge`):
+
+```bash
+podman compose up -d mongodb
+```
+
+Stop database:
+
+```bash
+podman compose down
+```
+
+If you prefer Docker:
+
+```bash
+docker compose up -d mongodb
+docker compose down
+```
+
+Default local connection:
+- Host: `localhost`
+- Port: `27018`
+- Database: `jobbridge`
+- URI: `mongodb://127.0.0.1:27018/jobbridge`
 
 ## Run locally
 ```bash
@@ -17,6 +44,8 @@ curl http://localhost:8080/health
 ## Environment variables
 - `PORT` (default: `8080`)
 - `GIN_MODE` (default: `debug`)
+- `MONGODB_URI` (default/example in `.env.example`)
+- `MONGODB_DB` (default/example in `.env.example`)
 
 ## Run with Tilt (auto-reload)
 Project root contains a `Tiltfile` configured for local orchestration.
