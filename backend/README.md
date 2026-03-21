@@ -46,6 +46,17 @@ curl http://localhost:8080/health
 - `GIN_MODE` (default: `debug`)
 - `MONGODB_URI` (default/example in `.env.example`)
 - `MONGODB_DB` (default/example in `.env.example`)
+- `JWT_SECRET` (default/example in `.env.example`)
+- `JWT_ISSUER` (default/example in `.env.example`)
+- `ACCESS_TOKEN_TTL_MINUTES` (default/example in `.env.example`)
+
+## Auth API (User)
+- `POST /api/auth/register`
+	- Request body: `{"email":"user@example.com","password":"secret123","full_name":"Nguyen Van A"}`
+- `POST /api/auth/login`
+	- Request body: `{"email":"user@example.com","password":"secret123"}`
+- `GET /api/users/me`
+	- Header: `Authorization: Bearer <access_token>`
 
 ## Run with Tilt (auto-reload)
 Project root contains a `Tiltfile` configured for local orchestration.
