@@ -1,11 +1,17 @@
 ﻿import { useCallback, useEffect, useRef, useState } from "react"
-import { Briefcase, MapPin, Wallet, Search, Filter } from "lucide-react"
+import { Briefcase, MapPin, Wallet, Search, Filter, ArrowLeft } from "lucide-react"
 import { fetchJobs, type Job } from "../../features/jobs/api/jobs"
+import type { AppPage } from "../../shared/routes/appRoutes"
 
-const JobsListPage = () => {
+type JobsListPageProps = {
+    onNavigate?: (page: AppPage) => void
+}
+
+const JobsListPage = ({ onNavigate }: JobsListPageProps) => {
     const [jobs, setJobs] = useState<Job[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const [selectedJob, setSelectedJob] = useState<Job | null>(null)
     const hasLoadedRef = useRef(false)
 
     const loadJobs = useCallback(async (force?: boolean) => {
@@ -35,6 +41,12 @@ const JobsListPage = () => {
             {/* Header / Hero Section */}
             <div className="bg-white border-b border-slate-200 pt-12 pb-24 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto">
+                    <button
+                        onClick={() => onNavigate?.("landing")}
+                        className="inline-flex items-center gap-2 mb-6 px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                    >
+                        <ArrowLeft className="w-4 h-4" /> Quay lại trang chủ
+                    </button>
                     <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
                         Khám phá việc làm
                     </h1>
@@ -164,7 +176,7 @@ const JobsListPage = () => {
                         ) : (
                             <div className="grid gap-5">
                                 {jobs.map((job) => (
-                                    <article key={job.id} className="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-lg hover:shadow-slate-200/50 hover:border-blue-300 transition-all duration-300 group cursor-pointer relative overflow-hidden">
+                                    <article key={job.id} onClick={() => setSelectedJob(job)} className="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-lg hover:shadow-slate-200/50 hover:border-blue-300 transition-all duration-300 group cursor-pointer relative overflow-hidden">
                                         <div className="absolute top-0 left-0 w-1 h-full bg-blue-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
                                         <div className="flex items-start justify-between gap-4">
@@ -192,7 +204,7 @@ const JobsListPage = () => {
                                                 <Wallet className="w-4 h-4 text-emerald-500" /> {job.salary}
                                             </span>
                                             <span className="inline-flex items-center gap-2 text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
-                                                <Briefcase className="w-4 h-4 text-slate-400" /> Toàn thời gian
+                                                <Briefcase className="w-4 h-4 text-slate-400" /> {job.employment_type || "Toàn thời gian"}
                                             </span>
                                         </div>
 
@@ -227,6 +239,70 @@ const JobsListPage = () => {
                     </div>
                 </div>
             </div>
+
+            {selectedJob && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/55 p-4" onClick={() => setSelectedJob(null)}>
+                    <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl" onClick={(event) => event.stopPropagation()}>
+                        <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-6 py-4 flex items-start justify-between gap-4">
+                            <div>
+                                <p className="text-sm text-blue-600 font-semibold mb-1">Chi tiết công việc</p>
+                                <h3 className="text-2xl font-bold text-slate-900">{selectedJob.title}</h3>
+                                <p className="text-slate-600">{selectedJob.company} • {selectedJob.location}</p>
+                            </div>
+                            <button onClick={() => setSelectedJob(null)} className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50">Đóng</button>
+                        </div>
+
+                        <div className="px-6 py-5 space-y-6">
+                            <div className="grid sm:grid-cols-3 gap-3 text-sm">
+                                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                                    <p className="text-slate-500">Mức lương</p>
+                                    <p className="font-semibold text-slate-900">{selectedJob.salary}</p>
+                                </div>
+                                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                                    <p className="text-slate-500">Hình thức</p>
+                                    <p className="font-semibold text-slate-900">{selectedJob.employment_type || "Toàn thời gian"}</p>
+                                </div>
+                                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                                    <p className="text-slate-500">Cấp độ</p>
+                                    <p className="font-semibold text-slate-900">{selectedJob.experience_level || "Không yêu cầu"}</p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 className="text-lg font-bold text-slate-900 mb-2">Mô tả công việc</h4>
+                                <p className="text-slate-700 leading-relaxed">{selectedJob.description || "Đang cập nhật mô tả công việc."}</p>
+                            </div>
+
+                            <div>
+                                <h4 className="text-lg font-bold text-slate-900 mb-2">Trách nhiệm chính</h4>
+                                <ul className="list-disc pl-5 text-slate-700 space-y-1">
+                                    {(selectedJob.responsibilities || []).map((item, index) => (
+                                        <li key={`responsibility-${index}`}>{item}</li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            <div>
+                                <h4 className="text-lg font-bold text-slate-900 mb-2">Yêu cầu ứng viên</h4>
+                                <ul className="list-disc pl-5 text-slate-700 space-y-1">
+                                    {(selectedJob.requirements || []).map((item, index) => (
+                                        <li key={`requirement-${index}`}>{item}</li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            <div>
+                                <h4 className="text-lg font-bold text-slate-900 mb-2">Quyền lợi</h4>
+                                <ul className="list-disc pl-5 text-slate-700 space-y-1">
+                                    {(selectedJob.benefits || []).map((item, index) => (
+                                        <li key={`benefit-${index}`}>{item}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     )
 }

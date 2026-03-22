@@ -4,6 +4,12 @@ export type Job = {
     company: string
     location: string
     salary: string
+    employment_type: string
+    experience_level: string
+    description: string
+    responsibilities: string[]
+    requirements: string[]
+    benefits: string[]
     tags: string[]
     posted_at: string
     created_at: string

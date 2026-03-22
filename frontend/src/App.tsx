@@ -201,7 +201,7 @@ function App() {
           onNavigate={navigate}
           onLogout={handleLogout}
         >
-          <JobsListPage />
+          <JobsListPage onNavigate={navigate} />
         </AppLayout>
       )
     }
@@ -243,7 +243,7 @@ function App() {
       {currentPage === 'jobsList' && (
         <div className="min-h-screen bg-slate-50 p-4 sm:p-8">
           <div className="max-w-5xl mx-auto">
-            <JobsListPage />
+            <JobsListPage onNavigate={navigate} />
           </div>
         </div>
       )}
