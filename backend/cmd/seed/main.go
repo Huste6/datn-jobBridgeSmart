@@ -46,7 +46,7 @@ func main() {
 			Salary:          "32 - 48 triệu",
 			EmploymentType:  "Toàn thời gian",
 			ExperienceLevel: "Senior",
-			Description: "Bạn sẽ tham gia xây dựng nền tảng tuyển dụng B2B có lượng người dùng lớn, chịu trách nhiệm thiết kế hệ thống giao diện phức tạp nhưng vẫn mượt trên các thiết bị phổ thông. Vai trò này yêu cầu khả năng chuyển hoá yêu cầu nghiệp vụ thành trải nghiệm trực quan, đồng nhất và dễ mở rộng khi sản phẩm liên tục bổ sung tính năng mới theo từng sprint.",
+			Description:     "Bạn sẽ tham gia xây dựng nền tảng tuyển dụng B2B có lượng người dùng lớn, chịu trách nhiệm thiết kế hệ thống giao diện phức tạp nhưng vẫn mượt trên các thiết bị phổ thông. Vai trò này yêu cầu khả năng chuyển hoá yêu cầu nghiệp vụ thành trải nghiệm trực quan, đồng nhất và dễ mở rộng khi sản phẩm liên tục bổ sung tính năng mới theo từng sprint.",
 			Responsibilities: []string{
 				"Thiết kế kiến trúc component theo domain, đảm bảo tái sử dụng cao và dễ kiểm thử tự động.",
 				"Làm việc cùng Product Designer để chuẩn hoá flow thao tác, trạng thái loading, empty, error và success.",
@@ -84,7 +84,7 @@ func main() {
 			Salary:          "28 - 42 triệu",
 			EmploymentType:  "Toàn thời gian",
 			ExperienceLevel: "Middle",
-			Description: "Bạn sẽ phát triển các service lõi cho hệ sinh thái tuyển dụng, xử lý hàng nghìn request mỗi phút và đảm bảo tính ổn định khi lưu lượng tăng đột biến trong các đợt chiến dịch tuyển dụng. Công việc tập trung vào thiết kế API hiệu quả, quản trị dữ liệu nhất quán và cải thiện độ tin cậy của hệ thống trong môi trường production.",
+			Description:     "Bạn sẽ phát triển các service lõi cho hệ sinh thái tuyển dụng, xử lý hàng nghìn request mỗi phút và đảm bảo tính ổn định khi lưu lượng tăng đột biến trong các đợt chiến dịch tuyển dụng. Công việc tập trung vào thiết kế API hiệu quả, quản trị dữ liệu nhất quán và cải thiện độ tin cậy của hệ thống trong môi trường production.",
 			Responsibilities: []string{
 				"Xây dựng API REST bằng Go theo chuẩn clean architecture và nguyên tắc tách lớp rõ ràng.",
 				"Thiết kế schema MongoDB phục vụ truy vấn nhanh, phù hợp với đặc thù dữ liệu việc làm thay đổi liên tục.",
@@ -122,7 +122,7 @@ func main() {
 			Salary:          "42 - 65 triệu",
 			EmploymentType:  "Toàn thời gian",
 			ExperienceLevel: "Senior",
-			Description: "Vị trí tập trung xây dựng hệ thống gợi ý công việc thông minh, phân tích CV tự động và hỗ trợ matching giữa nhà tuyển dụng với ứng viên theo nhiều tín hiệu dữ liệu. Bạn sẽ làm việc xuyên suốt từ khâu chuẩn hoá dữ liệu, huấn luyện mô hình, triển khai inference service đến theo dõi drift và cải thiện chất lượng dự đoán theo thời gian.",
+			Description:     "Vị trí tập trung xây dựng hệ thống gợi ý công việc thông minh, phân tích CV tự động và hỗ trợ matching giữa nhà tuyển dụng với ứng viên theo nhiều tín hiệu dữ liệu. Bạn sẽ làm việc xuyên suốt từ khâu chuẩn hoá dữ liệu, huấn luyện mô hình, triển khai inference service đến theo dõi drift và cải thiện chất lượng dự đoán theo thời gian.",
 			Responsibilities: []string{
 				"Thiết kế pipeline dữ liệu cho các tác vụ ranking, classification và recommendation trong bài toán tuyển dụng.",
 				"Huấn luyện, đánh giá và lựa chọn mô hình dựa trên metric gắn với mục tiêu nghiệp vụ thực tế.",
@@ -160,7 +160,7 @@ func main() {
 			Salary:          "36 - 55 triệu",
 			EmploymentType:  "Toàn thời gian",
 			ExperienceLevel: "Senior",
-			Description: "Bạn sẽ chịu trách nhiệm thiết kế và vận hành nền tảng hạ tầng giúp các nhóm sản phẩm release nhanh nhưng vẫn an toàn, ổn định. Vai trò yêu cầu kinh nghiệm sâu về CI/CD, container orchestration, bảo mật cơ bản và năng lực xử lý sự cố theo hướng phòng ngừa, không chỉ chữa cháy tức thời.",
+			Description:     "Bạn sẽ chịu trách nhiệm thiết kế và vận hành nền tảng hạ tầng giúp các nhóm sản phẩm release nhanh nhưng vẫn an toàn, ổn định. Vai trò yêu cầu kinh nghiệm sâu về CI/CD, container orchestration, bảo mật cơ bản và năng lực xử lý sự cố theo hướng phòng ngừa, không chỉ chữa cháy tức thời.",
 			Responsibilities: []string{
 				"Thiết kế và duy trì hạ tầng Kubernetes phục vụ nhiều môi trường dev, staging, production.",
 				"Xây dựng pipeline CI/CD tiêu chuẩn với cơ chế kiểm tra chất lượng trước khi triển khai.",
@@ -198,7 +198,7 @@ func main() {
 			Salary:          "45 - 60 triệu",
 			EmploymentType:  "Toàn thời gian",
 			ExperienceLevel: "Senior",
-			Description: "Bạn sẽ dẫn dắt roadmap sản phẩm tài chính số cho nhóm khách hàng SME, làm việc sát với engineering, data và business để cân bằng giữa tốc độ tăng trưởng và độ an toàn vận hành. Vị trí đòi hỏi khả năng ưu tiên dựa trên dữ liệu, giao tiếp liên phòng ban và quản trị rủi ro trong bối cảnh sản phẩm thay đổi nhanh.",
+			Description:     "Bạn sẽ dẫn dắt roadmap sản phẩm tài chính số cho nhóm khách hàng SME, làm việc sát với engineering, data và business để cân bằng giữa tốc độ tăng trưởng và độ an toàn vận hành. Vị trí đòi hỏi khả năng ưu tiên dựa trên dữ liệu, giao tiếp liên phòng ban và quản trị rủi ro trong bối cảnh sản phẩm thay đổi nhanh.",
 			Responsibilities: []string{
 				"Xây dựng tầm nhìn sản phẩm 6-12 tháng và chuyển hoá thành roadmap theo quý.",
 				"Định nghĩa KPI, hypothesis và tiêu chí thành công cho từng sáng kiến tính năng.",
@@ -236,7 +236,7 @@ func main() {
 			Salary:          "22 - 34 triệu",
 			EmploymentType:  "Remote",
 			ExperienceLevel: "Middle",
-			Description: "Vị trí phù hợp với kỹ sư yêu thích làm việc end-to-end, vừa xây API vừa triển khai màn hình quản trị cho hệ sinh thái giáo dục trực tuyến. Bạn sẽ tham gia vào team nhỏ có tốc độ cao, nơi mỗi thành viên có quyền chủ động đề xuất giải pháp kỹ thuật và chịu trách nhiệm toàn diện cho tính năng từ đầu tới cuối.",
+			Description:     "Vị trí phù hợp với kỹ sư yêu thích làm việc end-to-end, vừa xây API vừa triển khai màn hình quản trị cho hệ sinh thái giáo dục trực tuyến. Bạn sẽ tham gia vào team nhỏ có tốc độ cao, nơi mỗi thành viên có quyền chủ động đề xuất giải pháp kỹ thuật và chịu trách nhiệm toàn diện cho tính năng từ đầu tới cuối.",
 			Responsibilities: []string{
 				"Phát triển API backend bằng Node.js cho các module khóa học, thanh toán và quản lý người dùng.",
 				"Xây dựng giao diện quản trị bằng Vue, tối ưu trải nghiệm cho người vận hành nội bộ.",
@@ -274,7 +274,7 @@ func main() {
 			Salary:          "30 - 44 triệu",
 			EmploymentType:  "Toàn thời gian",
 			ExperienceLevel: "Senior",
-			Description: "Bạn sẽ xây dựng chiến lược kiểm thử tự động toàn diện cho các luồng tuyển dụng quan trọng, giúp giảm lỗi lọt production và rút ngắn thời gian phát hành. Vai trò này đòi hỏi tư duy hệ thống, khả năng làm việc liên phòng ban và năng lực thiết lập chuẩn chất lượng có thể nhân rộng trong toàn tổ chức.",
+			Description:     "Bạn sẽ xây dựng chiến lược kiểm thử tự động toàn diện cho các luồng tuyển dụng quan trọng, giúp giảm lỗi lọt production và rút ngắn thời gian phát hành. Vai trò này đòi hỏi tư duy hệ thống, khả năng làm việc liên phòng ban và năng lực thiết lập chuẩn chất lượng có thể nhân rộng trong toàn tổ chức.",
 			Responsibilities: []string{
 				"Thiết kế test strategy đa tầng gồm API test, UI test và smoke test cho môi trường staging.",
 				"Xây dựng framework automation dễ mở rộng, tích hợp trực tiếp vào pipeline CI/CD.",
@@ -312,7 +312,7 @@ func main() {
 			Salary:          "20 - 32 triệu",
 			EmploymentType:  "Toàn thời gian",
 			ExperienceLevel: "Junior-Middle",
-			Description: "Bạn sẽ khai thác dữ liệu hành vi người dùng để tạo dashboard vận hành và hỗ trợ đội sản phẩm ra quyết định dựa trên số liệu. Vai trò phù hợp với ứng viên có tư duy logic, cẩn trọng trong kiểm tra dữ liệu và mong muốn tác động trực tiếp đến các quyết định tối ưu chuyển đổi trên nền tảng tuyển dụng.",
+			Description:     "Bạn sẽ khai thác dữ liệu hành vi người dùng để tạo dashboard vận hành và hỗ trợ đội sản phẩm ra quyết định dựa trên số liệu. Vai trò phù hợp với ứng viên có tư duy logic, cẩn trọng trong kiểm tra dữ liệu và mong muốn tác động trực tiếp đến các quyết định tối ưu chuyển đổi trên nền tảng tuyển dụng.",
 			Responsibilities: []string{
 				"Xây dựng báo cáo định kỳ về funnel ứng tuyển, retention nhà tuyển dụng và hiệu suất nguồn traffic.",
 				"Viết truy vấn SQL phục vụ phân tích ad-hoc cho Product, Marketing và Sales.",
@@ -350,7 +350,7 @@ func main() {
 			Salary:          "22 - 35 triệu",
 			EmploymentType:  "Toàn thời gian",
 			ExperienceLevel: "Middle",
-			Description: "Bạn sẽ chịu trách nhiệm thiết kế trải nghiệm ứng tuyển và quản trị tin tuyển dụng cho cả ứng viên lẫn nhà tuyển dụng, với trọng tâm là đơn giản hoá thao tác và cải thiện tỷ lệ hoàn thành hành động chính. Vai trò cần khả năng phối hợp chặt với Product và Frontend để biến insight người dùng thành giao diện có tính khả dụng cao.",
+			Description:     "Bạn sẽ chịu trách nhiệm thiết kế trải nghiệm ứng tuyển và quản trị tin tuyển dụng cho cả ứng viên lẫn nhà tuyển dụng, với trọng tâm là đơn giản hoá thao tác và cải thiện tỷ lệ hoàn thành hành động chính. Vai trò cần khả năng phối hợp chặt với Product và Frontend để biến insight người dùng thành giao diện có tính khả dụng cao.",
 			Responsibilities: []string{
 				"Thực hiện nghiên cứu người dùng định tính và định lượng cho các luồng quan trọng của sản phẩm.",
 				"Thiết kế wireframe, prototype và luồng tương tác rõ ràng cho web responsive.",
@@ -388,7 +388,7 @@ func main() {
 			Salary:          "35 - 52 triệu",
 			EmploymentType:  "Toàn thời gian",
 			ExperienceLevel: "Senior",
-			Description: "Bạn sẽ điều phối các dự án chuyển đổi kỹ thuật quan trọng, kết nối giữa business và engineering để đảm bảo tiến độ, chất lượng và kiểm soát rủi ro xuyên suốt vòng đời dự án. Vai trò yêu cầu kỹ năng quản trị phụ thuộc tốt, giao tiếp đa chiều và năng lực ra quyết định trong bối cảnh nhiều ưu tiên cạnh tranh.",
+			Description:     "Bạn sẽ điều phối các dự án chuyển đổi kỹ thuật quan trọng, kết nối giữa business và engineering để đảm bảo tiến độ, chất lượng và kiểm soát rủi ro xuyên suốt vòng đời dự án. Vai trò yêu cầu kỹ năng quản trị phụ thuộc tốt, giao tiếp đa chiều và năng lực ra quyết định trong bối cảnh nhiều ưu tiên cạnh tranh.",
 			Responsibilities: []string{
 				"Lập kế hoạch dự án chi tiết theo milestone, phụ thuộc và nguồn lực thực tế của từng team.",
 				"Điều phối triển khai giữa Product, Engineering, QA và vận hành để đảm bảo thống nhất mục tiêu.",
@@ -426,7 +426,7 @@ func main() {
 			Salary:          "24 - 38 triệu",
 			EmploymentType:  "Toàn thời gian",
 			ExperienceLevel: "Middle",
-			Description: "Bạn sẽ tham gia xây dựng ứng dụng mobile cho ứng viên và nhà tuyển dụng với mục tiêu tạo trải nghiệm tìm việc nhanh, mượt và cá nhân hoá. Vai trò cần sự cân bằng giữa chất lượng kỹ thuật, tối ưu hiệu năng trên nhiều thiết bị và khả năng phối hợp với backend để tích hợp tính năng mới theo chu kỳ phát hành ngắn.",
+			Description:     "Bạn sẽ tham gia xây dựng ứng dụng mobile cho ứng viên và nhà tuyển dụng với mục tiêu tạo trải nghiệm tìm việc nhanh, mượt và cá nhân hoá. Vai trò cần sự cân bằng giữa chất lượng kỹ thuật, tối ưu hiệu năng trên nhiều thiết bị và khả năng phối hợp với backend để tích hợp tính năng mới theo chu kỳ phát hành ngắn.",
 			Responsibilities: []string{
 				"Phát triển ứng dụng Flutter theo kiến trúc rõ ràng, dễ mở rộng và thuận tiện cho kiểm thử.",
 				"Tối ưu hiệu năng màn hình danh sách lớn, đảm bảo phản hồi tốt trên thiết bị tầm trung.",
@@ -464,7 +464,7 @@ func main() {
 			Salary:          "15 - 24 triệu",
 			EmploymentType:  "Toàn thời gian",
 			ExperienceLevel: "Junior-Middle",
-			Description: "Bạn sẽ đồng hành cùng khách hàng doanh nghiệp trong toàn bộ vòng đời sử dụng nền tảng, từ onboarding, kích hoạt tính năng đến tối ưu hiệu quả tuyển dụng. Vai trò cần kỹ năng giao tiếp tốt, xử lý tình huống linh hoạt và khả năng chuyển phản hồi khách hàng thành insight cụ thể cho team sản phẩm.",
+			Description:     "Bạn sẽ đồng hành cùng khách hàng doanh nghiệp trong toàn bộ vòng đời sử dụng nền tảng, từ onboarding, kích hoạt tính năng đến tối ưu hiệu quả tuyển dụng. Vai trò cần kỹ năng giao tiếp tốt, xử lý tình huống linh hoạt và khả năng chuyển phản hồi khách hàng thành insight cụ thể cho team sản phẩm.",
 			Responsibilities: []string{
 				"Hướng dẫn khách hàng doanh nghiệp triển khai và sử dụng sản phẩm đúng best practice.",
 				"Theo dõi chỉ số sử dụng, chủ động đề xuất giải pháp cải thiện mức độ gắn kết.",
