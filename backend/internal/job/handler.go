@@ -2,6 +2,7 @@ package job
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,7 +16,16 @@ func NewHandler(repo Repository) *Handler {
 }
 
 func (h *Handler) GetJobs(c *gin.Context) {
-	jobs, err := h.repo.FindAll(c.Request.Context())
+	query := JobQuery{
+		Keyword:          strings.TrimSpace(c.Query("q")),
+		Location:         strings.TrimSpace(c.Query("location")),
+		SalaryBand:       strings.TrimSpace(c.Query("salary_band")),
+		EmploymentTypes:  c.QueryArray("employment_type"),
+		ExperienceLevels: c.QueryArray("experience_level"),
+		Sort:             strings.TrimSpace(c.Query("sort")),
+	}
+
+	jobs, err := h.repo.FindByQuery(c.Request.Context(), query)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch jobs"})
 		return

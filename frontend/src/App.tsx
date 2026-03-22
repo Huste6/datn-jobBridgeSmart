@@ -7,15 +7,13 @@ import ForbiddenPage from './pages/errors/ForbiddenPage'
 import NotFoundPage from './pages/errors/NotFoundPage'
 import RoleSelectPage from './pages/onboarding/RoleSelectPage'
 import BasicProfilePage from './pages/onboarding/BasicProfilePage'
-import AppLayout from './layouts/AppLayout'
-import AppHomeContent from './pages/app/AppHomeContent'
 import JobsListPage from './pages/app/JobsListPage'
 import ProfilePage from './pages/app/ProfilePage'
+import CandidateApplicationsPage from './pages/app/CandidateApplicationsPage'
 import { clearStoredAccessToken, completeOnboarding, fetchMe, getStoredAccessToken } from './features/auth/api/auth'
 import type { AuthUser } from './features/auth/api/auth'
 import {
   defaultAppPageForRole,
-  isAppPage,
   isProtectedPage,
   pageFromPath,
   pathFromPage,
@@ -115,11 +113,6 @@ function App() {
       return
     }
 
-    if (isAppPage(currentPage) && role) {
-      if (role !== 'recruiter') {
-        navigate('forbidden', { replace: true })
-      }
-    }
   }, [currentPage, currentUser, isBootstrapping, selectedRole, navigate])
 
   const handleAuthSuccess = (user: AuthUser) => {
@@ -182,57 +175,6 @@ function App() {
     navigate('landing')
   }
 
-  const renderAppContent = () => {
-    const role = selectedRole ?? (currentUser ? toUserRole(currentUser.role) : null)
-    if (!currentUser || !role) {
-      return null
-    }
-
-    if (role !== 'recruiter') {
-      return null
-    }
-
-    if (currentPage === 'appJobs') {
-      return (
-        <AppLayout
-          currentUser={currentUser}
-          role={role}
-          currentPage={currentPage}
-          onNavigate={navigate}
-          onLogout={handleLogout}
-        >
-          <JobsListPage onNavigate={navigate} />
-        </AppLayout>
-      )
-    }
-
-    let title = 'Dashboard'
-    let subtitle = 'Theo dõi nhanh thông tin tổng quan của bạn trên JobBridge AI.'
-
-    if (currentPage === 'appApplications') {
-      title = 'Đơn ứng tuyển của tôi'
-      subtitle = 'Theo dõi trạng thái từng đơn ứng tuyển theo thời gian thực.'
-    } else if (currentPage === 'appRecruitment') {
-      title = 'Tin tuyển dụng'
-      subtitle = 'Quản lý bài đăng tuyển dụng và hiệu quả tiếp cận ứng viên.'
-    } else if (currentPage === 'appCandidates') {
-      title = 'Kho ứng viên'
-      subtitle = 'Xem và lọc danh sách ứng viên tiềm năng cho doanh nghiệp.'
-    }
-
-    return (
-      <AppLayout
-        currentUser={currentUser}
-        role={role}
-        currentPage={currentPage}
-        onNavigate={navigate}
-        onLogout={handleLogout}
-      >
-        <AppHomeContent title={title} subtitle={subtitle} />
-      </AppLayout>
-    )
-  }
-
   if (isBootstrapping) {
     return <div className="min-h-screen grid place-items-center text-slate-600">Loading...</div>
   }
@@ -241,9 +183,17 @@ function App() {
     <>
       {currentPage === 'landing' && <LandingPage onNavigate={navigate} currentUser={currentUser} onLogout={handleLogout} />}
       {currentPage === 'jobsList' && (
+        <JobsListPage
+          onNavigate={navigate}
+          currentUser={currentUser}
+          role={selectedRole ?? (currentUser ? toUserRole(currentUser.role) : null)}
+          onLogout={handleLogout}
+        />
+      )}
+      {currentPage === 'applications' && currentUser && (
         <div className="min-h-screen bg-slate-50 p-4 sm:p-8">
-          <div className="max-w-5xl mx-auto">
-            <JobsListPage onNavigate={navigate} />
+          <div className="max-w-6xl mx-auto">
+            <CandidateApplicationsPage onNavigate={navigate} />
           </div>
         </div>
       )}
@@ -265,7 +215,6 @@ function App() {
           </div>
         </div>
       )}
-      {isAppPage(currentPage) && renderAppContent()}
       {currentPage === 'unauthorized' && <UnauthorizedPage onNavigate={navigate} />}
       {currentPage === 'forbidden' && <ForbiddenPage onNavigate={navigate} />}
       {currentPage === 'notfound' && <NotFoundPage onNavigate={navigate} />}

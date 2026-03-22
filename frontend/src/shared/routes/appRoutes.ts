@@ -3,6 +3,7 @@ export type UserRole = 'seeker' | 'recruiter'
 export type AppPage =
     | 'landing'
     | 'jobsList'
+    | 'applications'
     | 'login'
     | 'register'
     | 'unauthorized'
@@ -11,11 +12,6 @@ export type AppPage =
     | 'roleSelect'
     | 'basicProfile'
     | 'appProfile'
-    | 'appHome'
-    | 'appJobs'
-    | 'appApplications'
-    | 'appRecruitment'
-    | 'appCandidates'
 
 export function pathFromPage(page: AppPage): string {
     switch (page) {
@@ -23,6 +19,8 @@ export function pathFromPage(page: AppPage): string {
             return '/'
         case 'jobsList':
             return '/jobs'
+        case 'applications':
+            return '/applications'
         case 'login':
             return '/login'
         case 'register':
@@ -39,16 +37,6 @@ export function pathFromPage(page: AppPage): string {
             return '/onboarding/profile'
         case 'appProfile':
             return '/profile'
-        case 'appHome':
-            return '/app'
-        case 'appJobs':
-            return '/app/jobs'
-        case 'appApplications':
-            return '/app/applications'
-        case 'appRecruitment':
-            return '/app/recruitment'
-        case 'appCandidates':
-            return '/app/candidates'
         default:
             return '/404'
     }
@@ -60,6 +48,8 @@ export function pageFromPath(pathname: string): AppPage {
             return 'landing'
         case '/jobs':
             return 'jobsList'
+        case '/applications':
+            return 'applications'
         case '/login':
             return 'login'
         case '/register':
@@ -76,16 +66,6 @@ export function pageFromPath(pathname: string): AppPage {
             return 'basicProfile'
         case '/profile':
             return 'appProfile'
-        case '/app':
-            return 'appHome'
-        case '/app/jobs':
-            return 'appJobs'
-        case '/app/applications':
-            return 'appApplications'
-        case '/app/recruitment':
-            return 'appRecruitment'
-        case '/app/candidates':
-            return 'appCandidates'
         default:
             return 'notfound'
     }
@@ -95,21 +75,13 @@ export function isProtectedPage(page: AppPage): boolean {
     return page === 'roleSelect'
         || page === 'basicProfile'
         || page === 'appProfile'
-        || page === 'appHome'
-        || page === 'appJobs'
-        || page === 'appApplications'
-        || page === 'appRecruitment'
-        || page === 'appCandidates'
+        || page === 'applications'
 }
 
-export function isAppPage(page: AppPage): boolean {
-    return page === 'appHome'
-        || page === 'appJobs'
-        || page === 'appApplications'
-        || page === 'appRecruitment'
-        || page === 'appCandidates'
+export function isAppPage(): boolean {
+    return false
 }
 
 export function defaultAppPageForRole(role: UserRole): AppPage {
-    return role === 'recruiter' ? 'appRecruitment' : 'landing'
+    return role === 'recruiter' ? 'landing' : 'landing'
 }

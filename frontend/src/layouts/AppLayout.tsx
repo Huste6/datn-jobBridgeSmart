@@ -49,15 +49,15 @@ const AppLayout = ({ currentUser, role, currentPage, onNavigate, onLogout, child
         .join('')
 
     const seekerMenu: MenuItem[] = [
-        { page: 'appHome', label: 'Tổng quan', icon: <Home className="w-4 h-4" /> },
-        { page: 'appJobs', label: 'Việc làm', icon: <Search className="w-4 h-4" /> },
-        { page: 'appApplications', label: 'Đơn ứng tuyển', icon: <FileText className="w-4 h-4" /> },
+        { page: 'landing', label: 'Trang chủ', icon: <Home className="w-4 h-4" /> },
+        { page: 'jobsList', label: 'Việc làm', icon: <Search className="w-4 h-4" /> },
+        { page: 'appProfile', label: 'Trang cá nhân', icon: <FileText className="w-4 h-4" /> },
     ]
 
     const recruiterMenu: MenuItem[] = [
-        { page: 'appHome', label: 'Tổng quan', icon: <Home className="w-4 h-4" /> },
-        { page: 'appRecruitment', label: 'Tin tuyển dụng', icon: <Briefcase className="w-4 h-4" /> },
-        { page: 'appCandidates', label: 'Ứng viên', icon: <Users className="w-4 h-4" /> },
+        { page: 'landing', label: 'Trang chủ', icon: <Home className="w-4 h-4" /> },
+        { page: 'jobsList', label: 'Việc làm', icon: <Briefcase className="w-4 h-4" /> },
+        { page: 'appProfile', label: 'Trang cá nhân', icon: <Users className="w-4 h-4" /> },
     ]
 
     const menu = role === 'recruiter' ? recruiterMenu : seekerMenu

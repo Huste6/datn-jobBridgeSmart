@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Search, Briefcase, Bot, LineChart, CheckCircle, ArrowRight, UserCircle2, LogOut, ChevronDown } from 'lucide-react';
+import { Search, Briefcase, Bot, LineChart, CheckCircle, ArrowRight, UserCircle2, LogOut, ChevronDown, FileText } from 'lucide-react';
 import type { AuthUser } from '../../features/auth/api/auth';
 import type { AppPage } from '../../shared/routes/appRoutes';
 
@@ -91,6 +91,15 @@ const LandingPage = ({
                                                 className="w-full mt-1 px-3 py-2 rounded-lg text-left text-sm text-slate-700 hover:bg-slate-50 inline-flex items-center gap-2"
                                             >
                                                 <UserCircle2 className="w-4 h-4" /> Trang cá nhân
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setIsProfileMenuOpen(false);
+                                                    onNavigate?.('applications');
+                                                }}
+                                                className="w-full px-3 py-2 rounded-lg text-left text-sm text-slate-700 hover:bg-slate-50 inline-flex items-center gap-2"
+                                            >
+                                                <FileText className="w-4 h-4" /> CV đã ứng tuyển
                                             </button>
                                             <button
                                                 onClick={() => {
