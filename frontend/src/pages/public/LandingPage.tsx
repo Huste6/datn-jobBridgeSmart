@@ -66,9 +66,9 @@ const LandingPage = ({
                                         onClick={() => setIsProfileMenuOpen((prev) => !prev)}
                                         className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-2 py-1.5 hover:bg-slate-50"
                                     >
-                                        <span className="w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-semibold grid place-items-center">
+                                        <span className="w-8 h-8 shrink-0 overflow-hidden rounded-full bg-blue-600 text-white text-xs font-semibold grid place-items-center">
                                             {currentUser.avatar_url ? (
-                                                <img src={currentUser.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                                                <img src={currentUser.avatar_url} alt="Avatar" className="block w-full h-full rounded-full object-cover object-center" />
                                             ) : (
                                                 initials || 'U'
                                             )}

@@ -33,16 +33,25 @@ Default local connection:
 ## Run locally
 ```bash
 go mod tidy
-go run ./cmd/api
+go run ./cmd/auth
+go run ./cmd/jobs
+go run ./cmd/gateway
 ```
 
 Health check:
 ```bash
+curl http://localhost:8081/health
+curl http://localhost:8082/health
 curl http://localhost:8080/health
 ```
 
 ## Environment variables
-- `PORT` (default: `8080`)
+- `GATEWAY_PORT` (default: `8080`)
+- `AUTH_SERVICE_URL` (default: `http://localhost:8081`)
+- `JOBS_SERVICE_URL` (default: `http://localhost:8082`)
+- `AUTH_SERVICE_PORT` (default: `8081`)
+- `JOBS_SERVICE_PORT` (default: `8082`)
+- `PORT` (used by legacy `cmd/api`, default: `8080`)
 - `GIN_MODE` (default: `debug`)
 - `MONGODB_URI` (default/example in `.env.example`)
 - `MONGODB_DB` (default/example in `.env.example`)
@@ -92,7 +101,9 @@ Project root contains a `Tiltfile` configured for local orchestration.
 	- http://localhost:10350
 
 Tilt resources:
-- `backend-api` (Gin API): http://localhost:8080/health
+- `backend-auth` (Auth/User API): http://localhost:8081/health
+- `backend-jobs` (Jobs API): http://localhost:8082/health
+- `backend-gateway` (API Gateway): http://localhost:8080/health
 - `frontend-web` (Vite React): http://localhost:5173
 
 When files in `backend/*` or `frontend/*` change, Tilt will rebuild/restart the corresponding resource automatically and show status/logs in Tilt UI.

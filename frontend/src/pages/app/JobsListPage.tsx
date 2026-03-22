@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react"
+﻿import { useCallback, useEffect, useRef, useState } from "react"
 import { Briefcase, MapPin, Wallet, Search, Filter } from "lucide-react"
 import { fetchJobs, type Job } from "../../features/jobs/api/jobs"
 
@@ -6,20 +6,29 @@ const JobsListPage = () => {
     const [jobs, setJobs] = useState<Job[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const hasLoadedRef = useRef(false)
+
+    const loadJobs = useCallback(async (force?: boolean) => {
+        setLoading(true)
+        setError(null)
+        try {
+            const data = await fetchJobs({ force })
+            setJobs(data)
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Failed to fetch jobs"
+            setError(message)
+        } finally {
+            setLoading(false)
+        }
+    }, [])
 
     useEffect(() => {
-        const loadJobs = async () => {
-            try {
-                const data = await fetchJobs()
-                setJobs(data)
-            } catch (err: any) {
-                setError(err.message)
-            } finally {
-                setLoading(false)
-            }
+        if (hasLoadedRef.current) {
+            return
         }
-        loadJobs()
-    }, [])
+        hasLoadedRef.current = true
+        void loadJobs()
+    }, [loadJobs])
 
     return (
         <section className="bg-slate-50 min-h-screen pb-12 w-full">
@@ -40,18 +49,18 @@ const JobsListPage = () => {
                 <div className="bg-white p-2 rounded-2xl shadow-lg border border-slate-100 mb-8 flex flex-col md:flex-row gap-2">
                     <div className="relative grow flex items-center bg-slate-50 rounded-xl px-4 py-3 md:py-0 border border-transparent focus-within:border-blue-200 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-50 transition-all">
                         <Search className="text-slate-400 w-5 h-5 shrink-0" />
-                        <input 
-                            type="text" 
-                            placeholder="Vị trí ứng tuyển, kỹ năng, công ty..." 
+                        <input
+                            type="text"
+                            placeholder="Vị trí ứng tuyển, kỹ năng, công ty..."
                             className="w-full bg-transparent border-none text-slate-900 placeholder:text-slate-500 focus:ring-0 px-3 outline-none"
                         />
                     </div>
                     <div className="hidden md:block w-px bg-slate-200 my-2 mx-2"></div>
                     <div className="relative md:w-80 flex items-center bg-slate-50 rounded-xl px-4 py-3 md:py-0 border border-transparent focus-within:border-blue-200 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-50 transition-all">
                         <MapPin className="text-slate-400 w-5 h-5 shrink-0" />
-                        <input 
-                            type="text" 
-                            placeholder="Tất cả địa điểm" 
+                        <input
+                            type="text"
+                            placeholder="Tất cả địa điểm"
                             className="w-full bg-transparent border-none text-slate-900 placeholder:text-slate-500 focus:ring-0 px-3 outline-none"
                         />
                     </div>
@@ -80,7 +89,7 @@ const JobsListPage = () => {
                                         {["Tất cả mức lương", "Dưới 10 triệu", "10 - 20 triệu", "20 - 40 triệu", "Trên 40 triệu"].map((opt, i) => (
                                             <label key={opt} className="flex items-center gap-3 cursor-pointer group">
                                                 <div className="relative flex items-center justify-center">
-                                                    <input type="radio" name="salary" defaultChecked={i===0} className="w-5 h-5 border-2 border-slate-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 transition-colors" />
+                                                    <input type="radio" name="salary" defaultChecked={i === 0} className="w-5 h-5 border-2 border-slate-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 transition-colors" />
                                                 </div>
                                                 <span className="text-slate-600 font-medium group-hover:text-slate-900 transition-colors">{opt}</span>
                                             </label>
@@ -121,7 +130,7 @@ const JobsListPage = () => {
 
                         {loading ? (
                             <div className="space-y-4">
-                                {[1,2,3,4].map(i => (
+                                {[1, 2, 3, 4].map(i => (
                                     <div key={i} className="animate-pulse bg-white rounded-2xl border border-slate-200 p-6">
                                         <div className="flex gap-4 mb-4">
                                             <div className="w-16 h-16 bg-slate-200 rounded-xl"></div>
@@ -139,7 +148,7 @@ const JobsListPage = () => {
                                 <span className="text-4xl mb-2">⚠️</span>
                                 <h3 className="font-bold text-lg mb-1">Đã có lỗi xảy ra</h3>
                                 <p>{error}</p>
-                                <button onClick={() => window.location.reload()} className="mt-4 px-4 py-2 bg-white text-red-600 font-medium rounded-lg shadow-sm border border-red-100 hover:bg-red-50">Thử lại</button>
+                                <button onClick={() => void loadJobs(true)} className="mt-4 px-4 py-2 bg-white text-red-600 font-medium rounded-lg shadow-sm border border-red-100 hover:bg-red-50">Thử lại</button>
                             </div>
                         ) : jobs.length === 0 ? (
                             <div className="text-center py-20 bg-white border border-slate-200 rounded-3xl shadow-sm">
@@ -157,7 +166,7 @@ const JobsListPage = () => {
                                 {jobs.map((job) => (
                                     <article key={job.id} className="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-lg hover:shadow-slate-200/50 hover:border-blue-300 transition-all duration-300 group cursor-pointer relative overflow-hidden">
                                         <div className="absolute top-0 left-0 w-1 h-full bg-blue-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                        
+
                                         <div className="flex items-start justify-between gap-4">
                                             <div className="flex gap-5 items-start">
                                                 <div className="w-16 h-16 bg-linear-to-br from-slate-50 to-slate-100 rounded-2xl flex items-center justify-center shrink-0 text-2xl font-bold text-slate-400 border border-slate-200 shadow-sm group-hover:from-blue-50 group-hover:to-blue-100 group-hover:text-blue-600 group-hover:border-blue-200 transition-all">

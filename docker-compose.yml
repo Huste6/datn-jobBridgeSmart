@@ -8,5 +8,64 @@ services:
     volumes:
       - mongodb_data:/data/db
 
+  auth-service:
+    image: golang:1.25
+    container_name: jobbridge-auth-service
+    working_dir: /app/backend
+    command: sh -c "go run ./cmd/auth"
+    environment:
+      - AUTH_SERVICE_PORT=8081
+      - GIN_MODE=debug
+      - MONGODB_URI=mongodb://mongodb:27017/jobbridge
+      - MONGODB_DB=jobbridge
+      - JWT_SECRET=change-me-in-production
+      - JWT_ISSUER=jobbridge-api
+      - ACCESS_TOKEN_TTL_MINUTES=60
+      - CLOUDINARY_URL=${CLOUDINARY_URL:-}
+      - CLOUDINARY_FOLDER=${CLOUDINARY_FOLDER:-jobbridge/user}
+    volumes:
+      - ./:/app
+    depends_on:
+      - mongodb
+    ports:
+      - "8081:8081"
+
+  jobs-service:
+    image: golang:1.25
+    container_name: jobbridge-jobs-service
+    working_dir: /app/backend
+    command: sh -c "go run ./cmd/jobs"
+    environment:
+      - JOBS_SERVICE_PORT=8082
+      - GIN_MODE=debug
+      - MONGODB_URI=mongodb://mongodb:27017/jobbridge
+      - MONGODB_DB=jobbridge
+      - JWT_SECRET=change-me-in-production
+      - JWT_ISSUER=jobbridge-api
+      - ACCESS_TOKEN_TTL_MINUTES=60
+    volumes:
+      - ./:/app
+    depends_on:
+      - mongodb
+    ports:
+      - "8082:8082"
+
+  gateway-service:
+    image: golang:1.25
+    container_name: jobbridge-gateway-service
+    working_dir: /app/backend
+    command: sh -c "go run ./cmd/gateway"
+    environment:
+      - GATEWAY_PORT=8080
+      - AUTH_SERVICE_URL=http://auth-service:8081
+      - JOBS_SERVICE_URL=http://jobs-service:8082
+    volumes:
+      - ./:/app
+    depends_on:
+      - auth-service
+      - jobs-service
+    ports:
+      - "8080:8080"
+
 volumes:
   mongodb_data:

@@ -21,13 +21,24 @@ type MeResponse = {
 }
 
 const TOKEN_STORAGE_KEY = 'jobbridge_access_token'
+let meCache: AuthUser | null = null
+let meCacheToken: string | null = null
+let inFlightMeRequest: Promise<AuthUser> | null = null
 
 function getApiBaseUrl(): string {
     return import.meta.env.VITE_API_BASE_URL ?? ''
 }
 
 function buildUrl(path: string): string {
-    return `${getApiBaseUrl()}${path}`
+    const base = getApiBaseUrl().replace(/\/+$/, '')
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`
+    return `${base}${normalizedPath}`
+}
+
+function clearMeCache(): void {
+    meCache = null
+    meCacheToken = null
+    inFlightMeRequest = null
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -53,10 +64,12 @@ export function getStoredAccessToken(): string | null {
 
 export function clearStoredAccessToken(): void {
     localStorage.removeItem(TOKEN_STORAGE_KEY)
+    clearMeCache()
 }
 
 function saveAccessToken(token: string): void {
     localStorage.setItem(TOKEN_STORAGE_KEY, token)
+    clearMeCache()
 }
 
 export async function registerUser(payload: {
@@ -70,6 +83,8 @@ export async function registerUser(payload: {
     })
 
     saveAccessToken(data.access_token)
+    meCache = data.user
+    meCacheToken = data.access_token
     return data.user
 }
 
@@ -83,22 +98,42 @@ export async function loginUser(payload: {
     })
 
     saveAccessToken(data.access_token)
+    meCache = data.user
+    meCacheToken = data.access_token
     return data.user
 }
 
-export async function fetchMe(): Promise<AuthUser> {
+export async function fetchMe(options?: { force?: boolean }): Promise<AuthUser> {
     const token = getStoredAccessToken()
     if (!token) {
         throw new Error('Missing access token')
     }
 
-    const data = await request<MeResponse>('/api/users/me', {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    })
+    if (!options?.force && meCache && meCacheToken === token) {
+        return meCache
+    }
 
-    return data.user
+    if (!options?.force && inFlightMeRequest) {
+        return inFlightMeRequest
+    }
+
+    inFlightMeRequest = (async () => {
+        const data = await request<MeResponse>('/api/users/me', {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        })
+
+        meCache = data.user
+        meCacheToken = token
+        return data.user
+    })()
+
+    try {
+        return await inFlightMeRequest
+    } finally {
+        inFlightMeRequest = null
+    }
 }
 
 export async function completeOnboarding(payload: {
@@ -121,6 +156,8 @@ export async function completeOnboarding(payload: {
         body: JSON.stringify(payload),
     })
 
+    meCache = data.user
+    meCacheToken = token
     return data.user
 }
 
@@ -144,6 +181,8 @@ export async function updateMe(payload: {
         body: JSON.stringify(payload),
     })
 
+    meCache = data.user
+    meCacheToken = token
     return data.user
 }
 
@@ -169,5 +208,7 @@ export async function uploadAvatar(file: File): Promise<AuthUser> {
         throw new Error(body.error ?? 'Upload avatar failed')
     }
 
+    meCache = body.user
+    meCacheToken = token
     return body.user
 }
