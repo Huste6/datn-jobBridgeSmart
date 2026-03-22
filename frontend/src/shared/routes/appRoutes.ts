@@ -2,6 +2,13 @@ export type UserRole = 'seeker' | 'recruiter'
 
 export type AppPage =
     | 'landing'
+    | 'hrLanding'
+    | 'hrCompanyCreate'
+    | 'hrCompanyProfile'
+    | 'hrCompanyJobs'
+    | 'hrJobManagement'
+    | 'hrJobCandidates'
+    | 'hrCandidateReview'
     | 'jobsList'
     | 'applications'
     | 'login'
@@ -17,6 +24,20 @@ export function pathFromPage(page: AppPage): string {
     switch (page) {
         case 'landing':
             return '/'
+        case 'hrLanding':
+            return '/hr/company/create'
+        case 'hrCompanyCreate':
+            return '/hr/company/create'
+        case 'hrCompanyProfile':
+            return '/hr/company/profile'
+        case 'hrCompanyJobs':
+            return '/hr/jobs'
+        case 'hrJobManagement':
+            return '/hr/jobs/manage'
+        case 'hrJobCandidates':
+            return '/hr/jobs/candidates'
+        case 'hrCandidateReview':
+            return '/hr/candidates/review'
         case 'jobsList':
             return '/jobs'
         case 'applications':
@@ -46,6 +67,20 @@ export function pageFromPath(pathname: string): AppPage {
     switch (pathname) {
         case '/':
             return 'landing'
+        case '/hr':
+            return 'hrCompanyCreate'
+        case '/hr/company/create':
+            return 'hrCompanyCreate'
+        case '/hr/company/profile':
+            return 'hrCompanyProfile'
+        case '/hr/jobs':
+            return 'hrCompanyJobs'
+        case '/hr/jobs/manage':
+            return 'hrJobManagement'
+        case '/hr/jobs/candidates':
+            return 'hrJobCandidates'
+        case '/hr/candidates/review':
+            return 'hrCandidateReview'
         case '/jobs':
             return 'jobsList'
         case '/applications':
@@ -72,7 +107,14 @@ export function pageFromPath(pathname: string): AppPage {
 }
 
 export function isProtectedPage(page: AppPage): boolean {
-    return page === 'roleSelect'
+    return page === 'hrLanding'
+        || page === 'hrCompanyCreate'
+        || page === 'hrCompanyProfile'
+        || page === 'hrCompanyJobs'
+        || page === 'hrJobManagement'
+        || page === 'hrJobCandidates'
+        || page === 'hrCandidateReview'
+        || page === 'roleSelect'
         || page === 'basicProfile'
         || page === 'appProfile'
         || page === 'applications'
@@ -83,5 +125,5 @@ export function isAppPage(): boolean {
 }
 
 export function defaultAppPageForRole(role: UserRole): AppPage {
-    return role === 'recruiter' ? 'landing' : 'landing'
+    return role === 'recruiter' ? 'hrCompanyCreate' : 'landing'
 }

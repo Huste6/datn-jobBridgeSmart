@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import LandingPage from './pages/public/LandingPage'
+import HrCompanyCreatePage from './pages/hr/HrCompanyCreatePage'
+import HrCompanyProfilePage from './pages/hr/HrCompanyProfilePage'
+import HrCompanyJobsPage from './pages/hr/HrCompanyJobsPage'
+import HrJobManagementPage from './pages/hr/HrJobManagementPage'
+import HrJobCandidatesPage from './pages/hr/HrJobCandidatesPage'
+import HrCandidateReviewPage from './pages/hr/HrCandidateReviewPage'
 import LoginPage from './pages/public/LoginPage'
 import RegisterPage from './pages/public/RegisterPage'
 import UnauthorizedPage from './pages/errors/UnauthorizedPage'
@@ -97,6 +103,18 @@ function App() {
 
     const role = selectedRole ?? toUserRole(currentUser.role)
     const profileCompleted = currentUser.profile_completed
+    const isHrPage = currentPage === 'hrLanding'
+      || currentPage === 'hrCompanyCreate'
+      || currentPage === 'hrCompanyProfile'
+      || currentPage === 'hrCompanyJobs'
+      || currentPage === 'hrJobManagement'
+      || currentPage === 'hrJobCandidates'
+      || currentPage === 'hrCandidateReview'
+
+    if (isHrPage && role === 'seeker') {
+      navigate('forbidden', { replace: true })
+      return
+    }
 
     if (!role && currentPage !== 'roleSelect') {
       navigate('roleSelect', { replace: true })
@@ -182,6 +200,12 @@ function App() {
   return (
     <>
       {currentPage === 'landing' && <LandingPage onNavigate={navigate} currentUser={currentUser} onLogout={handleLogout} />}
+      {currentPage === 'hrCompanyCreate' && currentUser && <HrCompanyCreatePage onNavigate={navigate} currentUser={currentUser} onLogout={handleLogout} />}
+      {currentPage === 'hrCompanyProfile' && currentUser && <HrCompanyProfilePage onNavigate={navigate} currentUser={currentUser} onLogout={handleLogout} />}
+      {currentPage === 'hrCompanyJobs' && currentUser && <HrCompanyJobsPage onNavigate={navigate} currentUser={currentUser} onLogout={handleLogout} />}
+      {currentPage === 'hrJobManagement' && currentUser && <HrJobManagementPage onNavigate={navigate} currentUser={currentUser} onLogout={handleLogout} />}
+      {currentPage === 'hrJobCandidates' && currentUser && <HrJobCandidatesPage onNavigate={navigate} currentUser={currentUser} onLogout={handleLogout} />}
+      {currentPage === 'hrCandidateReview' && currentUser && <HrCandidateReviewPage onNavigate={navigate} currentUser={currentUser} onLogout={handleLogout} />}
       {currentPage === 'jobsList' && (
         <JobsListPage
           onNavigate={navigate}

@@ -125,7 +125,7 @@ const LandingPage = ({
                                         onClick={() => onNavigate?.('register')}
                                         className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition-colors shadow-sm"
                                     >
-                                        Nhà tuyển dụng
+                                        Đăng ký
                                     </button>
                                 </>
                             )}
@@ -311,7 +311,10 @@ const LandingPage = ({
                             <button className="bg-white text-blue-600 px-8 py-3 rounded-lg font-bold hover:bg-slate-50 transition-colors flex items-center gap-2">
                                 Tạo Hồ Sơ Miễn Phí <ArrowRight className="w-5 h-5" />
                             </button>
-                            <button className="border-2 border-white/30 text-white px-8 py-3 rounded-lg font-bold hover:bg-white/10 transition-colors">
+                            <button
+                                onClick={() => onNavigate?.('hrCompanyCreate')}
+                                className="border-2 border-white/30 text-white px-8 py-3 rounded-lg font-bold hover:bg-white/10 transition-colors"
+                            >
                                 Dành Cho Nhà Tuyển Dụng
                             </button>
                         </div>
