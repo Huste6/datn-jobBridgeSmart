@@ -54,6 +54,8 @@ func main() {
 	r.Any("/api/auth/*path", gin.WrapH(authProxy))
 	r.Any("/api/users", gin.WrapH(authProxy))
 	r.Any("/api/users/*path", gin.WrapH(authProxy))
+	r.Any("/api/hr", gin.WrapH(authProxy))
+	r.Any("/api/hr/*path", gin.WrapH(authProxy))
 	r.Any("/api/jobs", gin.WrapH(jobsProxy))
 	r.Any("/api/jobs/*path", gin.WrapH(jobsProxy))
 

@@ -19,10 +19,12 @@ func NewRouter(cfg config.Config, db *mongo.Database) *gin.Engine {
 	r.Use(gin.Logger(), gin.Recovery())
 
 	userRepo := auth.NewUserRepository(db)
+	companyRepo := auth.NewCompanyRepository(db)
 	jobRepo := job.NewRepository(db)
 
 	authHandler := auth.NewHandler(
 		userRepo,
+		companyRepo,
 		cfg.JWTSecret,
 		cfg.JWTIssuer,
 		time.Duration(cfg.AccessTokenTTLMinutes)*time.Minute,
@@ -52,6 +54,14 @@ func NewRouter(cfg config.Config, db *mongo.Database) *gin.Engine {
 			userRoutes.PATCH("/me", authHandler.UpdateMe)
 			userRoutes.POST("/me/avatar", authHandler.UploadAvatar)
 			userRoutes.POST("/me/onboarding", authHandler.CompleteOnboarding)
+		}
+
+		hrRoutes := api.Group("/hr")
+		hrRoutes.Use(auth.AuthMiddleware(cfg.JWTSecret))
+		{
+			hrRoutes.GET("/company", authHandler.GetMyCompany)
+			hrRoutes.POST("/company", authHandler.CreateMyCompany)
+			hrRoutes.PUT("/company", authHandler.UpdateMyCompany)
 		}
 
 		jobHandler.RegisterRoutes(api)

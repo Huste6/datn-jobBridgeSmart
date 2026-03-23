@@ -1,8 +1,12 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import HrShell from './HrShell'
 import type { AuthUser } from '../../features/auth/api/auth'
 import type { AppPage } from '../../shared/routes/appRoutes'
-import { getCompanyProfile, saveCompanyProfile } from '../../features/hr/api/hrRecruiter'
+import {
+    createCompanyProfile,
+    fetchCompanyProfile,
+    updateCompanyProfile,
+} from '../../features/hr/api/hrRecruiter'
 
 const HrCompanyCreatePage = ({
     onNavigate,
@@ -13,28 +17,63 @@ const HrCompanyCreatePage = ({
     currentUser: AuthUser | null
     onLogout: () => void
 }) => {
-    const defaultProfile = useMemo(() => getCompanyProfile(), [])
     const [form, setForm] = useState({
-        name: defaultProfile?.name ?? '',
-        taxCode: defaultProfile?.taxCode ?? '',
-        website: defaultProfile?.website ?? '',
-        industry: defaultProfile?.industry ?? '',
-        size: defaultProfile?.size ?? '',
-        location: defaultProfile?.location ?? '',
-        description: defaultProfile?.description ?? '',
+        name: '',
+        taxCode: '',
+        website: '',
+        industry: '',
+        size: '',
+        location: '',
+        description: '',
     })
     const [message, setMessage] = useState('')
+    const [isLoading, setIsLoading] = useState(true)
+    const [isSaving, setIsSaving] = useState(false)
+    const [isEditing, setIsEditing] = useState(false)
+
+    useEffect(() => {
+        let isMounted = true
+
+        const load = async () => {
+            try {
+                const existing = await fetchCompanyProfile()
+                if (!isMounted) {
+                    return
+                }
+
+                if (existing) {
+                    setForm(existing)
+                    setIsEditing(true)
+                }
+            } catch (error) {
+                if (isMounted) {
+                    setMessage(error instanceof Error ? error.message : 'Không thể tải dữ liệu công ty.')
+                }
+            } finally {
+                if (isMounted) {
+                    setIsLoading(false)
+                }
+            }
+        }
+
+        load()
+        return () => {
+            isMounted = false
+        }
+    }, [])
 
     return (
         <HrShell
             title="HR: Trang tạo company"
-            subtitle="Tạo mới hoặc cập nhật thông tin công ty để sử dụng trong toàn bộ hệ thống tuyển dụng."
+            subtitle="Nhập thông tin công ty. Khi bấm tạo, dữ liệu sẽ hiển thị ngay ở trang hồ sơ công ty."
             currentPage="hrCompanyCreate"
             currentUser={currentUser}
             onNavigate={onNavigate}
             onLogout={onLogout}
         >
             <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-5">
+                {isLoading && <p className="text-sm text-slate-600">Đang tải dữ liệu công ty...</p>}
+
                 <div className="grid md:grid-cols-2 gap-4">
                     <label className="space-y-1">
                         <span className="text-sm font-medium text-slate-700">Tên công ty</span>
@@ -69,13 +108,34 @@ const HrCompanyCreatePage = ({
 
                 <div className="flex flex-wrap gap-3">
                     <button
-                        onClick={() => {
-                            saveCompanyProfile(form)
-                            setMessage('Đã lưu thông tin company thành công')
+                        onClick={async () => {
+                            if (!form.name.trim() || !form.taxCode.trim() || !form.location.trim()) {
+                                setMessage('Vui lòng nhập ít nhất: tên công ty, mã số thuế và địa điểm.')
+                                return
+                            }
+
+                            setIsSaving(true)
+                            setMessage('')
+                            try {
+                                if (isEditing) {
+                                    await updateCompanyProfile(form)
+                                    setMessage('Đã cập nhật công ty thành công.')
+                                } else {
+                                    await createCompanyProfile(form)
+                                    setMessage('Đã tạo công ty thành công.')
+                                    setIsEditing(true)
+                                }
+                                onNavigate('hrCompanyProfile')
+                            } catch (error) {
+                                setMessage(error instanceof Error ? error.message : 'Không thể lưu công ty.')
+                            } finally {
+                                setIsSaving(false)
+                            }
                         }}
-                        className="px-5 py-2.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                        disabled={isLoading || isSaving}
+                        className="px-5 py-2.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
                     >
-                        Lưu company
+                        {isSaving ? 'Đang lưu...' : isEditing ? 'Cập nhật công ty' : 'Tạo công ty'}
                     </button>
                     <button onClick={() => onNavigate('hrCompanyProfile')} className="px-5 py-2.5 rounded-lg border border-slate-300 hover:bg-slate-100">
                         Xem hồ sơ company

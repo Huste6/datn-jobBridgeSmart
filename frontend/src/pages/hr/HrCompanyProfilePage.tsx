@@ -1,8 +1,9 @@
+import { useEffect, useState } from 'react'
 import { Building2, Globe2, MapPin, Scale, Tags, Users2 } from 'lucide-react'
 import HrShell from './HrShell'
 import type { AuthUser } from '../../features/auth/api/auth'
 import type { AppPage } from '../../shared/routes/appRoutes'
-import { getCompanyProfile } from '../../features/hr/api/hrRecruiter'
+import { fetchCompanyProfile, type CompanyProfile } from '../../features/hr/api/hrRecruiter'
 
 const HrCompanyProfilePage = ({
     onNavigate,
@@ -13,7 +14,37 @@ const HrCompanyProfilePage = ({
     currentUser: AuthUser | null
     onLogout: () => void
 }) => {
-    const profile = getCompanyProfile()
+    const [profile, setProfile] = useState<CompanyProfile | null>(null)
+    const [isLoading, setIsLoading] = useState(true)
+    const [errorMessage, setErrorMessage] = useState('')
+
+    useEffect(() => {
+        let isMounted = true
+
+        const load = async () => {
+            try {
+                const data = await fetchCompanyProfile()
+                if (!isMounted) {
+                    return
+                }
+                setProfile(data)
+            } catch (error) {
+                if (!isMounted) {
+                    return
+                }
+                setErrorMessage(error instanceof Error ? error.message : 'Không thể tải hồ sơ công ty.')
+            } finally {
+                if (isMounted) {
+                    setIsLoading(false)
+                }
+            }
+        }
+
+        load()
+        return () => {
+            isMounted = false
+        }
+    }, [])
 
     return (
         <HrShell
@@ -25,6 +56,9 @@ const HrCompanyProfilePage = ({
             onLogout={onLogout}
         >
             <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-5">
+                {isLoading && <p className="text-sm text-slate-600">Đang tải hồ sơ công ty...</p>}
+                {!isLoading && errorMessage && <p className="text-sm text-rose-700">{errorMessage}</p>}
+
                 {!profile ? (
                     <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-900 text-sm">
                         Chưa có dữ liệu company. Hãy tạo company trước.

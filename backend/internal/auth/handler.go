@@ -14,20 +14,22 @@ import (
 )
 
 type Handler struct {
-	repo      *UserRepository
-	jwtSecret string
-	jwtIssuer string
-	tokenTTL  time.Duration
-	uploader  *AvatarUploader
+	repo        *UserRepository
+	companyRepo *CompanyRepository
+	jwtSecret   string
+	jwtIssuer   string
+	tokenTTL    time.Duration
+	uploader    *AvatarUploader
 }
 
-func NewHandler(repo *UserRepository, jwtSecret, jwtIssuer string, tokenTTL time.Duration, uploader *AvatarUploader) *Handler {
+func NewHandler(repo *UserRepository, companyRepo *CompanyRepository, jwtSecret, jwtIssuer string, tokenTTL time.Duration, uploader *AvatarUploader) *Handler {
 	return &Handler{
-		repo:      repo,
-		jwtSecret: jwtSecret,
-		jwtIssuer: jwtIssuer,
-		tokenTTL:  tokenTTL,
-		uploader:  uploader,
+		repo:        repo,
+		companyRepo: companyRepo,
+		jwtSecret:   jwtSecret,
+		jwtIssuer:   jwtIssuer,
+		tokenTTL:    tokenTTL,
+		uploader:    uploader,
 	}
 }
 
@@ -56,6 +58,147 @@ type updateSelfRequest struct {
 	City      *string `json:"city" binding:"omitempty,min=2"`
 	Headline  *string `json:"headline" binding:"omitempty,min=6"`
 	AvatarURL *string `json:"avatar_url"`
+}
+
+type companyUpsertRequest struct {
+	Name        string `json:"name" binding:"required,min=2"`
+	TaxCode     string `json:"tax_code" binding:"required,min=5"`
+	Website     string `json:"website" binding:"omitempty,url"`
+	Industry    string `json:"industry" binding:"required,min=2"`
+	Size        string `json:"size" binding:"required,min=1"`
+	Location    string `json:"location" binding:"required,min=2"`
+	Description string `json:"description" binding:"required,min=8"`
+}
+
+func currentAuthContext(c *gin.Context) (bson.ObjectID, string, bool) {
+	rawID, exists := c.Get(ContextUserIDKey)
+	if !exists {
+		return bson.ObjectID{}, "", false
+	}
+
+	userIDHex, ok := rawID.(string)
+	if !ok || userIDHex == "" {
+		return bson.ObjectID{}, "", false
+	}
+
+	userID, err := bson.ObjectIDFromHex(userIDHex)
+	if err != nil {
+		return bson.ObjectID{}, "", false
+	}
+
+	rawRole, _ := c.Get(ContextUserRoleKey)
+	role, _ := rawRole.(string)
+
+	return userID, role, true
+}
+
+func (h *Handler) ensureRecruiter(c *gin.Context) (bson.ObjectID, bool) {
+	userID, role, ok := currentAuthContext(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return bson.ObjectID{}, false
+	}
+
+	if strings.TrimSpace(role) != "recruiter" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "recruiter role required"})
+		return bson.ObjectID{}, false
+	}
+
+	return userID, true
+}
+
+func (h *Handler) GetMyCompany(c *gin.Context) {
+	userID, ok := h.ensureRecruiter(c)
+	if !ok {
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
+	defer cancel()
+
+	company, err := h.companyRepo.FindByOwnerID(ctx, userID)
+	if errors.Is(err, ErrCompanyNotFound) {
+		c.JSON(http.StatusOK, gin.H{"company": nil})
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not fetch company"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"company": company})
+}
+
+func (h *Handler) CreateMyCompany(c *gin.Context) {
+	userID, ok := h.ensureRecruiter(c)
+	if !ok {
+		return
+	}
+
+	var req companyUpsertRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid payload"})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
+	defer cancel()
+
+	company, err := h.companyRepo.CreateByOwnerID(ctx, userID, CompanyUpsertInput{
+		Name:        req.Name,
+		TaxCode:     req.TaxCode,
+		Website:     req.Website,
+		Industry:    req.Industry,
+		Size:        req.Size,
+		Location:    req.Location,
+		Description: req.Description,
+	})
+	if errors.Is(err, ErrCompanyAlreadyExists) {
+		c.JSON(http.StatusConflict, gin.H{"error": "company already exists"})
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not create company"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"company": company})
+}
+
+func (h *Handler) UpdateMyCompany(c *gin.Context) {
+	userID, ok := h.ensureRecruiter(c)
+	if !ok {
+		return
+	}
+
+	var req companyUpsertRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid payload"})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
+	defer cancel()
+
+	company, err := h.companyRepo.UpdateByOwnerID(ctx, userID, CompanyUpsertInput{
+		Name:        req.Name,
+		TaxCode:     req.TaxCode,
+		Website:     req.Website,
+		Industry:    req.Industry,
+		Size:        req.Size,
+		Location:    req.Location,
+		Description: req.Description,
+	})
+	if errors.Is(err, ErrCompanyNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": "company not found"})
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not update company"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"company": company})
 }
 
 func (h *Handler) Register(c *gin.Context) {

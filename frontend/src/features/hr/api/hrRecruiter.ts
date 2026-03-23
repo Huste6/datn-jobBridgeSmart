@@ -34,11 +34,85 @@ export type JobCandidate = {
     updatedAt: string
 }
 
-const COMPANY_KEY = 'jobbridge_hr_company_profile'
 const JOBS_KEY = 'jobbridge_hr_company_jobs'
 const CANDIDATES_KEY = 'jobbridge_hr_job_candidates'
 const SELECTED_JOB_KEY = 'jobbridge_hr_selected_job_id'
 const SELECTED_CANDIDATE_KEY = 'jobbridge_hr_selected_candidate_id'
+
+type CompanyPayload = {
+    name: string
+    tax_code: string
+    website: string
+    industry: string
+    size: string
+    location: string
+    description: string
+}
+
+type CompanyResponse = {
+    company: CompanyPayload | null
+}
+
+function getApiBaseUrl(): string {
+    return import.meta.env.VITE_API_BASE_URL ?? ''
+}
+
+function buildUrl(path: string): string {
+    const base = getApiBaseUrl().replace(/\/+$/, '')
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`
+    return `${base}${normalizedPath}`
+}
+
+function getStoredAccessToken(): string | null {
+    return localStorage.getItem('jobbridge_access_token')
+}
+
+function toApiPayload(profile: CompanyProfile): CompanyPayload {
+    return {
+        name: profile.name,
+        tax_code: profile.taxCode,
+        website: profile.website,
+        industry: profile.industry,
+        size: profile.size,
+        location: profile.location,
+        description: profile.description,
+    }
+}
+
+function fromApiPayload(payload: CompanyPayload): CompanyProfile {
+    return {
+        name: payload.name,
+        taxCode: payload.tax_code,
+        website: payload.website,
+        industry: payload.industry,
+        size: payload.size,
+        location: payload.location,
+        description: payload.description,
+    }
+}
+
+async function requestCompany(path: string, init?: RequestInit): Promise<CompanyResponse> {
+    const token = getStoredAccessToken()
+    if (!token) {
+        throw new Error('Missing access token')
+    }
+
+    const response = await fetch(buildUrl(path), {
+        ...init,
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            ...(init?.headers ?? {}),
+        },
+    })
+
+    const body = (await response.json().catch(() => ({}))) as { error?: string; company?: CompanyPayload | null }
+    if (!response.ok) {
+        throw new Error(body.error ?? 'Request failed')
+    }
+
+    return { company: body.company ?? null }
+}
 
 function nowIso(): string {
     return new Date().toISOString()
@@ -58,16 +132,6 @@ function parseOrDefault<T>(raw: string | null, fallback: T): T {
     } catch {
         return fallback
     }
-}
-
-const defaultCompany: CompanyProfile = {
-    name: 'TechCorp VN',
-    taxCode: '0312345678',
-    website: 'https://techcorp.vn',
-    industry: 'Software',
-    size: '100-300',
-    location: 'Ho Chi Minh',
-    description: 'Cong ty cong nghe tap trung vao phat trien san pham SaaS cho thi truong Dong Nam A.',
 }
 
 const defaultJobs: CompanyJob[] = [
@@ -139,10 +203,6 @@ const defaultCandidates: JobCandidate[] = [
 ]
 
 function ensureSeeded(): void {
-    if (!localStorage.getItem(COMPANY_KEY)) {
-        localStorage.setItem(COMPANY_KEY, JSON.stringify(defaultCompany))
-    }
-
     if (!localStorage.getItem(JOBS_KEY)) {
         localStorage.setItem(JOBS_KEY, JSON.stringify(defaultJobs))
     }
@@ -152,14 +212,35 @@ function ensureSeeded(): void {
     }
 }
 
-export function getCompanyProfile(): CompanyProfile | null {
-    ensureSeeded()
-    return parseOrDefault<CompanyProfile | null>(localStorage.getItem(COMPANY_KEY), null)
+export async function fetchCompanyProfile(): Promise<CompanyProfile | null> {
+    const data = await requestCompany('/api/hr/company')
+    return data.company ? fromApiPayload(data.company) : null
 }
 
-export function saveCompanyProfile(payload: CompanyProfile): CompanyProfile {
-    localStorage.setItem(COMPANY_KEY, JSON.stringify(payload))
-    return payload
+export async function createCompanyProfile(payload: CompanyProfile): Promise<CompanyProfile> {
+    const data = await requestCompany('/api/hr/company', {
+        method: 'POST',
+        body: JSON.stringify(toApiPayload(payload)),
+    })
+
+    if (!data.company) {
+        throw new Error('Could not create company')
+    }
+
+    return fromApiPayload(data.company)
+}
+
+export async function updateCompanyProfile(payload: CompanyProfile): Promise<CompanyProfile> {
+    const data = await requestCompany('/api/hr/company', {
+        method: 'PUT',
+        body: JSON.stringify(toApiPayload(payload)),
+    })
+
+    if (!data.company) {
+        throw new Error('Could not update company')
+    }
+
+    return fromApiPayload(data.company)
 }
 
 export function listCompanyJobs(): CompanyJob[] {

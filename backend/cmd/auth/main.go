@@ -39,8 +39,10 @@ func main() {
 
 	database := mongoClient.Database(cfg.MongoDB)
 	userRepo := auth.NewUserRepository(database)
+	companyRepo := auth.NewCompanyRepository(database)
 	authHandler := auth.NewHandler(
 		userRepo,
+		companyRepo,
 		cfg.JWTSecret,
 		cfg.JWTIssuer,
 		time.Duration(cfg.AccessTokenTTLMinutes)*time.Minute,
@@ -69,6 +71,14 @@ func main() {
 			userRoutes.PATCH("/me", authHandler.UpdateMe)
 			userRoutes.POST("/me/avatar", authHandler.UploadAvatar)
 			userRoutes.POST("/me/onboarding", authHandler.CompleteOnboarding)
+		}
+
+		hrRoutes := api.Group("/hr")
+		hrRoutes.Use(auth.AuthMiddleware(cfg.JWTSecret))
+		{
+			hrRoutes.GET("/company", authHandler.GetMyCompany)
+			hrRoutes.POST("/company", authHandler.CreateMyCompany)
+			hrRoutes.PUT("/company", authHandler.UpdateMyCompany)
 		}
 	}
 
