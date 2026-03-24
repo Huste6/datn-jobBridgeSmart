@@ -8,11 +8,13 @@ import (
 
 type Job struct {
 	ID               bson.ObjectID `bson:"_id,omitempty" json:"id"`
+	OwnerID          bson.ObjectID `bson:"owner_id,omitempty" json:"-"`
 	Title            string        `bson:"title" json:"title"`
 	Company          string        `bson:"company" json:"company"`
 	Location         string        `bson:"location" json:"location"`
 	Salary           string        `bson:"salary" json:"salary"`
 	EmploymentType   string        `bson:"employment_type" json:"employment_type"`
+	Status           string        `bson:"status,omitempty" json:"status,omitempty"`
 	ExperienceLevel  string        `bson:"experience_level" json:"experience_level"`
 	Description      string        `bson:"description" json:"description"`
 	Responsibilities []string      `bson:"responsibilities" json:"responsibilities"`

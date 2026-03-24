@@ -7,7 +7,7 @@ export type SavedApplication = {
     updated_at: string
 }
 
-const STORAGE_KEY = 'jobbridge_applications_v1'
+const STORAGE_KEY = 'jobbridge_applications_v2'
 
 function canUseStorage(): boolean {
     return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined'
@@ -70,22 +70,5 @@ export function applyToJob(jobId: string): SavedApplication {
 }
 
 export function ensureDemoApplications(jobIds: string[]): void {
-    const current = readRaw()
-    if (current.length > 0 || jobIds.length === 0) {
-        return
-    }
-
-    const now = Date.now()
-    const demoStatuses: ApplicationStatus[] = ['submitted', 'reviewing', 'interview', 'offered']
-    const seeded = jobIds.slice(0, 4).map((jobId, index) => {
-        const timestamp = new Date(now - index * 36 * 60 * 60 * 1000).toISOString()
-        return {
-            job_id: jobId,
-            status: demoStatuses[index] ?? 'submitted',
-            applied_at: timestamp,
-            updated_at: timestamp,
-        }
-    })
-
-    writeRaw(seeded)
+    void jobIds
 }

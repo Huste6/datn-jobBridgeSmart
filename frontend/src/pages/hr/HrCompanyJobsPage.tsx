@@ -1,5 +1,5 @@
 import { Pencil, Trash2, UsersRound } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import HrShell from './HrShell'
 import type { AuthUser } from '../../features/auth/api/auth'
 import type { AppPage } from '../../shared/routes/appRoutes'
@@ -14,8 +14,25 @@ const HrCompanyJobsPage = ({
     currentUser: AuthUser | null
     onLogout: () => void
 }) => {
-    const [refreshTick, setRefreshTick] = useState(0)
-    const jobs = useMemo(() => listCompanyJobs(), [refreshTick])
+    const [jobs, setJobs] = useState<Array<Awaited<ReturnType<typeof listCompanyJobs>>[number]>>([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [message, setMessage] = useState('')
+
+    const loadJobs = async () => {
+        setIsLoading(true)
+        try {
+            const data = await listCompanyJobs()
+            setJobs(data)
+        } catch (error) {
+            setMessage(error instanceof Error ? error.message : 'Không thể tải danh sách job.')
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        loadJobs()
+    }, [])
 
     return (
         <HrShell
@@ -30,6 +47,9 @@ const HrCompanyJobsPage = ({
                 <div className="flex justify-end">
                     <button onClick={() => { setSelectedJobId(null); onNavigate('hrJobManagement') }} className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">Tạo job mới</button>
                 </div>
+
+                {isLoading && <p className="text-sm text-slate-600">Đang tải danh sách job...</p>}
+                {message && <p className="text-sm text-rose-700">{message}</p>}
 
                 <div className="space-y-3">
                     {jobs.map((job) => (
@@ -48,12 +68,16 @@ const HrCompanyJobsPage = ({
                             <div className="flex flex-wrap gap-2 mt-4">
                                 <button onClick={() => { setSelectedJobId(job.id); onNavigate('hrJobManagement') }} className="px-3 py-2 rounded-lg border border-slate-300 text-sm hover:bg-slate-100 inline-flex items-center gap-2"><Pencil className="w-4 h-4" /> Sửa</button>
                                 <button
-                                    onClick={() => {
+                                    onClick={async () => {
                                         if (!window.confirm('Bạn chắc chắn muốn xoá job này?')) {
                                             return
                                         }
-                                        deleteCompanyJob(job.id)
-                                        setRefreshTick((prev) => prev + 1)
+                                        try {
+                                            await deleteCompanyJob(job.id)
+                                            await loadJobs()
+                                        } catch (error) {
+                                            setMessage(error instanceof Error ? error.message : 'Không thể xoá job.')
+                                        }
                                     }}
                                     className="px-3 py-2 rounded-lg border border-rose-300 text-rose-700 text-sm hover:bg-rose-50 inline-flex items-center gap-2"
                                 >

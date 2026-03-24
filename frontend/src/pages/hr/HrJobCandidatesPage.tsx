@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import HrShell from './HrShell'
 import type { AuthUser } from '../../features/auth/api/auth'
 import type { AppPage } from '../../shared/routes/appRoutes'
@@ -19,8 +19,27 @@ const HrJobCandidatesPage = ({
     currentUser: AuthUser | null
     onLogout: () => void
 }) => {
-    const jobs = listCompanyJobs()
-    const [selectedJobId, setSelectedJobIdState] = useState<string>(getSelectedJobId() ?? jobs[0]?.id ?? '')
+    const [jobs, setJobs] = useState<Array<Awaited<ReturnType<typeof listCompanyJobs>>[number]>>([])
+    const [selectedJobId, setSelectedJobIdState] = useState<string>(getSelectedJobId() ?? '')
+    const [message, setMessage] = useState('')
+
+    useEffect(() => {
+        const loadJobs = async () => {
+            try {
+                const data = await listCompanyJobs()
+                setJobs(data)
+
+                if (!selectedJobId && data[0]?.id) {
+                    setSelectedJobIdState(data[0].id)
+                    setSelectedJobId(data[0].id)
+                }
+            } catch (error) {
+                setMessage(error instanceof Error ? error.message : 'Không thể tải danh sách job.')
+            }
+        }
+
+        loadJobs()
+    }, [selectedJobId])
 
     const candidates = useMemo(() => {
         if (!selectedJobId) {
@@ -40,6 +59,8 @@ const HrJobCandidatesPage = ({
             onLogout={onLogout}
         >
             <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-5">
+                {message && <p className="text-sm text-rose-700">{message}</p>}
+
                 <label className="space-y-1 block max-w-sm">
                     <span className="text-sm font-medium text-slate-700">Chọn job</span>
                     <select

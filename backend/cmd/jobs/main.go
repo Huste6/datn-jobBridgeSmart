@@ -39,7 +39,7 @@ func main() {
 
 	database := mongoClient.Database(cfg.MongoDB)
 	jobRepo := job.NewRepository(database)
-	jobHandler := job.NewHandler(jobRepo)
+	jobHandler := job.NewHandler(jobRepo, cfg.JWTSecret)
 
 	r := gin.New()
 	r.Use(gin.Logger(), gin.Recovery())

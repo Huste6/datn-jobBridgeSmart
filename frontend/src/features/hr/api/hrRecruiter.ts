@@ -11,10 +11,16 @@ export type CompanyProfile = {
 export type CompanyJob = {
     id: string
     title: string
+    company: string
     location: string
     employmentType: string
     salaryRange: string
+    experienceLevel: string
     description: string
+    responsibilities: string[]
+    requirements: string[]
+    benefits: string[]
+    tags: string[]
     status: 'open' | 'closed'
     updatedAt: string
 }
@@ -34,7 +40,6 @@ export type JobCandidate = {
     updatedAt: string
 }
 
-const JOBS_KEY = 'jobbridge_hr_company_jobs'
 const CANDIDATES_KEY = 'jobbridge_hr_job_candidates'
 const SELECTED_JOB_KEY = 'jobbridge_hr_selected_job_id'
 const SELECTED_CANDIDATE_KEY = 'jobbridge_hr_selected_candidate_id'
@@ -51,6 +56,23 @@ type CompanyPayload = {
 
 type CompanyResponse = {
     company: CompanyPayload | null
+}
+
+type RecruiterJobPayload = {
+    id: string
+    title: string
+    company: string
+    location: string
+    salary: string
+    employment_type: string
+    experience_level: string
+    description: string
+    responsibilities: string[]
+    requirements: string[]
+    benefits: string[]
+    tags: string[]
+    status?: 'open' | 'closed'
+    updated_at: string
 }
 
 function getApiBaseUrl(): string {
@@ -91,6 +113,55 @@ function fromApiPayload(payload: CompanyPayload): CompanyProfile {
     }
 }
 
+function fromRecruiterJobPayload(payload: RecruiterJobPayload): CompanyJob {
+    return {
+        id: payload.id,
+        title: payload.title,
+        company: payload.company || '',
+        location: payload.location,
+        salaryRange: payload.salary,
+        employmentType: payload.employment_type,
+        experienceLevel: payload.experience_level || '',
+        description: payload.description,
+        responsibilities: payload.responsibilities || [],
+        requirements: payload.requirements || [],
+        benefits: payload.benefits || [],
+        tags: payload.tags || [],
+        status: payload.status ?? 'open',
+        updatedAt: payload.updated_at,
+    }
+}
+
+function toRecruiterJobPayload(payload: Omit<CompanyJob, 'id' | 'updatedAt'>): {
+    title: string
+    company: string
+    location: string
+    salary: string
+    employment_type: string
+    experience_level: string
+    description: string
+    responsibilities: string[]
+    requirements: string[]
+    benefits: string[]
+    tags: string[]
+    status: 'open' | 'closed'
+} {
+    return {
+        title: payload.title,
+        company: payload.company,
+        location: payload.location,
+        salary: payload.salaryRange,
+        employment_type: payload.employmentType,
+        experience_level: payload.experienceLevel,
+        description: payload.description,
+        responsibilities: payload.responsibilities,
+        requirements: payload.requirements,
+        benefits: payload.benefits,
+        tags: payload.tags,
+        status: payload.status,
+    }
+}
+
 async function requestCompany(path: string, init?: RequestInit): Promise<CompanyResponse> {
     const token = getStoredAccessToken()
     if (!token) {
@@ -118,10 +189,6 @@ function nowIso(): string {
     return new Date().toISOString()
 }
 
-function makeId(prefix: string): string {
-    return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
-}
-
 function parseOrDefault<T>(raw: string | null, fallback: T): T {
     if (!raw) {
         return fallback
@@ -133,29 +200,6 @@ function parseOrDefault<T>(raw: string | null, fallback: T): T {
         return fallback
     }
 }
-
-const defaultJobs: CompanyJob[] = [
-    {
-        id: 'job_react_lead',
-        title: 'Senior React Developer',
-        location: 'Ho Chi Minh',
-        employmentType: 'full-time',
-        salaryRange: '35-50 trieu',
-        description: 'Phat trien giao dien web va toi uu hieu nang cho ung dung doanh nghiep.',
-        status: 'open',
-        updatedAt: nowIso(),
-    },
-    {
-        id: 'job_golang_backend',
-        title: 'Golang Backend Engineer',
-        location: 'Ha Noi',
-        employmentType: 'full-time',
-        salaryRange: '30-45 trieu',
-        description: 'Xay dung API microservices va toi uu he thong phan tan.',
-        status: 'open',
-        updatedAt: nowIso(),
-    },
-]
 
 const defaultCandidates: JobCandidate[] = [
     {
@@ -203,10 +247,6 @@ const defaultCandidates: JobCandidate[] = [
 ]
 
 function ensureSeeded(): void {
-    if (!localStorage.getItem(JOBS_KEY)) {
-        localStorage.setItem(JOBS_KEY, JSON.stringify(defaultJobs))
-    }
-
     if (!localStorage.getItem(CANDIDATES_KEY)) {
         localStorage.setItem(CANDIDATES_KEY, JSON.stringify(defaultCandidates))
     }
@@ -243,52 +283,109 @@ export async function updateCompanyProfile(payload: CompanyProfile): Promise<Com
     return fromApiPayload(data.company)
 }
 
-export function listCompanyJobs(): CompanyJob[] {
-    ensureSeeded()
-    const jobs = parseOrDefault<CompanyJob[]>(localStorage.getItem(JOBS_KEY), [])
-    return [...jobs].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
-}
-
-export function getCompanyJobById(jobId: string): CompanyJob | null {
-    return listCompanyJobs().find((job) => job.id === jobId) ?? null
-}
-
-export function createCompanyJob(payload: Omit<CompanyJob, 'id' | 'updatedAt'>): CompanyJob {
-    const nextJob: CompanyJob = {
-        ...payload,
-        id: makeId('job'),
-        updatedAt: nowIso(),
+export async function listCompanyJobs(): Promise<CompanyJob[]> {
+    const token = getStoredAccessToken()
+    if (!token) {
+        throw new Error('Missing access token')
     }
 
-    const nextJobs = [nextJob, ...listCompanyJobs()]
-    localStorage.setItem(JOBS_KEY, JSON.stringify(nextJobs))
-    return nextJob
-}
-
-export function updateCompanyJob(jobId: string, payload: Omit<CompanyJob, 'id' | 'updatedAt'>): CompanyJob | null {
-    const jobs = listCompanyJobs()
-    let updatedJob: CompanyJob | null = null
-
-    const nextJobs = jobs.map((job) => {
-        if (job.id !== jobId) {
-            return job
-        }
-
-        updatedJob = {
-            ...job,
-            ...payload,
-            updatedAt: nowIso(),
-        }
-        return updatedJob
+    const response = await fetch(buildUrl('/api/jobs/my'), {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        cache: 'no-store',
     })
 
-    localStorage.setItem(JOBS_KEY, JSON.stringify(nextJobs))
-    return updatedJob
+    const body = (await response.json().catch(() => [])) as RecruiterJobPayload[] | { error?: string }
+    if (!response.ok) {
+        if (!Array.isArray(body) && body?.error) {
+            throw new Error(body.error)
+        }
+        throw new Error('Could not load recruiter jobs')
+    }
+
+    if (!Array.isArray(body)) {
+        return []
+    }
+
+    return body.map(fromRecruiterJobPayload)
 }
 
-export function deleteCompanyJob(jobId: string): void {
-    const nextJobs = listCompanyJobs().filter((job) => job.id !== jobId)
-    localStorage.setItem(JOBS_KEY, JSON.stringify(nextJobs))
+export async function getCompanyJobById(jobId: string): Promise<CompanyJob | null> {
+    const jobs = await listCompanyJobs()
+    return jobs.find((job) => job.id === jobId) ?? null
+}
+
+export async function createCompanyJob(payload: Omit<CompanyJob, 'id' | 'updatedAt'>): Promise<CompanyJob> {
+    const token = getStoredAccessToken()
+    if (!token) {
+        throw new Error('Missing access token')
+    }
+
+    const response = await fetch(buildUrl('/api/jobs/my'), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(toRecruiterJobPayload(payload)),
+    })
+
+    const body = (await response.json().catch(() => ({}))) as RecruiterJobPayload | { error?: string }
+    if (!response.ok) {
+        if ('error' in body && body.error) {
+            throw new Error(body.error)
+        }
+        throw new Error('Could not create recruiter job')
+    }
+
+    return fromRecruiterJobPayload(body as RecruiterJobPayload)
+}
+
+export async function updateCompanyJob(jobId: string, payload: Omit<CompanyJob, 'id' | 'updatedAt'>): Promise<CompanyJob | null> {
+    const token = getStoredAccessToken()
+    if (!token) {
+        throw new Error('Missing access token')
+    }
+
+    const response = await fetch(buildUrl(`/api/jobs/my/${jobId}`), {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(toRecruiterJobPayload(payload)),
+    })
+
+    const body = (await response.json().catch(() => ({}))) as RecruiterJobPayload | { error?: string }
+    if (!response.ok) {
+        if ('error' in body && body.error) {
+            throw new Error(body.error)
+        }
+        throw new Error('Could not update recruiter job')
+    }
+
+    return fromRecruiterJobPayload(body as RecruiterJobPayload)
+}
+
+export async function deleteCompanyJob(jobId: string): Promise<void> {
+    const token = getStoredAccessToken()
+    if (!token) {
+        throw new Error('Missing access token')
+    }
+
+    const response = await fetch(buildUrl(`/api/jobs/my/${jobId}`), {
+        method: 'DELETE',
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    })
+
+    if (!response.ok) {
+        const body = (await response.json().catch(() => ({}))) as { error?: string }
+        throw new Error(body.error ?? 'Could not delete recruiter job')
+    }
 
     const nextCandidates = listJobCandidates().filter((candidate) => candidate.jobId !== jobId)
     localStorage.setItem(CANDIDATES_KEY, JSON.stringify(nextCandidates))

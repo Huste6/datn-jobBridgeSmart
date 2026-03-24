@@ -6,6 +6,7 @@ import {
     getCandidateById,
     getSelectedCandidateId,
     getCompanyJobById,
+    type CompanyJob,
     updateCandidateReview,
 } from '../../features/hr/api/hrRecruiter'
 
@@ -33,6 +34,7 @@ const HrCandidateReviewPage = ({
     const [manualScore, setManualScore] = useState(70)
     const [notes, setNotes] = useState('')
     const [message, setMessage] = useState('')
+    const [job, setJob] = useState<CompanyJob | null>(null)
 
     useEffect(() => {
         if (!candidate) {
@@ -44,7 +46,16 @@ const HrCandidateReviewPage = ({
         setNotes(candidate.notes)
     }, [candidate])
 
-    const job = candidate ? getCompanyJobById(candidate.jobId) : null
+    useEffect(() => {
+        if (!candidate) {
+            setJob(null)
+            return
+        }
+
+        getCompanyJobById(candidate.jobId)
+            .then((data) => setJob(data))
+            .catch(() => setJob(null))
+    }, [candidate])
 
     return (
         <HrShell

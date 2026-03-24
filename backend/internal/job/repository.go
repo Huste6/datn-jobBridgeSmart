@@ -2,10 +2,12 @@ package job
 
 import (
 	"context"
+	"errors"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -14,10 +16,31 @@ import (
 	"golang.org/x/text/unicode/norm"
 )
 
+var ErrJobNotFound = errors.New("job not found")
+
 type Repository interface {
 	FindAll(ctx context.Context) ([]Job, error)
 	FindByQuery(ctx context.Context, query JobQuery) ([]Job, error)
 	FindByID(ctx context.Context, id string) (*Job, error)
+	FindByOwnerID(ctx context.Context, ownerID bson.ObjectID) ([]Job, error)
+	CreateByOwnerID(ctx context.Context, ownerID bson.ObjectID, in JobUpsertInput) (*Job, error)
+	UpdateByOwnerID(ctx context.Context, ownerID bson.ObjectID, id string, in JobUpsertInput) (*Job, error)
+	DeleteByOwnerID(ctx context.Context, ownerID bson.ObjectID, id string) error
+}
+
+type JobUpsertInput struct {
+	Title            string
+	Company          string
+	Location         string
+	Salary           string
+	EmploymentType   string
+	ExperienceLevel  string
+	Description      string
+	Responsibilities []string
+	Requirements     []string
+	Benefits         []string
+	Tags             []string
+	Status           string
 }
 
 type JobQuery struct {
@@ -230,4 +253,145 @@ func (r *repository) FindByID(ctx context.Context, id string) (*Job, error) {
 	}
 
 	return &job, nil
+}
+
+func (r *repository) FindByOwnerID(ctx context.Context, ownerID bson.ObjectID) ([]Job, error) {
+	var jobs []Job
+	cursor, err := r.collection.Find(ctx, bson.M{"owner_id": ownerID}, options.Find().SetSort(bson.D{{Key: "updated_at", Value: -1}}))
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	if err := cursor.All(ctx, &jobs); err != nil {
+		return nil, err
+	}
+
+	if jobs == nil {
+		jobs = []Job{}
+	}
+
+	return jobs, nil
+}
+
+func (r *repository) CreateByOwnerID(ctx context.Context, ownerID bson.ObjectID, in JobUpsertInput) (*Job, error) {
+	now := time.Now().UTC()
+	status := strings.TrimSpace(strings.ToLower(in.Status))
+	if status == "" {
+		status = "open"
+	}
+
+	job := &Job{
+		OwnerID:          ownerID,
+		Title:            strings.TrimSpace(in.Title),
+		Company:          strings.TrimSpace(in.Company),
+		Location:         strings.TrimSpace(in.Location),
+		Salary:           strings.TrimSpace(in.Salary),
+		EmploymentType:   strings.TrimSpace(in.EmploymentType),
+		ExperienceLevel:  strings.TrimSpace(in.ExperienceLevel),
+		Description:      strings.TrimSpace(in.Description),
+		Responsibilities: normalizeStringSlice(in.Responsibilities),
+		Requirements:     normalizeStringSlice(in.Requirements),
+		Benefits:         normalizeStringSlice(in.Benefits),
+		Tags:             normalizeStringSlice(in.Tags),
+		Status:           status,
+		PostedAt:         now,
+		CreatedAt:        now,
+		UpdatedAt:        now,
+	}
+
+	res, err := r.collection.InsertOne(ctx, job)
+	if err != nil {
+		return nil, err
+	}
+
+	if id, ok := res.InsertedID.(bson.ObjectID); ok {
+		job.ID = id
+	}
+
+	return job, nil
+}
+
+func (r *repository) UpdateByOwnerID(ctx context.Context, ownerID bson.ObjectID, id string, in JobUpsertInput) (*Job, error) {
+	objectID, err := bson.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+
+	status := strings.TrimSpace(strings.ToLower(in.Status))
+	if status == "" {
+		status = "open"
+	}
+
+	set := bson.M{
+		"title":            strings.TrimSpace(in.Title),
+		"company":          strings.TrimSpace(in.Company),
+		"location":         strings.TrimSpace(in.Location),
+		"salary":           strings.TrimSpace(in.Salary),
+		"employment_type":  strings.TrimSpace(in.EmploymentType),
+		"experience_level": strings.TrimSpace(in.ExperienceLevel),
+		"description":      strings.TrimSpace(in.Description),
+		"responsibilities": normalizeStringSlice(in.Responsibilities),
+		"requirements":     normalizeStringSlice(in.Requirements),
+		"benefits":         normalizeStringSlice(in.Benefits),
+		"tags":             normalizeStringSlice(in.Tags),
+		"status":           status,
+		"updated_at":       time.Now().UTC(),
+	}
+
+	res, err := r.collection.UpdateOne(ctx, bson.M{"_id": objectID, "owner_id": ownerID}, bson.M{"$set": set})
+	if err != nil {
+		return nil, err
+	}
+	if res.MatchedCount == 0 {
+		return nil, ErrJobNotFound
+	}
+
+	var updated Job
+	if err := r.collection.FindOne(ctx, bson.M{"_id": objectID, "owner_id": ownerID}).Decode(&updated); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, ErrJobNotFound
+		}
+		return nil, err
+	}
+
+	return &updated, nil
+}
+
+func (r *repository) DeleteByOwnerID(ctx context.Context, ownerID bson.ObjectID, id string) error {
+	objectID, err := bson.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	res, err := r.collection.DeleteOne(ctx, bson.M{"_id": objectID, "owner_id": ownerID})
+	if err != nil {
+		return err
+	}
+	if res.DeletedCount == 0 {
+		return ErrJobNotFound
+	}
+
+	return nil
+}
+
+func normalizeStringSlice(items []string) []string {
+	if len(items) == 0 {
+		return []string{}
+	}
+
+	result := make([]string, 0, len(items))
+	for _, item := range items {
+		trimmed := strings.TrimSpace(item)
+		if trimmed == "" {
+			continue
+		}
+		result = append(result, trimmed)
+	}
+
+	if result == nil {
+		return []string{}
+	}
+
+	return result
 }

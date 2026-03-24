@@ -1,7 +1,7 @@
 ﻿import { useCallback, useEffect, useRef, useState } from "react"
 import { Briefcase, MapPin, Wallet, Search, Filter, ArrowLeft, ShieldCheck, UserCircle2, ChevronDown, LogOut, Sparkles, X, FileText } from "lucide-react"
 import { fetchJobs, fetchJobsByQuery, type Job } from "../../features/jobs/api/jobs"
-import { applyToJob, ensureDemoApplications, hasApplied } from "../../features/jobs/api/applications"
+import { applyToJob, hasApplied } from "../../features/jobs/api/applications"
 import type { AuthUser } from "../../features/auth/api/auth"
 import type { AppPage, UserRole } from "../../shared/routes/appRoutes"
 
@@ -61,7 +61,6 @@ const JobsListPage = ({ onNavigate, currentUser, role, onLogout }: JobsListPageP
         try {
             const data = await fetchJobs({ force })
             setJobs(data)
-            ensureDemoApplications(data.map((item) => item.id))
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : "Failed to fetch jobs"
             setError(message)
@@ -508,27 +507,39 @@ const JobsListPage = ({ onNavigate, currentUser, role, onLogout }: JobsListPageP
                             <div>
                                 <h4 className="text-lg font-bold text-slate-900 mb-2">Trách nhiệm chính</h4>
                                 <ul className="list-disc pl-5 text-slate-700 space-y-1">
-                                    {(selectedJob.responsibilities || []).map((item, index) => (
-                                        <li key={`responsibility-${index}`}>{item}</li>
-                                    ))}
+                                    {(selectedJob.responsibilities || []).length > 0 ? (
+                                        (selectedJob.responsibilities || []).map((item, index) => (
+                                            <li key={`responsibility-${index}`}>{item}</li>
+                                        ))
+                                    ) : (
+                                        <li>Nhà tuyển dụng chưa cập nhật mục này.</li>
+                                    )}
                                 </ul>
                             </div>
 
                             <div>
                                 <h4 className="text-lg font-bold text-slate-900 mb-2">Yêu cầu ứng viên</h4>
                                 <ul className="list-disc pl-5 text-slate-700 space-y-1">
-                                    {(selectedJob.requirements || []).map((item, index) => (
-                                        <li key={`requirement-${index}`}>{item}</li>
-                                    ))}
+                                    {(selectedJob.requirements || []).length > 0 ? (
+                                        (selectedJob.requirements || []).map((item, index) => (
+                                            <li key={`requirement-${index}`}>{item}</li>
+                                        ))
+                                    ) : (
+                                        <li>Nhà tuyển dụng chưa cập nhật mục này.</li>
+                                    )}
                                 </ul>
                             </div>
 
                             <div>
                                 <h4 className="text-lg font-bold text-slate-900 mb-2">Quyền lợi</h4>
                                 <ul className="list-disc pl-5 text-slate-700 space-y-1">
-                                    {(selectedJob.benefits || []).map((item, index) => (
-                                        <li key={`benefit-${index}`}>{item}</li>
-                                    ))}
+                                    {(selectedJob.benefits || []).length > 0 ? (
+                                        (selectedJob.benefits || []).map((item, index) => (
+                                            <li key={`benefit-${index}`}>{item}</li>
+                                        ))
+                                    ) : (
+                                        <li>Nhà tuyển dụng chưa cập nhật mục này.</li>
+                                    )}
                                 </ul>
                             </div>
                         </div>

@@ -31,7 +31,7 @@ func NewRouter(cfg config.Config, db *mongo.Database) *gin.Engine {
 		mustAvatarUploader(cfg.CloudinaryURL, cfg.CloudinaryFolder),
 	)
 
-	jobHandler := job.NewHandler(jobRepo)
+	jobHandler := job.NewHandler(jobRepo, cfg.JWTSecret)
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
