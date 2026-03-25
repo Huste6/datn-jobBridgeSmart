@@ -268,24 +268,51 @@ const HrJobManagementPage = ({
                         </label>
 
                         <div className="grid md:grid-cols-2 gap-5">
-                            <label className="space-y-1.5 block">
+                            <div className="space-y-1.5">
                                 <span className="text-sm font-semibold text-slate-700">Trách nhiệm <span className="text-slate-400 font-normal ml-1">(mỗi dòng 1 ý)</span></span>
-                                <textarea value={form.responsibilitiesText} onChange={(e) => setForm((prev) => ({ ...prev, responsibilitiesText: e.target.value }))} rows={5} className="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400 bg-white hover:border-slate-300 resize-y" placeholder="- Phát triển tính năng mới&#10;- Optimize performance" />
-                            </label>
-                            <label className="space-y-1.5 block">
+                                <div data-color-mode="light" className="border border-slate-200 rounded-xl overflow-hidden mt-1 hover:border-slate-300 transition-colors bg-white">
+                                    <MDEditor
+                                        value={form.responsibilitiesText}
+                                        onChange={(val) => setForm(prev => ({ ...prev, responsibilitiesText: val || '' }))}
+                                        preview="edit"
+                                        hideToolbar={false}
+                                        height={180}
+                                        className="border-0!"
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-1.5">
                                 <span className="text-sm font-semibold text-slate-700">Yêu cầu <span className="text-slate-400 font-normal ml-1">(mỗi dòng 1 ý)</span></span>
-                                <textarea value={form.requirementsText} onChange={(e) => setForm((prev) => ({ ...prev, requirementsText: e.target.value }))} rows={5} className="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400 bg-white hover:border-slate-300 resize-y" placeholder="- 2+ năm kinh nghiệm React&#10;- Tiếng Anh giao tiếp tốt" />
-                            </label>
+                                <div data-color-mode="light" className="border border-slate-200 rounded-xl overflow-hidden mt-1 hover:border-slate-300 transition-colors bg-white">
+                                    <MDEditor
+                                        value={form.requirementsText}
+                                        onChange={(val) => setForm(prev => ({ ...prev, requirementsText: val || '' }))}
+                                        preview="edit"
+                                        hideToolbar={false}
+                                        height={180}
+                                        className="border-0!"
+                                    />
+                                </div>
+                            </div>
                         </div>
 
                         <div className="grid md:grid-cols-2 gap-5">
-                            <label className="space-y-1.5 block">
+                            <div className="space-y-1.5">
                                 <span className="text-sm font-semibold text-slate-700">Quyền lợi <span className="text-slate-400 font-normal ml-1">(mỗi dòng 1 ý)</span></span>
-                                <textarea value={form.benefitsText} onChange={(e) => setForm((prev) => ({ ...prev, benefitsText: e.target.value }))} rows={4} className="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400 bg-white hover:border-slate-300 resize-y" placeholder="- Lương tháng 13&#10;- Bảo hiểm sức khỏe premium" />
-                            </label>
+                                <div data-color-mode="light" className="border border-slate-200 rounded-xl overflow-hidden mt-1 hover:border-slate-300 transition-colors bg-white">
+                                    <MDEditor
+                                        value={form.benefitsText}
+                                        onChange={(val) => setForm(prev => ({ ...prev, benefitsText: val || '' }))}
+                                        preview="edit"
+                                        hideToolbar={false}
+                                        height={180}
+                                        className="border-0!"
+                                    />
+                                </div>
+                            </div>
                             <label className="space-y-1.5 block">
                                 <span className="text-sm font-semibold text-slate-700">Tags <span className="text-slate-400 font-normal ml-1">(ngăn cách bằng dấu phẩy)</span></span>
-                                <textarea value={form.tagsText} onChange={(e) => setForm((prev) => ({ ...prev, tagsText: e.target.value }))} rows={4} className="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400 bg-white hover:border-slate-300 resize-y" placeholder="React, TypeScript, Nodejs..." />
+                                <input value={form.tagsText} onChange={(e) => setForm((prev) => ({ ...prev, tagsText: e.target.value }))} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400 bg-white hover:border-slate-300" placeholder="React, TypeScript, Nodejs..." />
                             </label>
                         </div>
 
