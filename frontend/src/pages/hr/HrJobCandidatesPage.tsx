@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import HrShell from './HrShell'
 import type { AuthUser } from '../../features/auth/api/auth'
 import type { AppPage } from '../../shared/routes/appRoutes'
@@ -41,12 +41,22 @@ const HrJobCandidatesPage = ({
         loadJobs()
     }, [selectedJobId])
 
-    const candidates = useMemo(() => {
+    const [candidates, setCandidates] = useState<Array<Awaited<ReturnType<typeof listJobCandidates>>[number]>>([])
+    
+    useEffect(() => {
+        let isMounted = true
         if (!selectedJobId) {
-            return []
+            setCandidates([])
+            return
         }
 
-        return listJobCandidates(selectedJobId)
+        listJobCandidates(selectedJobId)
+            .then((data) => {
+                if (isMounted) setCandidates(data)
+            })
+            .catch(console.error)
+
+        return () => { isMounted = false }
     }, [selectedJobId])
 
     return (

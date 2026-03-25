@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
-import { Camera, House, Loader2 } from 'lucide-react'
-import { fetchMe, updateMe, uploadAvatar } from '../../features/auth/api/auth'
+import { Camera, FileUp, House, Loader2 } from 'lucide-react'
+import { fetchMe, updateMe, uploadAvatar, uploadCV } from '../../features/auth/api/auth'
 import type { AuthUser } from '../../features/auth/api/auth'
 import type { AppPage } from '../../shared/routes/appRoutes'
 
@@ -18,11 +18,13 @@ const ProfilePage = ({ currentUser, onUserUpdated, onNavigate }: Props) => {
     const [city, setCity] = useState(currentUser.city ?? '')
     const [headline, setHeadline] = useState(currentUser.headline ?? '')
     const [avatarUrl, setAvatarUrl] = useState(currentUser.avatar_url ?? '')
+    const [cvUrl, setCvUrl] = useState(currentUser.cv_url ?? '')
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
     const [isLoading, setIsLoading] = useState(true)
     const [isSaving, setIsSaving] = useState(false)
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
+    const [isUploadingCv, setIsUploadingCv] = useState(false)
 
     useEffect(() => {
         const loadMe = async () => {
@@ -37,6 +39,7 @@ const ProfilePage = ({ currentUser, onUserUpdated, onNavigate }: Props) => {
                 setCity(me.city ?? '')
                 setHeadline(me.headline ?? '')
                 setAvatarUrl(me.avatar_url ?? '')
+                setCvUrl(me.cv_url ?? '')
                 onUserUpdated(me)
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Không tải được thông tin cá nhân')
@@ -90,6 +93,39 @@ const ProfilePage = ({ currentUser, onUserUpdated, onNavigate }: Props) => {
         }
     }
 
+    const handleCvPick = async (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+        if (!file) {
+            return
+        }
+
+        if (!file.name.toLowerCase().endsWith('.pdf')) {
+            setError('Vui lòng chọn file PDF')
+            return
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            setError('File CV tối đa 5MB')
+            return
+        }
+
+        try {
+            setError('')
+            setSuccess('')
+            setIsUploadingCv(true)
+            const updated = await uploadCV(file)
+            setUser(updated)
+            setCvUrl(updated.cv_url ?? '')
+            onUserUpdated(updated)
+            setSuccess('Cập nhật CV thành công')
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Cập nhật CV thất bại')
+        } finally {
+            setIsUploadingCv(false)
+        }
+
+    }
+
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         setError('')
@@ -105,6 +141,7 @@ const ProfilePage = ({ currentUser, onUserUpdated, onNavigate }: Props) => {
             })
             setUser(updated)
             setAvatarUrl(updated.avatar_url ?? '')
+            setCvUrl(updated.cv_url ?? '')
             onUserUpdated(updated)
             setSuccess('Cập nhật thông tin thành công')
         } catch (err) {
@@ -206,6 +243,34 @@ const ProfilePage = ({ currentUser, onUserUpdated, onNavigate }: Props) => {
                         rows={4}
                         className="w-full px-3 py-2.5 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white resize-none"
                     />
+                </div>
+
+                <div className="border border-slate-200 rounded-xl p-5 bg-slate-50/50">
+                    <div className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between">
+                        <div>
+                            <h3 className="text-sm font-semibold text-slate-700 mb-1">CV của bạn</h3>
+                            {cvUrl ? (
+                                <a
+                                    href={cvUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-sm text-blue-600 hover:underline inline-flex items-center gap-1.5"
+                                >
+                                    <FileUp className="w-4 h-4" /> Xem CV hiện tại
+                                </a>
+                            ) : (
+                                <p className="text-sm text-slate-500">Chưa có CV. Upload file PDF để nhà tuyển dụng xem hồ sơ của bạn.</p>
+                            )}
+                        </div>
+                        <div className="shrink-0">
+                            <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm font-medium text-slate-700">
+                                <FileUp className="w-4 h-4" /> {cvUrl ? 'Tải CV mới' : 'Upload CV'}
+                                <input type="file" accept=".pdf" className="hidden" onChange={handleCvPick} disabled={isUploadingCv} />
+                            </label>
+                            {isUploadingCv && <p className="mt-2 text-xs text-blue-600">Đang tải CV lên...</p>}
+                        </div>
+                    </div>
+                    <p className="mt-2 text-xs text-slate-400">Chỉ hỗ trợ file PDF, tối đa 5MB. CV sẽ được gửi kèm khi ứng tuyển.</p>
                 </div>
 
                 {error && <p className="text-sm text-red-600">{error}</p>}

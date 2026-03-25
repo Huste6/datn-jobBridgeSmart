@@ -20,9 +20,10 @@ type Handler struct {
 	jwtIssuer   string
 	tokenTTL    time.Duration
 	uploader    *AvatarUploader
+	cvUploader  *CvUploader
 }
 
-func NewHandler(repo *UserRepository, companyRepo *CompanyRepository, jwtSecret, jwtIssuer string, tokenTTL time.Duration, uploader *AvatarUploader) *Handler {
+func NewHandler(repo *UserRepository, companyRepo *CompanyRepository, jwtSecret, jwtIssuer string, tokenTTL time.Duration, uploader *AvatarUploader, cvUploader *CvUploader) *Handler {
 	return &Handler{
 		repo:        repo,
 		companyRepo: companyRepo,
@@ -30,6 +31,7 @@ func NewHandler(repo *UserRepository, companyRepo *CompanyRepository, jwtSecret,
 		jwtIssuer:   jwtIssuer,
 		tokenTTL:    tokenTTL,
 		uploader:    uploader,
+		cvUploader:  cvUploader,
 	}
 }
 
@@ -493,6 +495,75 @@ func (h *Handler) UploadAvatar(c *gin.Context) {
 	}
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not update user avatar"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"user": u.ToPublic()})
+}
+
+func (h *Handler) UploadCV(c *gin.Context) {
+	if h.cvUploader == nil || !h.cvUploader.Enabled() {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "cv upload is not configured"})
+		return
+	}
+
+	rawID, exists := c.Get(ContextUserIDKey)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	userIDHex, ok := rawID.(string)
+	if !ok || userIDHex == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	userID, err := bson.ObjectIDFromHex(userIDHex)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	file, header, err := c.Request.FormFile("cv")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "missing cv file"})
+		return
+	}
+	defer file.Close()
+
+	if !strings.HasSuffix(strings.ToLower(header.Filename), ".pdf") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "only PDF files are allowed"})
+		return
+	}
+
+	const maxCvBytes = 5 * 1024 * 1024
+	data, readErr := io.ReadAll(io.LimitReader(file, maxCvBytes+1))
+	if readErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "could not read cv file"})
+		return
+	}
+	if len(data) > maxCvBytes {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "cv must be <= 5MB"})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 30*time.Second)
+	defer cancel()
+
+	cvURL, err := h.cvUploader.UploadRaw(ctx, userIDHex, header.Filename, data)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "could not upload cv"})
+		return
+	}
+
+	u, err := h.repo.UpdateSelf(ctx, userID, UserSelfUpdate{CvURL: &cvURL})
+	if errors.Is(err, ErrUserNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not update user cv"})
 		return
 	}
 

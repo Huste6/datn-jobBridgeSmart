@@ -7,6 +7,7 @@ export type AuthUser = {
     phone?: string
     city?: string
     headline?: string
+    cv_url?: string
     profile_completed: boolean
     created_at: string
 }
@@ -206,6 +207,33 @@ export async function uploadAvatar(file: File): Promise<AuthUser> {
     const body = (await response.json().catch(() => ({}))) as { error?: string; user?: AuthUser }
     if (!response.ok || !body.user) {
         throw new Error(body.error ?? 'Upload avatar failed')
+    }
+
+    meCache = body.user
+    meCacheToken = token
+    return body.user
+}
+
+export async function uploadCV(file: File): Promise<AuthUser> {
+    const token = getStoredAccessToken()
+    if (!token) {
+        throw new Error('Missing access token')
+    }
+
+    const formData = new FormData()
+    formData.append('cv', file)
+
+    const response = await fetch(buildUrl('/api/users/me/cv'), {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+    })
+
+    const body = (await response.json().catch(() => ({}))) as { error?: string; user?: AuthUser }
+    if (!response.ok || !body.user) {
+        throw new Error(body.error ?? 'Upload CV failed')
     }
 
     meCache = body.user

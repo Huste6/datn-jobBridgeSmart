@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 
+	"jobbridge-ai/backend/internal/application"
 	"jobbridge-ai/backend/internal/auth"
 	"jobbridge-ai/backend/internal/config"
 	"jobbridge-ai/backend/internal/job"
@@ -21,6 +22,7 @@ func NewRouter(cfg config.Config, db *mongo.Database) *gin.Engine {
 	userRepo := auth.NewUserRepository(db)
 	companyRepo := auth.NewCompanyRepository(db)
 	jobRepo := job.NewRepository(db)
+	appRepo := application.NewRepository(db)
 
 	authHandler := auth.NewHandler(
 		userRepo,
@@ -29,9 +31,11 @@ func NewRouter(cfg config.Config, db *mongo.Database) *gin.Engine {
 		cfg.JWTIssuer,
 		time.Duration(cfg.AccessTokenTTLMinutes)*time.Minute,
 		mustAvatarUploader(cfg.CloudinaryURL, cfg.CloudinaryFolder),
+		mustCvUploader(cfg.CloudinaryURL),
 	)
 
 	jobHandler := job.NewHandler(jobRepo, cfg.JWTSecret)
+	appHandler := application.NewHandler(appRepo, userRepo, jobRepo, cfg.JWTSecret)
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -53,6 +57,7 @@ func NewRouter(cfg config.Config, db *mongo.Database) *gin.Engine {
 			userRoutes.GET("/me", authHandler.Me)
 			userRoutes.PATCH("/me", authHandler.UpdateMe)
 			userRoutes.POST("/me/avatar", authHandler.UploadAvatar)
+			userRoutes.POST("/me/cv", authHandler.UploadCV)
 			userRoutes.POST("/me/onboarding", authHandler.CompleteOnboarding)
 		}
 
@@ -65,6 +70,7 @@ func NewRouter(cfg config.Config, db *mongo.Database) *gin.Engine {
 		}
 
 		jobHandler.RegisterRoutes(api)
+		appHandler.RegisterRoutes(api)
 	}
 
 	return r
@@ -78,6 +84,18 @@ func mustAvatarUploader(cloudinaryURL, folder string) *auth.AvatarUploader {
 	}
 	if uploader == nil {
 		log.Printf("avatar uploader disabled: missing cloudinary configuration")
+	}
+	return uploader
+}
+
+func mustCvUploader(cloudinaryURL string) *auth.CvUploader {
+	uploader, err := auth.NewCvUploader(cloudinaryURL, "jobbridge/cv")
+	if err != nil {
+		log.Printf("cv uploader disabled: %v", err)
+		return nil
+	}
+	if uploader == nil {
+		log.Printf("cv uploader disabled: missing cloudinary configuration")
 	}
 	return uploader
 }

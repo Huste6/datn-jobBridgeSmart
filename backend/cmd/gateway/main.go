@@ -58,6 +58,8 @@ func main() {
 	r.Any("/api/hr/*path", gin.WrapH(authProxy))
 	r.Any("/api/jobs", gin.WrapH(jobsProxy))
 	r.Any("/api/jobs/*path", gin.WrapH(jobsProxy))
+	r.Any("/api/applications", gin.WrapH(jobsProxy))
+	r.Any("/api/applications/*path", gin.WrapH(jobsProxy))
 
 	addr := ":" + port
 	log.Printf("Gateway service is running on %s", addr)

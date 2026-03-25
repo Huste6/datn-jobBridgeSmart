@@ -1,7 +1,7 @@
-﻿import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Briefcase, MapPin, Wallet, Search, Filter, ArrowLeft, ShieldCheck, UserCircle2, ChevronDown, LogOut, Sparkles, X, FileText } from "lucide-react"
 import { fetchJobs, fetchJobsByQuery, type Job } from "../../features/jobs/api/jobs"
-import { applyToJob, hasApplied } from "../../features/jobs/api/applications"
+import { applyToJob, getSavedApplications } from "../../features/jobs/api/applications"
 import type { AuthUser } from "../../features/auth/api/auth"
 import type { AppPage, UserRole } from "../../shared/routes/appRoutes"
 
@@ -24,6 +24,7 @@ const JobsListPage = ({ onNavigate, currentUser, role, onLogout }: JobsListPageP
     const [employmentTypes, setEmploymentTypes] = useState<string[]>([])
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
     const [lastAppliedJobId, setLastAppliedJobId] = useState<string | null>(null)
+    const [appliedJobs, setAppliedJobs] = useState<Set<string>>(new Set())
     const hasLoadedRef = useRef(false)
     const hasAutoSearchStartedRef = useRef(false)
     const profileMenuRef = useRef<HTMLDivElement | null>(null)
@@ -37,6 +38,17 @@ const JobsListPage = ({ onNavigate, currentUser, role, onLogout }: JobsListPageP
     ] as const
 
     const employmentOptions = ['Toàn thời gian', 'Bán thời gian', 'Thực tập', 'Remote']
+
+    useEffect(() => {
+        if (!currentUser || role !== 'seeker') return
+        let isMounted = true
+        getSavedApplications().then(apps => {
+            if (isMounted) {
+                setAppliedJobs(new Set(apps.map(a => a.job_id)))
+            }
+        }).catch(console.error)
+        return () => { isMounted = false }
+    }, [currentUser, role])
 
     useEffect(() => {
         const onMouseDown = (event: MouseEvent) => {
@@ -101,9 +113,20 @@ const JobsListPage = ({ onNavigate, currentUser, role, onLogout }: JobsListPageP
         setEmploymentTypes((prev) => (prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]))
     }
 
-    const handleApply = (jobId: string) => {
-        applyToJob(jobId)
-        setLastAppliedJobId(jobId)
+    const handleApply = async (jobId: string) => {
+        try {
+            await applyToJob(jobId)
+            setAppliedJobs(prev => {
+                const next = new Set(prev)
+                next.add(jobId)
+                return next
+            })
+            setLastAppliedJobId(jobId)
+            alert("Nộp đơn thành công!")
+        } catch (error: any) {
+            console.error(error)
+            alert("Lỗi khi ứng tuyển: " + (error?.message || "Không xác định"))
+        }
     }
 
     const initials = currentUser
@@ -447,12 +470,12 @@ const JobsListPage = ({ onNavigate, currentUser, role, onLogout }: JobsListPageP
                                                 <button
                                                     onClick={(event) => {
                                                         event.stopPropagation()
-                                                        handleApply(job.id)
+                                                        void handleApply(job.id)
                                                     }}
-                                                    disabled={hasApplied(job.id)}
-                                                    className={`px-6 py-2 rounded-xl text-sm font-bold shadow-sm active:scale-95 transition-all ${hasApplied(job.id) ? 'bg-slate-200 text-slate-500 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
+                                                    disabled={appliedJobs.has(job.id)}
+                                                    className={`px-6 py-2 rounded-xl text-sm font-bold shadow-sm active:scale-95 transition-all ${appliedJobs.has(job.id) ? 'bg-slate-200 text-slate-500 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
                                                 >
-                                                    {hasApplied(job.id) ? 'Đã ứng tuyển' : 'Ứng tuyển nhanh'}
+                                                    {appliedJobs.has(job.id) ? 'Đã ứng tuyển' : 'Ứng tuyển nhanh'}
                                                 </button>
                                                 <button className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold transition-all">
                                                     Lưu tin

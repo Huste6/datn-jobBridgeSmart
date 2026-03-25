@@ -39,7 +39,7 @@ const CandidateApplicationsPage = ({ onNavigate }: { onNavigate?: (page: AppPage
             try {
                 const jobData = await fetchJobs()
                 setJobs(jobData)
-                setApplications(getSavedApplications())
+                setApplications(await getSavedApplications())
             } finally {
                 setLoading(false)
             }

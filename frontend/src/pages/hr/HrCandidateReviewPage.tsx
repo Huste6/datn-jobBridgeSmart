@@ -7,6 +7,7 @@ import {
     getSelectedCandidateId,
     getCompanyJobById,
     type CompanyJob,
+    type JobCandidate,
     updateCandidateReview,
 } from '../../features/hr/api/hrRecruiter'
 
@@ -28,7 +29,16 @@ const HrCandidateReviewPage = ({
     onLogout: () => void
 }) => {
     const [candidateId] = useState(getSelectedCandidateId())
-    const candidate = useMemo(() => (candidateId ? getCandidateById(candidateId) : null), [candidateId])
+    const [candidate, setCandidate] = useState<JobCandidate | null>(null)
+
+    useEffect(() => {
+        if (!candidateId) return
+        let isMounted = true
+        getCandidateById(candidateId)
+            .then(data => { if (isMounted) setCandidate(data) })
+            .catch(console.error)
+        return () => { isMounted = false }
+    }, [candidateId])
 
     const [stage, setStage] = useState<'new' | 'screening' | 'interview' | 'offer' | 'rejected'>('new')
     const [manualScore, setManualScore] = useState(70)
@@ -84,10 +94,20 @@ const HrCandidateReviewPage = ({
 
                         <div className="rounded-xl border border-slate-200 p-4">
                             <p className="font-semibold text-slate-900 mb-2">Tóm tắt hồ sơ</p>
-                            <p className="text-slate-700">{candidate.summary}</p>
-                            <p className="text-sm text-slate-600 mt-3">Kỹ năng: {candidate.skills.join(', ')}</p>
-                            <p className="text-sm text-slate-600">Số năm kinh nghiệm: {candidate.yearsOfExperience}</p>
+                            <p className="text-slate-700">{candidate.summary || 'Không có tóm tắt'}</p>
+                            {/* <p className="text-sm text-slate-600 mt-3">Kỹ năng: {(candidate.skills || []).join(', ')}</p>
+                            <p className="text-sm text-slate-600">Số năm kinh nghiệm: {candidate.yearsOfExperience}</p> */}
+                            {/* Removed skills and years of experience as these might not come strictly from user model */}
                         </div>
+
+                        {(candidate as any).cvUrl && (
+                            <div className="rounded-xl border border-slate-200 p-4">
+                                <p className="font-semibold text-slate-900 mb-2">CV Ứng viên</p>
+                                <a href={(candidate as any).cvUrl} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
+                                    Mở hồ sơ PDF
+                                </a>
+                            </div>
+                        )}
                     </div>
 
                     <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
@@ -112,8 +132,9 @@ const HrCandidateReviewPage = ({
 
                         <div className="flex flex-wrap gap-3">
                             <button
-                                onClick={() => {
-                                    const updated = updateCandidateReview(candidate.id, { stage, manualScore, notes })
+                                onClick={async () => {
+                                    if (!candidate) return
+                                    const updated = await updateCandidateReview(candidate.id, { stage, manualScore, notes })
                                     setMessage(updated ? 'Đã cập nhật đánh giá ứng viên' : 'Cập nhật thất bại')
                                 }}
                                 className="px-5 py-2.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700"

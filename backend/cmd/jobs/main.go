@@ -10,6 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
+	"jobbridge-ai/backend/internal/application"
+	"jobbridge-ai/backend/internal/auth"
 	"jobbridge-ai/backend/internal/config"
 	"jobbridge-ai/backend/internal/db"
 	"jobbridge-ai/backend/internal/job"
@@ -38,8 +40,12 @@ func main() {
 	}()
 
 	database := mongoClient.Database(cfg.MongoDB)
+	userRepo := auth.NewUserRepository(database)
 	jobRepo := job.NewRepository(database)
+	appRepo := application.NewRepository(database)
+
 	jobHandler := job.NewHandler(jobRepo, cfg.JWTSecret)
+	appHandler := application.NewHandler(appRepo, userRepo, jobRepo, cfg.JWTSecret)
 
 	r := gin.New()
 	r.Use(gin.Logger(), gin.Recovery())
@@ -50,6 +56,7 @@ func main() {
 
 	api := r.Group("/api")
 	jobHandler.RegisterRoutes(api)
+	appHandler.RegisterRoutes(api)
 
 	addr := ":" + cfg.Port
 	log.Printf("Jobs service is running on %s", addr)

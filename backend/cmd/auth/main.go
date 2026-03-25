@@ -47,6 +47,7 @@ func main() {
 		cfg.JWTIssuer,
 		time.Duration(cfg.AccessTokenTTLMinutes)*time.Minute,
 		mustAvatarUploader(cfg.CloudinaryURL, cfg.CloudinaryFolder),
+		mustCvUploader(cfg.CloudinaryURL),
 	)
 
 	r := gin.New()
@@ -70,6 +71,7 @@ func main() {
 			userRoutes.GET("/me", authHandler.Me)
 			userRoutes.PATCH("/me", authHandler.UpdateMe)
 			userRoutes.POST("/me/avatar", authHandler.UploadAvatar)
+			userRoutes.POST("/me/cv", authHandler.UploadCV)
 			userRoutes.POST("/me/onboarding", authHandler.CompleteOnboarding)
 		}
 
@@ -97,6 +99,18 @@ func mustAvatarUploader(cloudinaryURL, folder string) *auth.AvatarUploader {
 	}
 	if uploader == nil {
 		log.Printf("avatar uploader disabled: missing cloudinary configuration")
+	}
+	return uploader
+}
+
+func mustCvUploader(cloudinaryURL string) *auth.CvUploader {
+	uploader, err := auth.NewCvUploader(cloudinaryURL, "jobbridge/cv")
+	if err != nil {
+		log.Printf("cv uploader disabled: %v", err)
+		return nil
+	}
+	if uploader == nil {
+		log.Printf("cv uploader disabled: missing cloudinary configuration")
 	}
 	return uploader
 }
