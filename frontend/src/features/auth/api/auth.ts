@@ -9,6 +9,7 @@ export type AuthUser = {
     headline?: string
     cv_url?: string
     profile_completed: boolean
+    is_locked: boolean
     created_at: string
 }
 
@@ -239,4 +240,92 @@ export async function uploadCV(file: File): Promise<AuthUser> {
     meCache = body.user
     meCacheToken = token
     return body.user
+}
+
+export type AdminStats = {
+    total_users: number
+    total_companies: number
+    total_jobs: number
+}
+
+export async function fetchAdminStats(): Promise<AdminStats> {
+    const token = getStoredAccessToken()
+    return request<AdminStats>('/api/admin/stats', {
+        headers: { Authorization: `Bearer ${token}` },
+    })
+}
+
+export type AdminUsersResponse = {
+    users: AuthUser[]
+    total: number
+    page: number
+    limit: number
+}
+
+export async function fetchAdminUsers(params: {
+    page?: number
+    limit?: number
+    q?: string
+}): Promise<AdminUsersResponse> {
+    const token = getStoredAccessToken()
+    const urlParams = new URLSearchParams()
+    if (params.page) urlParams.set('page', params.page.toString())
+    if (params.limit) urlParams.set('limit', params.limit.toString())
+    if (params.q) urlParams.set('q', params.q)
+
+    return request<AdminUsersResponse>(`/api/admin/users?${urlParams.toString()}`, {
+        headers: { Authorization: `Bearer ${token}` },
+    })
+}
+
+export async function toggleUserLock(userId: string, isLocked: boolean): Promise<void> {
+    const token = getStoredAccessToken()
+    await request(`/api/admin/users/${userId}/lock`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ is_locked: isLocked }),
+    })
+}
+
+export type AdminCompaniesResponse = {
+    companies: any[] // You can define a more specific Company type if needed
+    total: number
+    page: number
+    limit: number
+}
+
+export async function fetchAdminCompanies(params: {
+    page?: number
+    limit?: number
+    q?: string
+    status?: string
+}): Promise<AdminCompaniesResponse> {
+    const token = getStoredAccessToken()
+    const urlParams = new URLSearchParams()
+    if (params.page) urlParams.set('page', params.page.toString())
+    if (params.limit) urlParams.set('limit', params.limit.toString())
+    if (params.q) urlParams.set('q', params.q)
+    if (params.status) urlParams.set('status', params.status)
+
+    return request<AdminCompaniesResponse>(`/api/admin/companies?${urlParams.toString()}`, {
+        headers: { Authorization: `Bearer ${token}` },
+    })
+}
+
+export async function approveCompany(companyId: string, status: 'approved' | 'rejected'): Promise<void> {
+    const token = getStoredAccessToken()
+    await request(`/api/admin/companies/${companyId}/approve`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ status }),
+    })
+}
+
+export async function toggleCompanyLock(companyId: string, isLocked: boolean): Promise<void> {
+    const token = getStoredAccessToken()
+    await request(`/api/admin/companies/${companyId}/lock`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ is_locked: isLocked }),
+    })
 }

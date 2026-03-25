@@ -17,6 +17,8 @@ type Company struct {
 	Size        string        `bson:"size" json:"size"`
 	Location    string        `bson:"location" json:"location"`
 	Description string        `bson:"description" json:"description"`
+	Status      string        `bson:"status" json:"status"` // pending, approved, rejected
+	IsLocked    bool          `bson:"is_locked" json:"is_locked"`
 	CreatedAt   time.Time     `bson:"created_at" json:"created_at"`
 	UpdatedAt   time.Time     `bson:"updated_at" json:"updated_at"`
 }

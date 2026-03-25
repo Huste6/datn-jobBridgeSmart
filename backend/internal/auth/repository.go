@@ -8,6 +8,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 var ErrUserNotFound = errors.New("user not found")
@@ -145,4 +146,48 @@ func (r *UserRepository) UpdateSelf(ctx context.Context, id bson.ObjectID, in Us
 	}
 
 	return r.FindByID(ctx, id)
+}
+
+func (r *UserRepository) CountAll(ctx context.Context, search string) (int64, error) {
+	filter := bson.M{}
+	if search != "" {
+		filter["$or"] = []bson.M{
+			{"full_name": bson.M{"$regex": search, "$options": "i"}},
+			{"email": bson.M{"$regex": search, "$options": "i"}},
+		}
+	}
+	return r.col.CountDocuments(ctx, filter)
+}
+
+func (r *UserRepository) FindAll(ctx context.Context, page, limit int64, search string) ([]User, error) {
+	filter := bson.M{}
+	if search != "" {
+		filter["$or"] = []bson.M{
+			{"full_name": bson.M{"$regex": search, "$options": "i"}},
+			{"email": bson.M{"$regex": search, "$options": "i"}},
+		}
+	}
+
+	opts := options.Find().
+		SetSkip((page - 1) * limit).
+		SetLimit(limit).
+		SetSort(bson.D{{Key: "created_at", Value: -1}})
+
+	cursor, err := r.col.Find(ctx, filter, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var users []User
+	if err := cursor.All(ctx, &users); err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
+func (r *UserRepository) UpdateLockStatus(ctx context.Context, id bson.ObjectID, isLocked bool) error {
+	_, err := r.col.UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": bson.M{"is_locked": isLocked, "updated_at": time.Now().UTC()}})
+	return err
 }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import HrShell from './HrShell'
 import type { AuthUser } from '../../features/auth/api/auth'
 import type { AppPage } from '../../shared/routes/appRoutes'
@@ -118,11 +118,6 @@ const HrCandidateReviewPage = ({
                                     <option key={item.value} value={item.value}>{item.label}</option>
                                 ))}
                             </select>
-                        </label>
-
-                        <label className="space-y-1 block">
-                            <span className="text-sm font-medium text-slate-700">Diem thu cong (0 - 100)</span>
-                            <input type="number" min={0} max={100} value={manualScore} onChange={(e) => setManualScore(Math.max(0, Math.min(100, Number(e.target.value) || 0)))} className="w-full px-3 py-2 rounded-lg border border-slate-300" />
                         </label>
 
                         <label className="space-y-1 block">

@@ -82,6 +82,17 @@ func main() {
 			hrRoutes.POST("/company", authHandler.CreateMyCompany)
 			hrRoutes.PUT("/company", authHandler.UpdateMyCompany)
 		}
+
+		adminRoutes := api.Group("/admin")
+		adminRoutes.Use(auth.AuthMiddleware(cfg.JWTSecret), auth.RoleMiddleware("admin"))
+		{
+			adminRoutes.GET("/stats", authHandler.GetAdminStats)
+			adminRoutes.GET("/users", authHandler.GetAdminUsers)
+			adminRoutes.POST("/users/:id/lock", authHandler.ToggleUserLock)
+			adminRoutes.GET("/companies", authHandler.GetAdminCompanies)
+			adminRoutes.POST("/companies/:id/approve", authHandler.ApproveCompany)
+			adminRoutes.POST("/companies/:id/lock", authHandler.ToggleCompanyLock)
+		}
 	}
 
 	addr := ":" + cfg.Port

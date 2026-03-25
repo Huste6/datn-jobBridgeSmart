@@ -1,4 +1,4 @@
-export type UserRole = 'seeker' | 'recruiter'
+export type UserRole = 'seeker' | 'recruiter' | 'admin'
 
 export type AppPage =
     | 'landing'
@@ -19,6 +19,10 @@ export type AppPage =
     | 'roleSelect'
     | 'basicProfile'
     | 'appProfile'
+    | 'adminLogin'
+    | 'adminDashboard'
+    | 'adminUsers'
+    | 'adminCompanies'
 
 export function pathFromPage(page: AppPage): string {
     switch (page) {
@@ -58,6 +62,14 @@ export function pathFromPage(page: AppPage): string {
             return '/onboarding/profile'
         case 'appProfile':
             return '/profile'
+        case 'adminLogin':
+            return '/admin/login'
+        case 'adminDashboard':
+            return '/admin/dashboard'
+        case 'adminUsers':
+            return '/admin/users'
+        case 'adminCompanies':
+            return '/admin/companies'
         default:
             return '/404'
     }
@@ -101,6 +113,14 @@ export function pageFromPath(pathname: string): AppPage {
             return 'basicProfile'
         case '/profile':
             return 'appProfile'
+        case '/admin/login':
+            return 'adminLogin'
+        case '/admin/dashboard':
+            return 'adminDashboard'
+        case '/admin/users':
+            return 'adminUsers'
+        case '/admin/companies':
+            return 'adminCompanies'
         default:
             return 'notfound'
     }
@@ -118,6 +138,9 @@ export function isProtectedPage(page: AppPage): boolean {
         || page === 'basicProfile'
         || page === 'appProfile'
         || page === 'applications'
+        || page === 'adminDashboard'
+        || page === 'adminUsers'
+        || page === 'adminCompanies'
 }
 
 export function isAppPage(): boolean {
@@ -125,5 +148,6 @@ export function isAppPage(): boolean {
 }
 
 export function defaultAppPageForRole(role: UserRole): AppPage {
+    if (role === 'admin') return 'adminDashboard'
     return role === 'recruiter' ? 'hrCompanyCreate' : 'landing'
 }

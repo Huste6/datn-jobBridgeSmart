@@ -98,8 +98,6 @@ const HrJobCandidatesPage = ({
                                 <div>
                                     <h3 className="font-semibold text-slate-900">{candidate.fullName}</h3>
                                     <p className="text-sm text-slate-600">{candidate.email} • {candidate.phone}</p>
-                                    <p className="text-sm text-slate-600 mt-2">Kinh nghiệm: {candidate.yearsOfExperience} năm</p>
-                                    <p className="text-sm text-slate-600">Kỹ năng: {candidate.skills.join(', ')}</p>
                                 </div>
                                 <div className="text-right">
                                     <p className="text-sm text-slate-500">Điểm thủ công</p>

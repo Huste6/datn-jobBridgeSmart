@@ -7,6 +7,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 var ErrCompanyNotFound = errors.New("company not found")
@@ -51,6 +52,8 @@ func (r *CompanyRepository) CreateByOwnerID(ctx context.Context, ownerID bson.Ob
 		Size:        normalized.Size,
 		Location:    normalized.Location,
 		Description: normalized.Description,
+		Status:      "pending",
+		IsLocked:    false,
 		CreatedAt:   now,
 		UpdatedAt:   now,
 	}
@@ -89,4 +92,70 @@ func (r *CompanyRepository) UpdateByOwnerID(ctx context.Context, ownerID bson.Ob
 	}
 
 	return r.FindByOwnerID(ctx, ownerID)
+}
+
+func (r *CompanyRepository) FindByID(ctx context.Context, id bson.ObjectID) (*Company, error) {
+	var company Company
+	err := r.col.FindOne(ctx, bson.M{"_id": id}).Decode(&company)
+	if errors.Is(err, mongo.ErrNoDocuments) {
+		return nil, ErrCompanyNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return &company, nil
+}
+
+func (r *CompanyRepository) CountAllApproved(ctx context.Context) (int64, error) {
+	return r.col.CountDocuments(ctx, bson.M{"status": "approved", "is_locked": false})
+}
+
+func (r *CompanyRepository) CountAll(ctx context.Context, search, status string) (int64, error) {
+	filter := bson.M{}
+	if status != "" {
+		filter["status"] = status
+	}
+	if search != "" {
+		filter["name"] = bson.M{"$regex": search, "$options": "i"}
+	}
+	return r.col.CountDocuments(ctx, filter)
+}
+
+func (r *CompanyRepository) FindAll(ctx context.Context, page, limit int64, search, status string) ([]Company, error) {
+	filter := bson.M{}
+	if status != "" {
+		filter["status"] = status
+	}
+	if search != "" {
+		filter["name"] = bson.M{"$regex": search, "$options": "i"}
+	}
+
+	opts := options.Find().
+		SetSkip((page - 1) * limit).
+		SetLimit(limit).
+		SetSort(bson.D{{Key: "created_at", Value: -1}})
+
+	cursor, err := r.col.Find(ctx, filter, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var companies []Company
+	if err := cursor.All(ctx, &companies); err != nil {
+		return nil, err
+	}
+
+	return companies, nil
+}
+
+func (r *CompanyRepository) UpdateStatus(ctx context.Context, id bson.ObjectID, status string) error {
+	_, err := r.col.UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": bson.M{"status": status, "updated_at": time.Now().UTC()}})
+	return err
+}
+
+func (r *CompanyRepository) UpdateLockStatus(ctx context.Context, id bson.ObjectID, isLocked bool) error {
+	_, err := r.col.UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": bson.M{"is_locked": isLocked, "updated_at": time.Now().UTC()}})
+	return err
 }

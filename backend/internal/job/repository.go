@@ -26,6 +26,7 @@ type Repository interface {
 	CreateByOwnerID(ctx context.Context, ownerID bson.ObjectID, in JobUpsertInput) (*Job, error)
 	UpdateByOwnerID(ctx context.Context, ownerID bson.ObjectID, id string, in JobUpsertInput) (*Job, error)
 	DeleteByOwnerID(ctx context.Context, ownerID bson.ObjectID, id string) error
+	CountActive(ctx context.Context) (int64, error)
 }
 
 type JobUpsertInput struct {
@@ -373,6 +374,10 @@ func (r *repository) DeleteByOwnerID(ctx context.Context, ownerID bson.ObjectID,
 	}
 
 	return nil
+}
+
+func (r *repository) CountActive(ctx context.Context) (int64, error) {
+	return r.collection.CountDocuments(ctx, bson.M{"status": "open"})
 }
 
 func normalizeStringSlice(items []string) []string {

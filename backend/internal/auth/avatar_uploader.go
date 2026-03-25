@@ -120,7 +120,7 @@ func (u *AvatarUploader) UploadImage(ctx context.Context, userID string, filenam
 
 	if resp.StatusCode >= 400 {
 		if payload.Error.Message != "" {
-			return "", fmt.Errorf(payload.Error.Message)
+			return "", fmt.Errorf("%s", payload.Error.Message)
 		}
 		return "", fmt.Errorf("cloudinary upload failed")
 	}

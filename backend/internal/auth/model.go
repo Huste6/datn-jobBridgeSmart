@@ -18,6 +18,7 @@ type User struct {
 	City         string        `bson:"city,omitempty" json:"city,omitempty"`
 	Headline     string        `bson:"headline,omitempty" json:"headline,omitempty"`
 	ProfileDone  bool          `bson:"profile_completed" json:"profile_completed"`
+	IsLocked     bool          `bson:"is_locked" json:"is_locked"`
 	PasswordHash string        `bson:"password_hash" json:"-"`
 	CreatedAt    time.Time     `bson:"created_at" json:"created_at"`
 	UpdatedAt    time.Time     `bson:"updated_at" json:"updated_at"`
@@ -34,6 +35,7 @@ type PublicUser struct {
 	City             string    `json:"city,omitempty"`
 	Headline         string    `json:"headline,omitempty"`
 	ProfileCompleted bool      `json:"profile_completed"`
+	IsLocked         bool      `json:"is_locked"`
 	CreatedAt        time.Time `json:"created_at"`
 }
 
@@ -49,6 +51,7 @@ func (u User) ToPublic() PublicUser {
 		City:             u.City,
 		Headline:         u.Headline,
 		ProfileCompleted: u.ProfileDone,
+		IsLocked:         u.IsLocked,
 		CreatedAt:        u.CreatedAt,
 	}
 }

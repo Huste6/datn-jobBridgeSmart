@@ -16,6 +16,11 @@ import BasicProfilePage from './pages/onboarding/BasicProfilePage'
 import JobsListPage from './pages/app/JobsListPage'
 import ProfilePage from './pages/app/ProfilePage'
 import CandidateApplicationsPage from './pages/app/CandidateApplicationsPage'
+import AdminLoginPage from './pages/admin/AdminLoginPage'
+import AdminDashboardPage from './pages/admin/AdminDashboardPage'
+import AdminUserManagementPage from './pages/admin/AdminUserManagementPage'
+import AdminCompanyManagementPage from './pages/admin/AdminCompanyManagementPage'
+import AdminLayout from './layouts/AdminLayout'
 import { clearStoredAccessToken, completeOnboarding, fetchMe, getStoredAccessToken } from './features/auth/api/auth'
 import type { AuthUser } from './features/auth/api/auth'
 import {
@@ -27,7 +32,7 @@ import {
 import type { AppPage, UserRole } from './shared/routes/appRoutes'
 
 function toUserRole(rawRole: string): UserRole | null {
-  if (rawRole === 'recruiter' || rawRole === 'seeker') {
+  if (rawRole === 'recruiter' || rawRole === 'seeker' || rawRole === 'admin') {
     return rawRole
   }
   return null
@@ -116,6 +121,12 @@ function App() {
       return
     }
 
+    const isAdminPage = currentPage === 'adminDashboard' || currentPage === 'adminUsers' || currentPage === 'adminCompanies'
+    if (isAdminPage && role !== 'admin') {
+      navigate('forbidden', { replace: true })
+      return
+    }
+
     if (!role && currentPage !== 'roleSelect') {
       navigate('roleSelect', { replace: true })
       return
@@ -174,7 +185,7 @@ function App() {
     }
 
     const updatedUser = await completeOnboarding({
-      role,
+      role: role as any,
       full_name: payload.full_name,
       phone: payload.phone,
       city: payload.city,
@@ -238,6 +249,14 @@ function App() {
             />
           </div>
         </div>
+      )}
+      {currentPage === 'adminLogin' && <AdminLoginPage onNavigate={navigate} onAuthSuccess={handleAuthSuccess} />}
+      {(currentPage === 'adminDashboard' || currentPage === 'adminUsers' || currentPage === 'adminCompanies') && currentUser && (
+        <AdminLayout currentPage={currentPage} onNavigate={navigate} onLogout={handleLogout}>
+          {currentPage === 'adminDashboard' && <AdminDashboardPage />}
+          {currentPage === 'adminUsers' && <AdminUserManagementPage />}
+          {currentPage === 'adminCompanies' && <AdminCompanyManagementPage />}
+        </AdminLayout>
       )}
       {currentPage === 'unauthorized' && <UnauthorizedPage onNavigate={navigate} />}
       {currentPage === 'forbidden' && <ForbiddenPage onNavigate={navigate} />}
