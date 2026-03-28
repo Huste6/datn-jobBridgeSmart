@@ -29,9 +29,11 @@ const HrJobCandidatesPage = ({
                 const data = await listCompanyJobs()
                 setJobs(data)
 
-                if (!selectedJobId && data[0]?.id) {
-                    setSelectedJobIdState(data[0].id)
-                    setSelectedJobId(data[0].id)
+                const hasSelectedInCurrentJobs = selectedJobId && data.some((job) => job.id === selectedJobId)
+                if (!hasSelectedInCurrentJobs) {
+                    const nextJobId = data[0]?.id ?? ''
+                    setSelectedJobIdState(nextJobId)
+                    setSelectedJobId(nextJobId || null)
                 }
             } catch (error) {
                 setMessage(error instanceof Error ? error.message : 'Không thể tải danh sách job.')
@@ -42,7 +44,7 @@ const HrJobCandidatesPage = ({
     }, [selectedJobId])
 
     const [candidates, setCandidates] = useState<Array<Awaited<ReturnType<typeof listJobCandidates>>[number]>>([])
-    
+
     useEffect(() => {
         let isMounted = true
         if (!selectedJobId) {
@@ -54,7 +56,11 @@ const HrJobCandidatesPage = ({
             .then((data) => {
                 if (isMounted) setCandidates(data)
             })
-            .catch(console.error)
+            .catch((error) => {
+                if (!isMounted) return
+                setCandidates([])
+                setMessage(error instanceof Error ? error.message : 'Không thể tải danh sách ứng viên cho job đã chọn.')
+            })
 
         return () => { isMounted = false }
     }, [selectedJobId])

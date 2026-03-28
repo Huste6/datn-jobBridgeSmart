@@ -232,7 +232,7 @@ func (h *Handler) ListJobApplications(c *gin.Context) {
 
 // UpdateApplicationStatus handles PATCH /api/applications/:id/status — recruiter updates status.
 func (h *Handler) UpdateApplicationStatus(c *gin.Context) {
-	_, ok := currentUserID(c)
+	userID, ok := currentUserID(c)
 	if !ok {
 		return
 	}
@@ -257,7 +257,27 @@ func (h *Handler) UpdateApplicationStatus(c *gin.Context) {
 		return
 	}
 
-	app, err := h.repo.UpdateStatus(c.Request.Context(), appOID, req.Status)
+	app, err := h.repo.FindByID(c.Request.Context(), appOID)
+	if err != nil {
+		if errors.Is(err, ErrApplicationNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "application not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not fetch application"})
+		return
+	}
+
+	jobDoc, err := h.jobRepo.FindByID(c.Request.Context(), app.JobID.Hex())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not verify job ownership"})
+		return
+	}
+	if jobDoc == nil || jobDoc.OwnerID != userID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "you do not own this job"})
+		return
+	}
+
+	app, err = h.repo.UpdateStatus(c.Request.Context(), appOID, req.Status)
 	if err != nil {
 		if errors.Is(err, ErrApplicationNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "application not found"})

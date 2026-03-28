@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	ErrAlreadyApplied     = errors.New("already applied to this job")
+	ErrAlreadyApplied      = errors.New("already applied to this job")
 	ErrApplicationNotFound = errors.New("application not found")
 )
 
@@ -98,6 +98,19 @@ func (r *Repository) FindByJobID(ctx context.Context, jobID bson.ObjectID) ([]Ap
 	}
 
 	return apps, nil
+}
+
+// FindByID returns one application by _id, or ErrApplicationNotFound.
+func (r *Repository) FindByID(ctx context.Context, appID bson.ObjectID) (*Application, error) {
+	var app Application
+	if err := r.col.FindOne(ctx, bson.M{"_id": appID}).Decode(&app); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, ErrApplicationNotFound
+		}
+		return nil, err
+	}
+
+	return &app, nil
 }
 
 // UpdateStatus updates the status of an application.
