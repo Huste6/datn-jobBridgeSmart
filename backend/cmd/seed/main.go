@@ -7,6 +7,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 
 	"jobbridge-ai/backend/internal/config"
 	"jobbridge-ai/backend/internal/db"
@@ -30,6 +31,8 @@ func main() {
 
 	database := mongoClient.Database(cfg.MongoDB)
 	col := database.Collection("jobs")
+	usersCol := database.Collection("users")
+	companiesCol := database.Collection("companies")
 
 	_, err = col.DeleteMany(ctx, bson.M{})
 	if err != nil {
@@ -37,6 +40,52 @@ func main() {
 	}
 
 	now := time.Now()
+
+	// Public jobs endpoint only returns jobs where owner is an unlocked recruiter
+	// and the recruiter's company is approved + unlocked.
+	type recruiterDoc struct {
+		ID bson.ObjectID `bson:"_id"`
+	}
+	recruiterCursor, err := usersCol.Find(ctx, bson.M{
+		"role":      "recruiter",
+		"is_locked": false,
+	})
+	if err != nil {
+		log.Fatalf("failed to query recruiter users: %v", err)
+	}
+	defer recruiterCursor.Close(ctx)
+
+	var recruiters []recruiterDoc
+	if err := recruiterCursor.All(ctx, &recruiters); err != nil {
+		log.Fatalf("failed to decode recruiter users: %v", err)
+	}
+	if len(recruiters) == 0 {
+		log.Fatal("no recruiter users found, run seed_users first")
+	}
+
+	for i, rec := range recruiters {
+		_, err = companiesCol.UpdateOne(
+			ctx,
+			bson.M{"owner_id": rec.ID},
+			bson.M{"$set": bson.M{
+				"name":        "Recruiter Company",
+				"tax_code":    "TAX-SEED-000",
+				"website":     "https://example.com",
+				"industry":    "Technology",
+				"size":        "51-200",
+				"location":    "Ho Chi Minh",
+				"description": "Seeded company for recruiter-owned jobs",
+				"status":      "approved",
+				"is_locked":   false,
+				"updated_at":  now,
+				"created_at":  now,
+			}},
+			options.UpdateOne().SetUpsert(true),
+		)
+		if err != nil {
+			log.Fatalf("failed to upsert company for recruiter %d: %v", i+1, err)
+		}
+	}
 
 	jobs := []job.Job{
 		{
@@ -497,8 +546,10 @@ func main() {
 		},
 	}
 
-	for _, j := range jobs {
+	for i, j := range jobs {
 		j.ID = bson.NewObjectID()
+		j.OwnerID = recruiters[i%len(recruiters)].ID
+		j.Status = "open"
 		_, err := col.InsertOne(ctx, j)
 		if err != nil {
 			log.Printf("failed to insert %s: %v", j.Title, err)
