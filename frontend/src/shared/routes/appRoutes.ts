@@ -147,7 +147,8 @@ export function isAppPage(): boolean {
     return false
 }
 
-export function defaultAppPageForRole(role: UserRole): AppPage {
+export function defaultAppPageForRole(role: UserRole | string): AppPage {
+    if (role === 'recruiter') return 'hrCompanyCreate'
     if (role === 'admin') return 'adminDashboard'
-    return role === 'recruiter' ? 'hrCompanyCreate' : 'landing'
+    return 'landing'
 }

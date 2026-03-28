@@ -83,49 +83,72 @@ func (r *repository) FindAll(ctx context.Context) ([]Job, error) {
 }
 
 func (r *repository) FindByQuery(ctx context.Context, query JobQuery) ([]Job, error) {
-	filter := bson.M{}
-	andConditions := bson.A{}
-
+	// 1. Initial match filter for job-specific fields
+	match := bson.M{"status": "open"}
 	if len(query.EmploymentTypes) > 0 {
-		andConditions = append(andConditions, bson.M{"employment_type": bson.M{"$in": query.EmploymentTypes}})
+		match["employment_type"] = bson.M{"$in": query.EmploymentTypes}
 	}
-
 	if len(query.ExperienceLevels) > 0 {
-		andConditions = append(andConditions, bson.M{"experience_level": bson.M{"$in": query.ExperienceLevels}})
+		match["experience_level"] = bson.M{"$in": query.ExperienceLevels}
 	}
 
-	if len(andConditions) > 0 {
-		filter["$and"] = andConditions
+	pipeline := mongo.Pipeline{
+		bson.D{{Key: "$match", Value: match}},
+		// 2. Lookup owner (user) info
+		bson.D{{Key: "$lookup", Value: bson.M{
+			"from":         "users",
+			"localField":   "owner_id",
+			"foreignField": "_id",
+			"as":           "owner",
+		}}},
+		bson.D{{Key: "$unwind", Value: "$owner"}},
+		// 3. Filter out locked users
+		bson.D{{Key: "$match", Value: bson.M{"owner.is_locked": false}}},
+		// 4. Lookup company info
+		bson.D{{Key: "$lookup", Value: bson.M{
+			"from":         "companies",
+			"localField":   "owner_id",
+			"foreignField": "owner_id",
+			"as":           "company_info",
+		}}},
+		bson.D{{Key: "$unwind", Value: "$company_info"}},
+		// 5. Filter for approved and unlocked companies
+		bson.D{{Key: "$match", Value: bson.M{
+			"company_info.status":    "approved",
+			"company_info.is_locked": false,
+		}}},
+		// 6. Sort
+		bson.D{{Key: "$sort", Value: bson.D{{Key: "posted_at", Value: -1}}}},
 	}
 
-	var jobs []Job
-	cursor, err := r.collection.Find(ctx, filter)
+	cursor, err := r.collection.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
 
+	var jobs []Job
 	if err = cursor.All(ctx, &jobs); err != nil {
 		return nil, err
 	}
 
+	// 7. Post-process filtering (Go-side)
 	jobs = filterByKeywordAndLocation(jobs, query.Keyword, query.Location)
 	jobs = filterBySalaryBand(jobs, query.SalaryBand)
 
+	// 8. Custom sorting if requested
 	sortMode := strings.ToLower(strings.TrimSpace(query.Sort))
-	switch sortMode {
-	case "title":
-		sort.SliceStable(jobs, func(i, j int) bool {
-			return strings.ToLower(jobs[i].Title) < strings.ToLower(jobs[j].Title)
-		})
-	case "company":
-		sort.SliceStable(jobs, func(i, j int) bool {
-			return strings.ToLower(jobs[i].Company) < strings.ToLower(jobs[j].Company)
-		})
-	default:
-		sort.SliceStable(jobs, func(i, j int) bool {
-			return jobs[i].PostedAt.After(jobs[j].PostedAt)
-		})
+	if sortMode != "" {
+		switch sortMode {
+		case "title":
+			sort.SliceStable(jobs, func(i, j int) bool {
+				return strings.ToLower(jobs[i].Title) < strings.ToLower(jobs[j].Title)
+			})
+		case "company":
+			sort.SliceStable(jobs, func(i, j int) bool {
+				return strings.ToLower(jobs[i].Company) < strings.ToLower(jobs[j].Company)
+			})
+		}
 	}
 
 	if jobs == nil {

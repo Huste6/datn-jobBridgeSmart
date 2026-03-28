@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { approveCompany, fetchAdminCompanies, toggleCompanyLock } from '../../features/auth/api/auth'
+import { fetchAdminCompanies } from '../../features/auth/api/auth'
 
 const AdminCompanyManagementPage: React.FC = () => {
   const [companies, setCompanies] = useState<any[]>([])
@@ -24,152 +24,132 @@ const AdminCompanyManagementPage: React.FC = () => {
   }
 
   useEffect(() => {
-    loadCompanies()
+    const timer = setTimeout(() => {
+      loadCompanies()
+    }, 300)
+    return () => clearTimeout(timer)
   }, [page, search, status])
 
-  const handleApprove = async (companyId: string, newStatus: 'approved' | 'rejected') => {
-    try {
-      await approveCompany(companyId, newStatus)
-      setCompanies(companies.map(c => c.id === companyId ? { ...c, status: newStatus } : c))
-    } catch (err: any) {
-      alert(err.message || 'Failed to update company status')
-    }
-  }
-
-  const handleToggleLock = async (companyId: string, currentLockStatus: boolean) => {
-    try {
-      await toggleCompanyLock(companyId, !currentLockStatus)
-      setCompanies(companies.map(c => c.id === companyId ? { ...c, is_locked: !currentLockStatus } : c))
-    } catch (err: any) {
-      alert(err.message || 'Failed to update company lock status')
-    }
-  }
-
   return (
-    <div className="space-y-6">
-      {error && (
-        <div className="p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm">
-          {error}
+    <div className="space-y-8 animate-in fade-in duration-700">
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+        <div>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Corporate Directory</h2>
+          <p className="text-slate-500 font-medium">Verify and moderate legal entities registered on the platform.</p>
         </div>
-      )}
-      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <h2 className="text-xl font-bold text-slate-800">Company Management</h2>
-        <div className="flex flex-col md:flex-row items-center gap-4">
-          <select 
-            className="px-4 py-2 rounded-lg border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-slate-600"
+
+        <div className="flex flex-col md:flex-row items-center gap-4 w-full lg:w-auto">
+          <select
+            className="w-full md:w-48 px-4 py-3.5 rounded-2xl bg-white border border-slate-200 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold text-slate-600 text-sm shadow-sm"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
             <option value="">All Statuses</option>
-            <option value="pending">Pending Approval</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
+            <option value="pending">⏳ Pending Verification</option>
+            <option value="approved">✅ Verified</option>
+            <option value="rejected">❌ Flagged</option>
           </select>
-          <div className="relative w-full md:w-64">
+
+          <div className="relative w-full md:w-72 group">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+              <span className="text-sm">🏢</span>
+            </div>
             <input
               type="text"
-              placeholder="Search by company name..."
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              placeholder="Company name..."
+              className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white border border-slate-200 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm font-medium text-slate-700 placeholder:text-slate-400"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <span className="absolute left-3 top-2.5 opacity-40">🔍</span>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-slate-50 border-b border-slate-100 text-slate-500 text-xs font-bold uppercase tracking-widest">
-              <th className="px-6 py-4">Company</th>
-              <th className="px-6 py-4">Location</th>
-              <th className="px-6 py-4">Status</th>
-              <th className="px-6 py-4">Security</th>
-              <th className="px-6 py-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {isLoading ? (
-              <tr><td colSpan={5} className="px-6 py-8 text-center text-slate-400">Loading companies...</td></tr>
-            ) : companies.length === 0 ? (
-              <tr><td colSpan={5} className="px-6 py-8 text-center text-slate-400">No companies found</td></tr>
-            ) : (
-              companies.map((company) => (
-                <tr key={company.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4">
-                    <div>
-                      <p className="font-semibold text-slate-800">{company.name}</p>
-                      <p className="text-sm text-slate-500">{company.industry}</p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-slate-600">
-                    {company.location}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${
-                      company.status === 'approved' ? 'bg-emerald-100 text-emerald-700' :
-                      company.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
-                    }`}>
-                      {company.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    {company.is_locked ? (
-                      <span className="text-red-500 text-xs font-bold uppercase flex items-center space-x-1">
-                        <span>🔒</span> <span>Locked</span>
-                      </span>
-                    ) : (
-                      <span className="text-emerald-500 text-xs font-bold uppercase flex items-center space-x-1">
-                        <span>✅</span> <span>Safe</span>
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end space-x-2">
-                      {company.status === 'pending' && (
-                        <button
-                          onClick={() => handleApprove(company.id, 'approved')}
-                          className="px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-xs font-bold hover:bg-emerald-600 transition-colors"
-                        >
-                          Approve
-                        </button>
-                      )}
-                      <button
-                        onClick={() => handleToggleLock(company.id, company.is_locked)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                          company.is_locked 
-                          ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' 
-                          : 'bg-red-50 text-red-600 hover:bg-red-100'
-                        }`}
-                      >
-                        {company.is_locked ? 'Unlock' : 'Lock'}
-                      </button>
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-sm font-bold flex items-center space-x-3">
+          <span>🚫</span>
+          <span>{error}</span>
+        </div>
+      )}
+
+      <div className="bg-white rounded-4xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50/50 border-b border-slate-100 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
+                <th className="px-8 py-5">Corporate Entity</th>
+                <th className="px-8 py-5">Hq Location</th>
+                <th className="px-8 py-5">Validation</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={3} className="px-8 py-20 text-center">
+                    <div className="flex flex-col items-center space-y-3">
+                      <div className="w-8 h-8 border-2 border-blue-600/20 border-t-blue-600 rounded-full animate-spin" />
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Scanning network...</span>
                     </div>
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : companies.length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="px-8 py-20 text-center">
+                    <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No entities detected</p>
+                  </td>
+                </tr>
+              ) : (
+                companies.map((company) => (
+                  <tr key={company.id} className="hover:bg-slate-50/80 transition-all duration-300 group">
+                    <td className="px-8 py-5">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-11 h-11 rounded-2xl bg-linear-to-br from-slate-100 to-slate-200 shrink-0 flex items-center justify-center font-black text-slate-500 border border-slate-200 shadow-sm group-hover:scale-105 group-hover:-rotate-3 transition-transform">
+                          {company.name.charAt(0)}
+                        </div>
+                        <div>
+                          <p className="font-bold text-slate-900 tracking-tight">{company.name}</p>
+                          <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">{company.industry}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-8 py-5 text-sm font-semibold text-slate-500 tabular-nums">
+                      {company.location}
+                    </td>
+                    <td className="px-8 py-5">
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${company.status === 'approved' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                          company.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-red-50 text-red-600 border-red-100'
+                        }`}>
+                        {company.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <div className="flex items-center justify-between text-sm">
-        <p className="text-slate-500">Showing {companies.length} of {total} companies</p>
-        <div className="flex items-center space-x-2">
+      {/* Pagination */}
+      <div className="flex items-center justify-between px-2">
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Entities: {companies.length} OF {total} RECORDED</p>
+        <div className="flex items-center space-x-3">
           <button
             disabled={page === 1}
             onClick={() => setPage(page - 1)}
-            className="px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-30"
+            className="w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center bg-white hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-90 shadow-sm"
           >
-            Previous
+            ←
           </button>
+          <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white text-xs font-black shadow-lg shadow-slate-900/20">
+            {page}
+          </div>
           <button
             disabled={page * 10 >= total}
             onClick={() => setPage(page + 1)}
-            className="px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-30"
+            className="w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center bg-white hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-90 shadow-sm"
           >
-            Next
+            →
           </button>
         </div>
       </div>

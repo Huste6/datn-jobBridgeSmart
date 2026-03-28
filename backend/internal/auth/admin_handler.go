@@ -20,14 +20,13 @@ func (h *Handler) GetAdminStats(c *gin.Context) {
 		return
 	}
 
-	companyCount, err := h.companyRepo.CountAllApproved(ctx)
+	companyCount, err := h.companyRepo.CountAll(ctx, "", "")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not count companies"})
 		return
 	}
 
-	// Directly query jobs collection to avoid import cycle
-	jobCount, err := h.repo.col.Database().Collection("jobs").CountDocuments(ctx, bson.M{"status": "open"})
+	jobCount, err := h.repo.col.Database().Collection("jobs").CountDocuments(ctx, bson.M{})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not count jobs"})
 		return

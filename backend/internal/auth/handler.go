@@ -276,6 +276,11 @@ func (h *Handler) Login(c *gin.Context) {
 		return
 	}
 
+	if u.IsLocked {
+		c.JSON(http.StatusForbidden, gin.H{"error": "This account has been restricted. Please contact support."})
+		return
+	}
+
 	token, err := GenerateAccessToken(h.jwtSecret, h.jwtIssuer, h.tokenTTL, *u)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not issue token"})
