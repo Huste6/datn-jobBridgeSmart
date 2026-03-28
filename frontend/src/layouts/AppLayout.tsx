@@ -1,4 +1,4 @@
-import { Home, Search, FileText, Briefcase, Users, LogOut, ShieldCheck, UserCircle2, ChevronDown } from 'lucide-react'
+import { Home, Search, FileText, Briefcase, Users, LogOut, ShieldCheck, UserCircle2, ChevronDown, Bot } from 'lucide-react'
 import type { AuthUser } from '../features/auth/api/auth'
 import type { AppPage, UserRole } from '../shared/routes/appRoutes'
 import { useEffect, useRef, useState } from 'react'
@@ -51,6 +51,7 @@ const AppLayout = ({ currentUser, role, currentPage, onNavigate, onLogout, child
     const seekerMenu: MenuItem[] = [
         { page: 'landing', label: 'Trang chủ', icon: <Home className="w-4 h-4" /> },
         { page: 'jobsList', label: 'Việc làm', icon: <Search className="w-4 h-4" /> },
+        { page: 'aiCoach', label: 'AI Tư vấn', icon: <Bot className="w-4 h-4" /> },
         { page: 'appProfile', label: 'Trang cá nhân', icon: <FileText className="w-4 h-4" /> },
     ]
 

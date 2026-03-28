@@ -183,7 +183,7 @@ const JobsListPage = ({ onNavigate, currentUser, role, onLogout }: JobsListPageP
                         <nav className="hidden md:flex space-x-8">
                             <button onClick={() => onNavigate?.('jobsList')} className="text-slate-600 hover:text-blue-600 font-medium">Tìm việc làm</button>
                             <span className="text-slate-500 font-medium">Công ty</span>
-                            <span className="text-slate-500 font-medium">AI Tư vấn</span>
+                            <button onClick={() => onNavigate?.('aiCoach')} className="text-slate-600 hover:text-blue-600 font-medium">AI Tư vấn</button>
                         </nav>
                         <div className="flex items-center gap-3">
                             <span className="hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-sm">

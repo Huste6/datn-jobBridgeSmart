@@ -16,6 +16,7 @@ import BasicProfilePage from './pages/onboarding/BasicProfilePage'
 import JobsListPage from './pages/app/JobsListPage'
 import ProfilePage from './pages/app/ProfilePage'
 import CandidateApplicationsPage from './pages/app/CandidateApplicationsPage'
+import AiInterviewCoachPage from './pages/app/AiInterviewCoachPage'
 import AdminLoginPage from './pages/admin/AdminLoginPage'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import AdminUserManagementPage from './pages/admin/AdminUserManagementPage'
@@ -127,6 +128,12 @@ function App() {
       return
     }
 
+    const isSeekerOnlyPage = currentPage === 'applications' || currentPage === 'aiCoach'
+    if (isSeekerOnlyPage && role !== 'seeker') {
+      navigate('forbidden', { replace: true })
+      return
+    }
+
     if (!role && currentPage !== 'roleSelect') {
       navigate('roleSelect', { replace: true })
       return
@@ -231,6 +238,14 @@ function App() {
             <CandidateApplicationsPage onNavigate={navigate} />
           </div>
         </div>
+      )}
+      {currentPage === 'aiCoach' && currentUser && (
+        <AiInterviewCoachPage
+          onNavigate={navigate}
+          currentUser={currentUser}
+          role={selectedRole ?? (currentUser ? toUserRole(currentUser.role) : null)}
+          onLogout={handleLogout}
+        />
       )}
       {currentPage === 'login' && <LoginPage onNavigate={navigate} onAuthSuccess={handleAuthSuccess} />}
       {currentPage === 'register' && <RegisterPage onNavigate={navigate} onAuthSuccess={handleAuthSuccess} />}

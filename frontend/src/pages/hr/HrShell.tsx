@@ -11,7 +11,7 @@ const menuItems: Array<{ label: string; page: AppPage }> = [
     { label: 'Ứng viên theo job', page: 'hrJobCandidates' },
 ]
 
-const iconMap: Record<AppPage, ReactNode> = {
+const iconMap: Partial<Record<AppPage, ReactNode>> = {
     landing: <LayoutDashboard className="w-4 h-4" />,
     hrLanding: <LayoutDashboard className="w-4 h-4" />,
     jobsList: <BriefcaseBusiness className="w-4 h-4" />,
@@ -90,13 +90,12 @@ const HrShell = ({
                             <button
                                 key={item.page}
                                 onClick={() => onNavigate(item.page)}
-                                className={`w-full inline-flex items-center gap-3 text-left px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                                    currentPage === item.page
+                                className={`w-full inline-flex items-center gap-3 text-left px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${currentPage === item.page
                                         ? 'bg-blue-50 text-blue-700'
                                         : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                                }`}
+                                    }`}
                             >
-                                {iconMap[item.page]}
+                                {iconMap[item.page] ?? <LayoutDashboard className="w-4 h-4" />}
                                 {item.label}
                             </button>
                         ))}

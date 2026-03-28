@@ -11,6 +11,7 @@ export type AppPage =
     | 'hrCandidateReview'
     | 'jobsList'
     | 'applications'
+    | 'aiCoach'
     | 'login'
     | 'register'
     | 'unauthorized'
@@ -46,6 +47,8 @@ export function pathFromPage(page: AppPage): string {
             return '/jobs'
         case 'applications':
             return '/applications'
+        case 'aiCoach':
+            return '/ai-coach'
         case 'login':
             return '/login'
         case 'register':
@@ -97,6 +100,8 @@ export function pageFromPath(pathname: string): AppPage {
             return 'jobsList'
         case '/applications':
             return 'applications'
+        case '/ai-coach':
+            return 'aiCoach'
         case '/login':
             return 'login'
         case '/register':
@@ -138,6 +143,7 @@ export function isProtectedPage(page: AppPage): boolean {
         || page === 'basicProfile'
         || page === 'appProfile'
         || page === 'applications'
+        || page === 'aiCoach'
         || page === 'adminDashboard'
         || page === 'adminUsers'
         || page === 'adminCompanies'

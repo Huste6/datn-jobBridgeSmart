@@ -68,7 +68,7 @@ const AdminUserManagementPage: React.FC = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+      <div className="bg-white rounded-4xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -101,7 +101,7 @@ const AdminUserManagementPage: React.FC = () => {
                   <tr key={user.id} className="hover:bg-slate-50/80 transition-all duration-300 group">
                     <td className="px-8 py-5">
                       <div className="flex items-center space-x-4">
-                        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 flex-shrink-0 flex items-center justify-center font-black text-slate-500 border border-slate-200 shadow-sm group-hover:scale-105 group-hover:rotate-3 transition-transform">
+                        <div className="w-11 h-11 rounded-2xl bg-linear-to-br from-slate-100 to-slate-200 shrink-0 flex items-center justify-center font-black text-slate-500 border border-slate-200 shadow-sm group-hover:scale-105 group-hover:rotate-3 transition-transform">
                           {user.full_name.charAt(0)}
                         </div>
                         <div>
