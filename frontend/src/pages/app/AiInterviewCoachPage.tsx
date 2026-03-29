@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import type { AuthUser } from '../../features/auth/api/auth'
 import { uploadCV } from '../../features/auth/api/auth'
+import { coachInterview } from '../../features/jobs/api/aiCoach'
 import { getSavedApplications } from '../../features/jobs/api/applications'
 import { fetchJobs } from '../../features/jobs/api/jobs'
 import type { AppPage, UserRole } from '../../shared/routes/appRoutes'
@@ -43,51 +44,22 @@ function nowLabel(): string {
     return new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
 }
 
-function makeAssistantReply(input: {
-    prompt: string
-    selectedJob: AppliedJobOption | null
-    cvStatus: string
-}): string {
-    const { prompt, selectedJob, cvStatus } = input
-    const jobLine = selectedJob
-        ? `Job mục tiêu: ${selectedJob.title} tại ${selectedJob.company} (${selectedJob.location}).`
-        : 'Bạn chưa chọn job mục tiêu.'
-
-    const cvLine = cvStatus === 'ready'
-        ? 'CV đã sẵn sàng, mình sẽ ưu tiên luyện theo điểm mạnh/yếu trong CV.'
-        : 'Bạn nên tải CV để mình cá nhân hóa câu trả lời sâu hơn.'
-
-    return [
-        'Mình đề xuất lộ trình luyện phỏng vấn nhanh:',
-        `1) Xác định 5 yêu cầu quan trọng nhất trong JD`,
-        `2) Viết câu trả lời STAR cho 3 dự án gần nhất`,
-        `3) Luyện 10 câu behavioral + 10 câu technical`,
-        '',
-        jobLine,
-        cvLine,
-        '',
-        `Gợi ý trả lời cho câu hỏi của bạn: "${prompt.trim()}"`,
-        '- Trả lời ngắn gọn theo cấu trúc: bối cảnh -> hành động -> kết quả đo được.',
-        '- Nhấn mạnh số liệu cụ thể (latency giảm bao nhiêu, throughput tăng bao nhiêu...).',
-        '- Kết thúc bằng bài học rút ra và cách áp dụng cho vị trí mới.',
-    ].join('\n')
+const defaultAssistantMessage: ChatMessage = {
+    id: 'm1',
+    role: 'assistant',
+    content: 'Chào bạn! Mình là AI Interview Coach. Hãy chọn job đã ứng tuyển và tải CV để bắt đầu luyện phỏng vấn.',
+    time: nowLabel(),
 }
 
 const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props) => {
-    const [messages, setMessages] = useState<ChatMessage[]>([
-        {
-            id: 'm1',
-            role: 'assistant',
-            content: 'Chào bạn! Mình là AI Interview Coach. Hãy chọn job đã ứng tuyển và tải CV để bắt đầu luyện phỏng vấn.',
-            time: nowLabel(),
-        },
-    ])
+    const [messages, setMessages] = useState<ChatMessage[]>([defaultAssistantMessage])
     const [input, setInput] = useState('')
     const [isSending, setIsSending] = useState(false)
     const [appliedJobs, setAppliedJobs] = useState<AppliedJobOption[]>([])
     const [selectedJobId, setSelectedJobId] = useState('')
     const [isLoadingJobs, setIsLoadingJobs] = useState(true)
     const [cvFileName, setCvFileName] = useState('')
+    const [cvUrl, setCvUrl] = useState('')
     const [cvStatus, setCvStatus] = useState<'idle' | 'uploading' | 'ready' | 'error'>('idle')
     const [cvError, setCvError] = useState('')
     const profileMenuRef = useRef<HTMLDivElement | null>(null)
@@ -144,6 +116,24 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
     }, [])
 
     useEffect(() => {
+        const existingCV = currentUser?.cv_url?.trim() ?? ''
+        if (!existingCV) {
+            return
+        }
+
+        setCvUrl(existingCV)
+        const guessedName = existingCV.split('/').pop()?.split('?')[0] ?? ''
+        setCvStatus('ready')
+        if (!cvFileName) {
+            setCvFileName(guessedName || 'cv-da-upload')
+        }
+    }, [currentUser?.cv_url, cvFileName])
+
+    useEffect(() => {
+        setMessages([defaultAssistantMessage])
+    }, [selectedJobId])
+
+    useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [messages])
 
@@ -171,7 +161,11 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
         setCvStatus('uploading')
 
         try {
-            await uploadCV(file)
+            const updatedUser = await uploadCV(file)
+            const uploadedCV = updatedUser.cv_url?.trim() ?? ''
+            if (uploadedCV) {
+                setCvUrl(uploadedCV)
+            }
             setCvStatus('ready')
         } catch (error) {
             setCvStatus('error')
@@ -182,6 +176,17 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
     const handleSend = async () => {
         const trimmed = input.trim()
         if (!trimmed || isSending) {
+            return
+        }
+
+        if (!selectedJobId) {
+            const assistantMessage: ChatMessage = {
+                id: `a-${Date.now()}`,
+                role: 'assistant',
+                content: 'Bạn hãy chọn một job đã ứng tuyển trước khi chat để mình tư vấn sát với vị trí đó.',
+                time: nowLabel(),
+            }
+            setMessages((prev) => [...prev, assistantMessage])
             return
         }
 
@@ -196,20 +201,42 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
         setInput('')
         setIsSending(true)
 
-        window.setTimeout(() => {
+        try {
+            const aiResponse = await coachInterview({
+                jobId: selectedJobId,
+                message: trimmed,
+                history: [],
+            })
+
             const assistantMessage: ChatMessage = {
                 id: `a-${Date.now()}`,
                 role: 'assistant',
-                content: makeAssistantReply({
-                    prompt: trimmed,
-                    selectedJob,
-                    cvStatus,
-                }),
+                content: aiResponse.reply,
                 time: nowLabel(),
             }
             setMessages((prev) => [...prev, assistantMessage])
+
+            if (aiResponse.cv_ready) {
+                setCvStatus('ready')
+                if (aiResponse.cv_url) {
+                    setCvUrl(aiResponse.cv_url)
+                }
+                if (!cvFileName && aiResponse.cv_url) {
+                    const guessedName = aiResponse.cv_url.split('/').pop()?.split('?')[0] ?? 'cv-da-upload'
+                    setCvFileName(guessedName)
+                }
+            }
+        } catch (error) {
+            const assistantMessage: ChatMessage = {
+                id: `a-${Date.now()}`,
+                role: 'assistant',
+                content: `Mình chưa gọi được AI backend: ${error instanceof Error ? error.message : 'unknown error'}`,
+                time: nowLabel(),
+            }
+            setMessages((prev) => [...prev, assistantMessage])
+        } finally {
             setIsSending(false)
-        }, 600)
+        }
     }
 
     return (
@@ -229,7 +256,7 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
                         <nav className="hidden md:flex space-x-8">
                             <button onClick={() => onNavigate?.('jobsList')} className="text-slate-600 hover:text-blue-600 font-medium">Tìm việc làm</button>
                             <button onClick={() => onNavigate?.('landing')} className="text-slate-600 hover:text-blue-600 font-medium">Công ty</button>
-                            <button onClick={() => onNavigate?.('aiCoach')} className="text-blue-700 font-semibold">AI Tư vấn</button>
+                            <button onClick={() => onNavigate?.('aiCoach')} className="text-blue-700 font-semibold">AI luyện phỏng vấn</button>
                         </nav>
 
                         <div className="flex items-center gap-3">
@@ -336,6 +363,16 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
 
                         <div className="rounded-2xl border border-slate-200 bg-white p-4">
                             <h2 className="text-sm font-semibold text-slate-900 mb-3">Thêm CV ứng viên</h2>
+                            {cvUrl ? (
+                                <a
+                                    href={cvUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700"
+                                >
+                                    <FileText className="w-4 h-4" /> Xem CV hiện tại
+                                </a>
+                            ) : null}
                             <input
                                 ref={fileInputRef}
                                 type="file"
@@ -348,9 +385,9 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
                             />
                             <button
                                 onClick={() => fileInputRef.current?.click()}
-                                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50"
+                                className={`w-full inline-flex items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 ${cvUrl ? 'mt-3' : ''}`}
                             >
-                                <Paperclip className="w-4 h-4" /> Tải CV
+                                <Paperclip className="w-4 h-4" /> {cvUrl ? 'Tải CV mới' : 'Tải CV'}
                             </button>
 
                             <p className="mt-3 text-xs text-slate-600">
@@ -358,9 +395,9 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
                             </p>
                             <p className="mt-1 text-xs">
                                 {cvStatus === 'uploading' && <span className="text-blue-600">Đang upload CV...</span>}
-                                {cvStatus === 'ready' && <span className="text-emerald-600">CV đã sẵn sàng</span>}
+                                {cvStatus === 'ready' && <span className="text-emerald-600">CV đã sẵn sàng (AI sẽ tự dùng CV đã lưu)</span>}
                                 {cvStatus === 'error' && <span className="text-rose-600">{cvError || 'Upload thất bại'}</span>}
-                                {cvStatus === 'idle' && <span className="text-slate-500">Nên tải CV để AI tư vấn chuẩn hơn.</span>}
+                                {cvStatus === 'idle' && <span className="text-slate-500">Nếu bạn đã upload CV trước đó thì AI sẽ tự lấy, không cần upload lại.</span>}
                             </p>
                         </div>
 

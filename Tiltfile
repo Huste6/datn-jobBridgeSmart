@@ -44,6 +44,21 @@ local_resource(
   labels=['golang', 'backend', 'jobs'],
 )
 
+# Backend AI service
+local_resource(
+  'backend-ai',
+  serve_cmd='cd backend && go run ./cmd/ai',
+  deps=[
+    'backend/cmd',
+    'backend/internal',
+    'backend/go.mod',
+    'backend/go.sum',
+    'backend/.env.example',
+  ],
+  resource_deps=['mongodb'],
+  labels=['golang', 'backend', 'ai'],
+)
+
 # Backend API Gateway service
 local_resource(
   'backend-gateway',
@@ -55,7 +70,7 @@ local_resource(
     'backend/go.sum',
     'backend/.env.example',
   ],
-  resource_deps=['backend-auth', 'backend-jobs'],
+  resource_deps=['backend-auth', 'backend-jobs', 'backend-ai'],
   labels=['golang', 'backend', 'gateway'],
 )
 

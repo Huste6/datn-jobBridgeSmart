@@ -50,6 +50,29 @@ services:
     ports:
       - "8082:8082"
 
+  ai-service:
+    image: golang:1.25
+    container_name: jobbridge-ai-service
+    working_dir: /app/backend
+    command: sh -c "go run ./cmd/ai"
+    environment:
+      - AI_SERVICE_PORT=8085
+      - GIN_MODE=debug
+      - MONGODB_URI=mongodb://mongodb:27017/jobbridge
+      - MONGODB_DB=jobbridge
+      - JWT_SECRET=change-me-in-production
+      - JWT_ISSUER=jobbridge-api
+      - ACCESS_TOKEN_TTL_MINUTES=60
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - MODEL=${MODEL:-gpt-4o-mini}
+      - URL_BASE=${URL_BASE:-https://api.openai.com/v1}
+    volumes:
+      - ./:/app
+    depends_on:
+      - mongodb
+    ports:
+      - "8085:8085"
+
   gateway-service:
     image: golang:1.25
     container_name: jobbridge-gateway-service
@@ -59,11 +82,13 @@ services:
       - GATEWAY_PORT=8080
       - AUTH_SERVICE_URL=http://auth-service:8081
       - JOBS_SERVICE_URL=http://jobs-service:8082
+      - AI_SERVICE_URL=http://ai-service:8085
     volumes:
       - ./:/app
     depends_on:
       - auth-service
       - jobs-service
+      - ai-service
     ports:
       - "8080:8080"
 

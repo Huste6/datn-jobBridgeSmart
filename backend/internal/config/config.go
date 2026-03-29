@@ -19,6 +19,9 @@ type Config struct {
 	AccessTokenTTLMinutes int
 	CloudinaryURL         string
 	CloudinaryFolder      string
+	OpenAIAPIKey          string
+	Model                 string
+	URLBase               string
 }
 
 // Load reads configuration from environment variables with sane defaults.
@@ -76,6 +79,18 @@ func Load() Config {
 		cloudinaryFolder = "jobbridge/user"
 	}
 
+	openAIAPIKey := strings.TrimSpace(os.Getenv("OPENAI_API_KEY"))
+
+	model := strings.TrimSpace(os.Getenv("MODEL"))
+	if model == "" {
+		model = "gpt-4o-mini"
+	}
+
+	urlBase := strings.TrimSpace(os.Getenv("URL_BASE"))
+	if urlBase == "" {
+		urlBase = "https://api.openai.com/v1"
+	}
+
 	return Config{
 		Port:                  port,
 		Mode:                  mode,
@@ -86,5 +101,8 @@ func Load() Config {
 		AccessTokenTTLMinutes: accessTokenTTLMinutes,
 		CloudinaryURL:         cloudinaryURL,
 		CloudinaryFolder:      cloudinaryFolder,
+		OpenAIAPIKey:          openAIAPIKey,
+		Model:                 model,
+		URLBase:               urlBase,
 	}
 }

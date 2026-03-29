@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 
+	"jobbridge-ai/backend/internal/ai"
 	"jobbridge-ai/backend/internal/application"
 	"jobbridge-ai/backend/internal/auth"
 	"jobbridge-ai/backend/internal/config"
@@ -36,6 +37,8 @@ func NewRouter(cfg config.Config, db *mongo.Database) *gin.Engine {
 
 	jobHandler := job.NewHandler(jobRepo, cfg.JWTSecret)
 	appHandler := application.NewHandler(appRepo, userRepo, jobRepo, cfg.JWTSecret)
+	aiClient := ai.NewOpenAIClient(cfg.OpenAIAPIKey, cfg.URLBase, cfg.Model)
+	aiHandler := ai.NewHandler(appRepo, userRepo, jobRepo, aiClient, cfg.JWTSecret, cfg.Model)
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -71,6 +74,7 @@ func NewRouter(cfg config.Config, db *mongo.Database) *gin.Engine {
 
 		jobHandler.RegisterRoutes(api)
 		appHandler.RegisterRoutes(api)
+		aiHandler.RegisterRoutes(api)
 	}
 
 	return r

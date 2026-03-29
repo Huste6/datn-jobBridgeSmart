@@ -30,6 +30,11 @@ func main() {
 		jobsTarget = "http://localhost:8082"
 	}
 
+	aiTarget := os.Getenv("AI_SERVICE_URL")
+	if aiTarget == "" {
+		aiTarget = "http://localhost:8085"
+	}
+
 	authProxy, err := buildProxy("auth", authTarget)
 	if err != nil {
 		log.Fatalf("invalid AUTH_SERVICE_URL: %v", err)
@@ -38,6 +43,11 @@ func main() {
 	jobsProxy, err := buildProxy("jobs", jobsTarget)
 	if err != nil {
 		log.Fatalf("invalid JOBS_SERVICE_URL: %v", err)
+	}
+
+	aiProxy, err := buildProxy("ai", aiTarget)
+	if err != nil {
+		log.Fatalf("invalid AI_SERVICE_URL: %v", err)
 	}
 
 	r := gin.New()
@@ -62,6 +72,8 @@ func main() {
 	r.Any("/api/jobs/*path", gin.WrapH(jobsProxy))
 	r.Any("/api/applications", gin.WrapH(jobsProxy))
 	r.Any("/api/applications/*path", gin.WrapH(jobsProxy))
+	r.Any("/api/ai", gin.WrapH(aiProxy))
+	r.Any("/api/ai/*path", gin.WrapH(aiProxy))
 
 	addr := ":" + port
 	log.Printf("Gateway service is running on %s", addr)

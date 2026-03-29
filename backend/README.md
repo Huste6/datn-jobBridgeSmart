@@ -35,6 +35,7 @@ Default local connection:
 go mod tidy
 go run ./cmd/auth
 go run ./cmd/jobs
+go run ./cmd/ai
 go run ./cmd/gateway
 ```
 
@@ -42,6 +43,7 @@ Health check:
 ```bash
 curl http://localhost:8081/health
 curl http://localhost:8082/health
+curl http://localhost:8085/health
 curl http://localhost:8080/health
 ```
 
@@ -49,8 +51,10 @@ curl http://localhost:8080/health
 - `GATEWAY_PORT` (default: `8080`)
 - `AUTH_SERVICE_URL` (default: `http://localhost:8081`)
 - `JOBS_SERVICE_URL` (default: `http://localhost:8082`)
+- `AI_SERVICE_URL` (default: `http://localhost:8085`)
 - `AUTH_SERVICE_PORT` (default: `8081`)
 - `JOBS_SERVICE_PORT` (default: `8082`)
+- `AI_SERVICE_PORT` (default: `8085`)
 - `PORT` (used by legacy `cmd/api`, default: `8080`)
 - `GIN_MODE` (default: `debug`)
 - `MONGODB_URI` (default/example in `.env.example`)
@@ -64,6 +68,9 @@ curl http://localhost:8080/health
 	- `CLOUDINARY_CLOUD_NAME`
 	- `CLOUDINARY_API_KEY`
 	- `CLOUDINARY_API_SECRET`
+- `OPENAI_API_KEY` (required for AI interview coach endpoint)
+- `MODEL` (default: `gpt-4o-mini`, supports any OpenAI-compatible model name)
+- `URL_BASE` (default: `https://api.openai.com/v1`, supports OpenAI-compatible providers)
 
 ## Auth API (User)
 - `POST /api/auth/register`
@@ -85,6 +92,24 @@ curl http://localhost:8080/health
 	- Request body: `{"role":"recruiter","phone":"0901234567","city":"Ha Noi","headline":"Talent Acquisition lead"}`
 	- `full_name` is optional. If omitted, backend keeps current full name.
 
+## AI Interview Coach API
+- `POST /api/ai/interview-coach`
+	- Header: `Authorization: Bearer <access_token>` (role `seeker`)
+	- Request body:
+	```json
+	{
+	  "job_id": "<applied_job_id>",
+	  "message": "Giúp tôi trả lời câu hỏi giới thiệu bản thân cho vị trí này",
+	  "history": [
+	    {"role": "assistant", "content": "..."},
+	    {"role": "user", "content": "..."}
+	  ]
+	}
+	```
+	- Notes:
+		- Backend tự lấy CV từ hồ sơ user (`cv_url`) hoặc từ application đã nộp, không bắt buộc upload lại.
+		- Chỉ cho phép gọi với job mà ứng viên đã ứng tuyển.
+
 ## Run with Tilt (auto-reload)
 Project root contains a `Tiltfile` configured for local orchestration.
 
@@ -103,6 +128,7 @@ Project root contains a `Tiltfile` configured for local orchestration.
 Tilt resources:
 - `backend-auth` (Auth/User API): http://localhost:8081/health
 - `backend-jobs` (Jobs API): http://localhost:8082/health
+- `backend-ai` (AI API): http://localhost:8085/health
 - `backend-gateway` (API Gateway): http://localhost:8080/health
 - `frontend-web` (Vite React): http://localhost:5173
 
