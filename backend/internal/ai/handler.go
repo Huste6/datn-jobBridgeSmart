@@ -3,10 +3,13 @@ package ai
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"path/filepath"
+	"regexp"
+	"strconv"
 	"strings"
 	"unicode"
 
@@ -48,6 +51,22 @@ type interviewCoachResponse struct {
 	Model      string `json:"model"`
 }
 
+type hrEvaluateRequest struct {
+	ApplicationID string `json:"application_id" binding:"required"`
+	Prompt        string `json:"prompt"`
+}
+
+type hrEvaluateResponse struct {
+	ApplicationID string `json:"application_id"`
+	JobID         string `json:"job_id"`
+	CandidateID   string `json:"candidate_id"`
+	Score         int    `json:"score"`
+	Notes         string `json:"notes"`
+	CVReady       bool   `json:"cv_ready"`
+	CVTextUsed    bool   `json:"cv_text_used"`
+	Model         string `json:"model"`
+}
+
 func NewHandler(appRepo *application.Repository, userRepo *auth.UserRepository, jobRepo job.Repository, chat ChatClient, jwtSecret string, model string) *Handler {
 	return &Handler{
 		appRepo:   appRepo,
@@ -65,6 +84,90 @@ func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	{
 		group.POST("/interview-coach", h.InterviewCoach)
 	}
+
+	hrGroup := router.Group("/ai")
+	hrGroup.Use(auth.AuthMiddleware(h.jwtSecret), auth.RoleMiddleware("recruiter"))
+	{
+		hrGroup.POST("/hr-evaluate-cv", h.HREvaluateCV)
+	}
+}
+
+func (h *Handler) HREvaluateCV(c *gin.Context) {
+	if h.chat == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "ai service is not configured"})
+		return
+	}
+
+	recruiterID, ok := currentUserID(c)
+	if !ok {
+		return
+	}
+
+	var req hrEvaluateRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid payload"})
+		return
+	}
+
+	appOID, err := bson.ObjectIDFromHex(strings.TrimSpace(req.ApplicationID))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid application_id"})
+		return
+	}
+
+	appDoc, err := h.appRepo.FindByID(c.Request.Context(), appOID)
+	if err != nil || appDoc == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "application not found"})
+		return
+	}
+
+	jobDoc, err := h.jobRepo.FindByID(c.Request.Context(), appDoc.JobID.Hex())
+	if err != nil || jobDoc == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "job not found"})
+		return
+	}
+
+	if jobDoc.OwnerID != recruiterID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "you do not own this job"})
+		return
+	}
+
+	candidate, err := h.userRepo.FindByID(c.Request.Context(), appDoc.UserID)
+	if err != nil || candidate == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "candidate not found"})
+		return
+	}
+
+	cvURL := strings.TrimSpace(candidate.CvURL)
+	if cvURL == "" {
+		cvURL = strings.TrimSpace(appDoc.CvURL)
+	}
+
+	cvText, cvTextUsed := h.resolveCVText(c.Request.Context(), candidate.ID, candidate.CvText, cvURL)
+	prompt := strings.TrimSpace(req.Prompt)
+	if prompt == "" {
+		prompt = "Hãy đánh giá cv của từng ứng viên dựa trên cv và jd"
+	}
+
+	messages := buildHREvaluationPromptMessages(candidate, jobDoc, prompt, cvURL, cvText)
+	reply, err := h.chat.Complete(c.Request.Context(), messages)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "ai provider failed", "detail": err.Error()})
+		return
+	}
+
+	score, notes := parseHRScoreAndNotes(reply)
+
+	c.JSON(http.StatusOK, hrEvaluateResponse{
+		ApplicationID: req.ApplicationID,
+		JobID:         appDoc.JobID.Hex(),
+		CandidateID:   appDoc.UserID.Hex(),
+		Score:         score,
+		Notes:         sanitizeAssistantReply(notes),
+		CVReady:       cvURL != "",
+		CVTextUsed:    cvTextUsed,
+		Model:         h.model,
+	})
 }
 
 func (h *Handler) InterviewCoach(c *gin.Context) {
@@ -121,7 +224,7 @@ func (h *Handler) InterviewCoach(c *gin.Context) {
 		cvURL = strings.TrimSpace(targetApp.CvURL)
 	}
 
-	cvText, cvTextUsed := h.resolveCVText(c.Request.Context(), cvURL)
+	cvText, cvTextUsed := h.resolveCVText(c.Request.Context(), userID, user.CvText, cvURL)
 
 	messages := buildPromptMessages(user, jobDoc, req.Message, nil, cvURL, cvText)
 
@@ -180,7 +283,11 @@ func (h *Handler) getApplicationForJob(ctx context.Context, userID, jobID bson.O
 	return nil, nil
 }
 
-func (h *Handler) resolveCVText(ctx context.Context, cvURL string) (string, bool) {
+func (h *Handler) resolveCVText(ctx context.Context, userID bson.ObjectID, cachedCVText string, cvURL string) (string, bool) {
+	if strings.TrimSpace(cachedCVText) != "" {
+		return cachedCVText, true
+	}
+
 	if cvURL == "" {
 		return "", false
 	}
@@ -192,6 +299,10 @@ func (h *Handler) resolveCVText(ctx context.Context, cvURL string) (string, bool
 
 	if len(snippet) < 120 {
 		return "", false
+	}
+
+	if _, updateErr := h.userRepo.UpdateSelf(ctx, userID, auth.UserSelfUpdate{CvText: &snippet}); updateErr != nil {
+		// no-op: request should continue even if cache update fails
 	}
 
 	return snippet, true
@@ -414,4 +525,98 @@ func defaultIfEmpty(value string, fallback string) string {
 		return fallback
 	}
 	return value
+}
+
+func buildHREvaluationPromptMessages(candidate *auth.User, jobDoc *job.Job, question, cvURL, cvText string) []LLMMessage {
+	systemPrompt := `Bạn là chuyên gia tuyển dụng kỹ thuật IT hỗ trợ HR đánh giá hồ sơ ứng viên.
+
+Yêu cầu bắt buộc:
+- Chỉ dùng dữ liệu từ CV context và JD context được cung cấp.
+- Không bịa thông tin chưa có trong CV/JD.
+- Trả kết quả ở dạng JSON hợp lệ duy nhất, không kèm markdown, không kèm giải thích ngoài JSON.
+
+Schema JSON bắt buộc:
+{"score": <0-100>, "notes": "Nhận xét ngắn gọn, thực tế, bám JD"}`
+
+	candidateContext := strings.TrimSpace(fmt.Sprintf(
+		"Ứng viên: %s\nEmail: %s\nHeadline: %s\nSĐT: %s\nThành phố: %s\nCV_URL: %s",
+		candidate.FullName,
+		candidate.Email,
+		candidate.Headline,
+		candidate.Phone,
+		candidate.City,
+		defaultIfEmpty(cvURL, "(chưa có)"),
+	))
+
+	jobContext := strings.TrimSpace(fmt.Sprintf(
+		"JD:\n- Vị trí: %s\n- Công ty: %s\n- Địa điểm: %s\n- Mức lương: %s\n- Loại hình: %s\n- Cấp độ: %s\n- Mô tả: %s\n- Yêu cầu:\n%s\n- Trách nhiệm:\n%s\n- Quyền lợi:\n%s\n- Tags: %s",
+		jobDoc.Title,
+		jobDoc.Company,
+		jobDoc.Location,
+		jobDoc.Salary,
+		jobDoc.EmploymentType,
+		jobDoc.ExperienceLevel,
+		jobDoc.Description,
+		numberedListOrFallback(jobDoc.Requirements, "(không có)"),
+		numberedListOrFallback(jobDoc.Responsibilities, "(không có)"),
+		numberedListOrFallback(jobDoc.Benefits, "(không có)"),
+		joinOrFallback(jobDoc.Tags, "(không có)"),
+	))
+
+	cvContext := "CV chưa đọc được tự động. Dựa trên profile + JD để đánh giá và nêu rõ giới hạn dữ liệu trong notes."
+	if strings.TrimSpace(cvText) != "" {
+		cvContext = "Trích đoạn CV (đã rút gọn): " + cvText
+	}
+
+	return []LLMMessage{
+		{Role: "system", Content: systemPrompt},
+		{Role: "user", Content: "[CANDIDATE]\n" + candidateContext},
+		{Role: "user", Content: "[JOB]\n" + jobContext},
+		{Role: "user", Content: "[CV]\n" + cvContext},
+		{Role: "user", Content: strings.TrimSpace(question)},
+	}
+}
+
+func parseHRScoreAndNotes(raw string) (int, string) {
+	type parsed struct {
+		Score int    `json:"score"`
+		Notes string `json:"notes"`
+	}
+
+	trimmed := strings.TrimSpace(raw)
+	if start := strings.Index(trimmed, "{"); start >= 0 {
+		if end := strings.LastIndex(trimmed, "}"); end > start {
+			candidate := trimmed[start : end+1]
+			var p parsed
+			if err := json.Unmarshal([]byte(candidate), &p); err == nil {
+				return clampScore(p.Score), strings.TrimSpace(p.Notes)
+			}
+		}
+	}
+
+	regex := regexp.MustCompile(`(?i)score\D{0,8}(\d{1,3})`)
+	if m := regex.FindStringSubmatch(trimmed); len(m) == 2 {
+		if n, err := strconv.Atoi(m[1]); err == nil {
+			return clampScore(n), trimmed
+		}
+	}
+
+	anyNum := regexp.MustCompile(`\b(\d{1,3})\b`)
+	if m := anyNum.FindStringSubmatch(trimmed); len(m) == 2 {
+		if n, err := strconv.Atoi(m[1]); err == nil {
+			return clampScore(n), trimmed
+		}
+	}
+
+	return 70, trimmed
+}
+
+func clampScore(score int) int {
+	if score < 0 {
+		return 0
+	}
+	if score > 100 {
+		return 100
+	}
+	return score
 }

@@ -34,6 +34,7 @@ type UserSelfUpdate struct {
 	Headline  *string
 	AvatarURL *string
 	CvURL     *string
+	CvText    *string
 }
 
 func NewUserRepository(db *mongo.Database) *UserRepository {
@@ -135,6 +136,9 @@ func (r *UserRepository) UpdateSelf(ctx context.Context, id bson.ObjectID, in Us
 	}
 	if in.CvURL != nil {
 		set["cv_url"] = strings.TrimSpace(*in.CvURL)
+	}
+	if in.CvText != nil {
+		set["cv_text"] = strings.TrimSpace(*in.CvText)
 	}
 
 	res, err := r.col.UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": set})

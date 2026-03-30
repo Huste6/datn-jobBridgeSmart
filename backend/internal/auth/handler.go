@@ -562,7 +562,12 @@ func (h *Handler) UploadCV(c *gin.Context) {
 		return
 	}
 
-	u, err := h.repo.UpdateSelf(ctx, userID, UserSelfUpdate{CvURL: &cvURL})
+	cvText := ""
+	if extracted, extractErr := ExtractCVText(header.Filename, header.Header.Get("Content-Type"), data); extractErr == nil {
+		cvText = extracted
+	}
+
+	u, err := h.repo.UpdateSelf(ctx, userID, UserSelfUpdate{CvURL: &cvURL, CvText: &cvText})
 	if errors.Is(err, ErrUserNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 		return

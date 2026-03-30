@@ -113,12 +113,14 @@ func (r *Repository) FindByID(ctx context.Context, appID bson.ObjectID) (*Applic
 	return &app, nil
 }
 
-// UpdateStatus updates the status of an application.
-func (r *Repository) UpdateStatus(ctx context.Context, appID bson.ObjectID, newStatus string) (*Application, error) {
+// UpdateStatus updates review fields of an application.
+func (r *Repository) UpdateStatus(ctx context.Context, appID bson.ObjectID, newStatus string, manualScore int, notes string) (*Application, error) {
 	res, err := r.col.UpdateOne(ctx, bson.M{"_id": appID}, bson.M{
 		"$set": bson.M{
-			"status":     newStatus,
-			"updated_at": time.Now().UTC(),
+			"status":       newStatus,
+			"manual_score": manualScore,
+			"notes":        notes,
+			"updated_at":   time.Now().UTC(),
 		},
 	})
 	if err != nil {

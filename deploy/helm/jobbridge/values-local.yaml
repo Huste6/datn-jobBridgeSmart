@@ -16,6 +16,7 @@ services:
     replicaCount: 1
     image:
       repository: docker.io/huste6/jobbridge-frontend
+      tag: dev2
   gateway:
     replicaCount: 1
     image:
@@ -24,15 +25,17 @@ services:
     replicaCount: 1
     image:
       repository: docker.io/huste6/jobbridge-auth
+      tag: dev3
   jobs:
     replicaCount: 1
     image:
       repository: docker.io/huste6/jobbridge-jobs
+      tag: dev2
   ai:
     replicaCount: 1
     image:
       repository: docker.io/huste6/jobbridge-ai
-      tag: dev3
+      tag: dev5
 
 ingress:
   hosts:

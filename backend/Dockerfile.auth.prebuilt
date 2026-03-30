@@ -1,0 +1,5 @@
+FROM gcr.io/distroless/static-debian12:nonroot
+WORKDIR /app
+COPY bin/auth /app/auth
+EXPOSE 8081
+ENTRYPOINT ["/app/auth"]

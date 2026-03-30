@@ -3,6 +3,7 @@ import HrShell from './HrShell'
 import type { AuthUser } from '../../features/auth/api/auth'
 import type { AppPage } from '../../shared/routes/appRoutes'
 import {
+    evaluateCandidateWithAI,
     getCandidateById,
     getSelectedCandidateId,
     getCompanyJobById,
@@ -44,6 +45,7 @@ const HrCandidateReviewPage = ({
     const [manualScore, setManualScore] = useState(70)
     const [notes, setNotes] = useState('')
     const [message, setMessage] = useState('')
+    const [isEvaluatingAI, setIsEvaluatingAI] = useState(false)
     const [job, setJob] = useState<CompanyJob | null>(null)
 
     useEffect(() => {
@@ -121,11 +123,55 @@ const HrCandidateReviewPage = ({
                         </label>
 
                         <label className="space-y-1 block">
+                            <span className="text-sm font-medium text-slate-700">Điểm thủ công (0-100)</span>
+                            <input
+                                type="number"
+                                min={0}
+                                max={100}
+                                value={manualScore}
+                                onChange={(e) => {
+                                    const next = Number(e.target.value)
+                                    if (Number.isNaN(next)) {
+                                        setManualScore(0)
+                                        return
+                                    }
+                                    setManualScore(Math.max(0, Math.min(100, next)))
+                                }}
+                                className="w-full px-3 py-2 rounded-lg border border-slate-300"
+                            />
+                        </label>
+
+                        <label className="space-y-1 block">
                             <span className="text-sm font-medium text-slate-700">Nhận xét HR</span>
                             <textarea rows={6} value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-slate-300" />
                         </label>
 
                         <div className="flex flex-wrap gap-3">
+                            <button
+                                onClick={async () => {
+                                    if (!candidate) return
+                                    setIsEvaluatingAI(true)
+                                    setMessage('')
+                                    try {
+                                        const result = await evaluateCandidateWithAI(
+                                            candidate.id,
+                                            'Hãy đánh giá cv của từng ứng viên dựa trên cv và jd'
+                                        )
+                                        setManualScore(result.score)
+                                        setNotes(result.notes)
+                                        setMessage(`AI đã đánh giá CV (điểm: ${result.score}, model: ${result.model})`)
+                                    } catch (error) {
+                                        setMessage(error instanceof Error ? error.message : 'AI đánh giá thất bại')
+                                    } finally {
+                                        setIsEvaluatingAI(false)
+                                    }
+                                }}
+                                disabled={isEvaluatingAI}
+                                className="px-5 py-2.5 rounded-lg border border-blue-300 text-blue-700 hover:bg-blue-50 disabled:opacity-60"
+                            >
+                                {isEvaluatingAI ? 'Đang AI đánh giá...' : 'AI đánh giá CV'}
+                            </button>
+
                             <button
                                 onClick={async () => {
                                     if (!candidate) return

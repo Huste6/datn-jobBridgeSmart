@@ -14,6 +14,7 @@ type User struct {
 	Role         string        `bson:"role" json:"role"`
 	AvatarURL    string        `bson:"avatar_url,omitempty" json:"avatar_url,omitempty"`
 	CvURL        string        `bson:"cv_url,omitempty" json:"cv_url,omitempty"`
+	CvText       string        `bson:"cv_text,omitempty" json:"-"`
 	Phone        string        `bson:"phone,omitempty" json:"phone,omitempty"`
 	City         string        `bson:"city,omitempty" json:"city,omitempty"`
 	Headline     string        `bson:"headline,omitempty" json:"headline,omitempty"`

@@ -35,7 +35,9 @@ type applyRequest struct {
 }
 
 type updateStatusRequest struct {
-	Status string `json:"status" binding:"required,oneof=submitted reviewing interview offered rejected"`
+	Status      string `json:"status" binding:"required,oneof=submitted reviewing interview offered rejected"`
+	ManualScore int    `json:"manual_score" binding:"gte=0,lte=100"`
+	Notes       string `json:"notes"`
 }
 
 func currentUserID(c *gin.Context) (bson.ObjectID, bool) {
@@ -220,8 +222,8 @@ func (h *Handler) ListJobApplications(c *gin.Context) {
 			Skills:            []string{},
 			YearsOfExperience: 0,
 			Stage:             stage,
-			ManualScore:       0,
-			Notes:             "",
+			ManualScore:       app.ManualScore,
+			Notes:             app.Notes,
 			UpdatedAt:         app.UpdatedAt,
 			CvURL:             app.CvURL,
 		})
@@ -277,7 +279,7 @@ func (h *Handler) UpdateApplicationStatus(c *gin.Context) {
 		return
 	}
 
-	app, err = h.repo.UpdateStatus(c.Request.Context(), appOID, req.Status)
+	app, err = h.repo.UpdateStatus(c.Request.Context(), appOID, req.Status, req.ManualScore, strings.TrimSpace(req.Notes))
 	if err != nil {
 		if errors.Is(err, ErrApplicationNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "application not found"})

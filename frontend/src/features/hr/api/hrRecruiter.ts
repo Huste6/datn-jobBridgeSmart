@@ -38,6 +38,18 @@ export type JobCandidate = {
     manualScore: number
     notes: string
     updatedAt: string
+    cvUrl?: string
+}
+
+export type HRAICandidateEvaluation = {
+    application_id: string
+    job_id: string
+    candidate_id: string
+    score: number
+    notes: string
+    cv_ready: boolean
+    cv_text_used: boolean
+    model: string
 }
 
 const SELECTED_JOB_KEY = 'jobbridge_hr_selected_job_id'
@@ -388,11 +400,41 @@ export async function updateCandidateReview(candidateId: string, payload: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ status })
+        body: JSON.stringify({
+            status,
+            manual_score: Math.max(0, Math.min(100, payload.manualScore)),
+            notes: payload.notes,
+        })
     })
 
     if (!response.ok) return null
     return getCandidateById(candidateId)
+}
+
+export async function evaluateCandidateWithAI(applicationId: string, prompt?: string): Promise<HRAICandidateEvaluation> {
+    const token = getStoredAccessToken()
+    if (!token) {
+        throw new Error('Missing access token')
+    }
+
+    const response = await fetch(buildUrl('/api/ai/hr-evaluate-cv'), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+            application_id: applicationId,
+            prompt: prompt ?? 'Hãy đánh giá cv của từng ứng viên dựa trên cv và jd',
+        }),
+    })
+
+    const body = (await response.json().catch(() => ({}))) as HRAICandidateEvaluation & { error?: string; detail?: string }
+    if (!response.ok) {
+        throw new Error(body.detail || body.error || 'AI evaluation failed')
+    }
+
+    return body
 }
 
 export function setSelectedJobId(jobId: string | null): void {
