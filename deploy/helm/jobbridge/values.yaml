@@ -1,0 +1,153 @@
+nameOverride: ""
+fullnameOverride: ""
+
+imagePullSecrets: []
+
+global:
+  imagePullPolicy: IfNotPresent
+  imageTag: "latest"
+
+secrets:
+  JWT_SECRET: "change-me-in-production"
+  OPENAI_API_KEY: ""
+  CLOUDINARY_URL: ""
+  CLOUDINARY_FOLDER: "jobbridge/user"
+  CLOUDINARY_API_KEY: ""
+  CLOUDINARY_API_SECRET: ""
+
+mongodb:
+  enabled: true
+  image:
+    repository: mongo
+    tag: "7.0"
+  service:
+    port: 27017
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClassName: ""
+  resources: {}
+
+services:
+  frontend:
+    enabled: true
+    replicaCount: 1
+    image:
+      repository: your-dockerhub-or-acr/jobbridge-frontend
+      tag: ""
+    port: 80
+    targetPort: 80
+    needsMongo: false
+    env: {}
+    probes:
+      readiness:
+        path: /
+      liveness:
+        path: /
+    resources: {}
+  
+  gateway:
+    enabled: true
+    replicaCount: 1
+    image:
+      repository: your-dockerhub-or-acr/jobbridge-gateway
+      tag: ""
+    port: 8080
+    targetPort: 8080
+    needsMongo: false
+    env:
+      GATEWAY_PORT: "8080"
+      AUTH_SERVICE_URL: "http://{{ include \"jobbridge.fullname\" . }}-auth:8081"
+      JOBS_SERVICE_URL: "http://{{ include \"jobbridge.fullname\" . }}-jobs:8082"
+      AI_SERVICE_URL: "http://{{ include \"jobbridge.fullname\" . }}-ai:8085"
+    probes:
+      readiness:
+        path: /health
+      liveness:
+        path: /health
+    resources: {}
+
+  auth:
+    enabled: true
+    replicaCount: 1
+    image:
+      repository: your-dockerhub-or-acr/jobbridge-auth
+      tag: ""
+    port: 8081
+    targetPort: 8081
+    needsMongo: true
+    env:
+      AUTH_SERVICE_PORT: "8081"
+      GIN_MODE: "release"
+      MONGODB_DB: "jobbridge"
+      JWT_ISSUER: "jobbridge-api"
+      ACCESS_TOKEN_TTL_MINUTES: "60"
+    probes:
+      readiness:
+        path: /health
+      liveness:
+        path: /health
+    resources: {}
+
+  jobs:
+    enabled: true
+    replicaCount: 1
+    image:
+      repository: your-dockerhub-or-acr/jobbridge-jobs
+      tag: ""
+    port: 8082
+    targetPort: 8082
+    needsMongo: true
+    env:
+      JOBS_SERVICE_PORT: "8082"
+      GIN_MODE: "release"
+      MONGODB_DB: "jobbridge"
+      JWT_ISSUER: "jobbridge-api"
+      ACCESS_TOKEN_TTL_MINUTES: "60"
+    probes:
+      readiness:
+        path: /health
+      liveness:
+        path: /health
+    resources: {}
+  
+  ai:
+    enabled: true
+    replicaCount: 1
+    image:
+      repository: your-dockerhub-or-acr/jobbridge-ai
+      tag: ""
+    port: 8085
+    targetPort: 8085
+    needsMongo: true
+    env:
+      AI_SERVICE_PORT: "8085"
+      GIN_MODE: "release"
+      MONGODB_DB: "jobbridge"
+      JWT_ISSUER: "jobbridge-api"
+      ACCESS_TOKEN_TTL_MINUTES: "60"
+      MODEL: "gpt-4o-mini"
+      URL_BASE: "https://api.openai.com/v1"
+    probes:
+      readiness:
+        path: /health
+      liveness:
+        path: /health
+    resources: {}
+  
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}
+  hosts:
+    - host: jobbridge.local
+      paths:
+        - path: /
+          pathType: Prefix
+          service: frontend
+    - host: api.jobbridge.local
+      paths:
+        - path: /
+          pathType: Prefix
+          service: gateway
+  tls: []

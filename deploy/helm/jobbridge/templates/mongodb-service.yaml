@@ -1,0 +1,18 @@
+{{- if .Values.mongodb.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "jobbridge.fullname" . }}-mongodb
+  labels:
+    {{- include "jobbridge.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mongodb
+spec:
+  ports:
+    - name: mongo
+      port: {{ .Values.mongodb.service.port }}
+      targetPort: 27017
+  selector:
+    app.kubernetes.io/name: {{ include "jobbridge.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: mongodb
+{{- end }}

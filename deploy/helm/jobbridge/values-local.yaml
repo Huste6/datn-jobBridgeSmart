@@ -1,0 +1,54 @@
+global:
+  imageTag: "dev"
+
+secrets:
+  JWT_SECRET: "local-dev-secret"
+  OPENAI_API_KEY: ""
+  CLOUDINARY_URL: ""
+  CLOUDINARY_FOLDER: "jobbridge/user"
+
+mongodb:
+  persistence:
+    enabled: false
+
+services:
+  frontend:
+    replicaCount: 1
+    image:
+      repository: docker.io/huste6/jobbridge-frontend
+  gateway:
+    replicaCount: 1
+    image:
+      repository: docker.io/huste6/jobbridge-gateway
+  auth:
+    replicaCount: 1
+    image:
+      repository: docker.io/huste6/jobbridge-auth
+  jobs:
+    replicaCount: 1
+    image:
+      repository: docker.io/huste6/jobbridge-jobs
+  ai:
+    replicaCount: 1
+    image:
+      repository: docker.io/huste6/jobbridge-ai
+      tag: dev3
+
+ingress:
+  hosts:
+    - host: jobbridge.local
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: gateway
+        - path: /health
+          pathType: Prefix
+          service: gateway
+        - path: /
+          pathType: Prefix
+          service: frontend
+    - host: api.jobbridge.local
+      paths:
+        - path: /
+          pathType: Prefix
+          service: gateway

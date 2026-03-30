@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"strings"
 	"time"
@@ -67,7 +69,17 @@ func NewOpenAIClient(apiKey, baseURL, model string) *OpenAIClient {
 		baseURL: trimmedBase,
 		model:   trimmedModel,
 		httpClient: &http.Client{
-			Timeout: 30 * time.Second,
+			Timeout: 75 * time.Second,
+			Transport: &http.Transport{
+				Proxy: http.ProxyFromEnvironment,
+				DialContext: (&net.Dialer{
+					Timeout:   15 * time.Second,
+					KeepAlive: 30 * time.Second,
+				}).DialContext,
+				TLSHandshakeTimeout:   30 * time.Second,
+				ResponseHeaderTimeout: 45 * time.Second,
+				ExpectContinueTimeout: 1 * time.Second,
+			},
 		},
 	}
 }
@@ -107,7 +119,7 @@ func (c *OpenAIClient) Complete(ctx context.Context, messages []LLMMessage) (str
 	req.Header.Set("Authorization", "Bearer "+c.apiKey)
 	req.Header.Set("Content-Type", "application/json")
 
-	res, err := c.httpClient.Do(req)
+	res, err := c.doWithRetry(req)
 	if err != nil {
 		return "", err
 	}
@@ -181,4 +193,47 @@ func extractChoiceContent(rawContent json.RawMessage, fallbackText string) strin
 	}
 
 	return trimmedFallback
+}
+
+func (c *OpenAIClient) doWithRetry(req *http.Request) (*http.Response, error) {
+	const maxAttempts = 3
+	var lastErr error
+
+	for attempt := 1; attempt <= maxAttempts; attempt++ {
+		clonedReq := req.Clone(req.Context())
+		res, err := c.httpClient.Do(clonedReq)
+		if err == nil {
+			return res, nil
+		}
+
+		lastErr = err
+		if !isTransientNetErr(err) || attempt == maxAttempts {
+			break
+		}
+
+		select {
+		case <-req.Context().Done():
+			return nil, req.Context().Err()
+		case <-time.After(time.Duration(attempt) * time.Second):
+		}
+	}
+
+	return nil, lastErr
+}
+
+func isTransientNetErr(err error) bool {
+	if errors.Is(err, context.DeadlineExceeded) {
+		return true
+	}
+
+	var netErr net.Error
+	if errors.As(err, &netErr) {
+		return true
+	}
+
+	msg := strings.ToLower(err.Error())
+	return strings.Contains(msg, "tls handshake timeout") ||
+		strings.Contains(msg, "timeout") ||
+		strings.Contains(msg, "connection reset") ||
+		strings.Contains(msg, "temporary")
 }
