@@ -35,9 +35,27 @@ type applyRequest struct {
 }
 
 type updateStatusRequest struct {
-	Status      string `json:"status" binding:"required,oneof=submitted reviewing interview offered rejected"`
-	ManualScore int    `json:"manual_score" binding:"gte=0,lte=100"`
-	Notes       string `json:"notes"`
+	Status           string  `json:"status" binding:"required"`
+	ManualScore      *int    `json:"manual_score" binding:"omitempty,gte=0,lte=100"`
+	ManualScoreCamel *int    `json:"manualScore" binding:"omitempty,gte=0,lte=100"`
+	Notes            *string `json:"notes"`
+}
+
+func normalizeApplicationStatus(raw string) (string, bool) {
+	switch strings.ToLower(strings.TrimSpace(raw)) {
+	case "submitted", "new":
+		return "submitted", true
+	case "reviewing", "screening":
+		return "reviewing", true
+	case "interview":
+		return "interview", true
+	case "offered", "offer":
+		return "offered", true
+	case "rejected":
+		return "rejected", true
+	default:
+		return "", false
+	}
 }
 
 func currentUserID(c *gin.Context) (bson.ObjectID, bool) {
@@ -259,6 +277,12 @@ func (h *Handler) UpdateApplicationStatus(c *gin.Context) {
 		return
 	}
 
+	normalizedStatus, ok := normalizeApplicationStatus(req.Status)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid status"})
+		return
+	}
+
 	app, err := h.repo.FindByID(c.Request.Context(), appOID)
 	if err != nil {
 		if errors.Is(err, ErrApplicationNotFound) {
@@ -279,7 +303,19 @@ func (h *Handler) UpdateApplicationStatus(c *gin.Context) {
 		return
 	}
 
-	app, err = h.repo.UpdateStatus(c.Request.Context(), appOID, req.Status, req.ManualScore, strings.TrimSpace(req.Notes))
+	manualScore := app.ManualScore
+	if req.ManualScore != nil {
+		manualScore = *req.ManualScore
+	} else if req.ManualScoreCamel != nil {
+		manualScore = *req.ManualScoreCamel
+	}
+
+	notes := app.Notes
+	if req.Notes != nil {
+		notes = strings.TrimSpace(*req.Notes)
+	}
+
+	app, err = h.repo.UpdateStatus(c.Request.Context(), appOID, normalizedStatus, manualScore, notes)
 	if err != nil {
 		if errors.Is(err, ErrApplicationNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "application not found"})

@@ -175,8 +175,16 @@ const HrCandidateReviewPage = ({
                             <button
                                 onClick={async () => {
                                     if (!candidate) return
-                                    const updated = await updateCandidateReview(candidate.id, { stage, manualScore, notes })
-                                    setMessage(updated ? 'Đã cập nhật đánh giá ứng viên' : 'Cập nhật thất bại')
+                                    setMessage('')
+                                    try {
+                                        const updated = await updateCandidateReview(candidate.id, { stage, manualScore, notes })
+                                        if (updated) {
+                                            setCandidate(updated)
+                                        }
+                                        setMessage('Đã cập nhật đánh giá ứng viên')
+                                    } catch (error) {
+                                        setMessage(error instanceof Error ? error.message : 'Cập nhật thất bại')
+                                    }
                                 }}
                                 className="px-5 py-2.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
                             >

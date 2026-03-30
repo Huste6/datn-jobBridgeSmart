@@ -385,7 +385,9 @@ export async function updateCandidateReview(candidateId: string, payload: {
     notes: string
 }): Promise<JobCandidate | null> {
     const token = getStoredAccessToken()
-    if (!token) return null
+    if (!token) {
+        throw new Error('Missing access token')
+    }
 
     let status = 'reviewing'
     if (payload.stage === 'screening') status = 'reviewing'
@@ -393,6 +395,9 @@ export async function updateCandidateReview(candidateId: string, payload: {
     else if (payload.stage === 'offer') status = 'offered'
     else if (payload.stage === 'rejected') status = 'rejected'
     else if (payload.stage === 'new') status = 'submitted'
+
+    const boundedScore = Math.max(0, Math.min(100, Number.isFinite(payload.manualScore) ? payload.manualScore : 0))
+    const normalizedNotes = String(payload.notes ?? '').trim()
 
     const response = await fetch(buildUrl(`/api/applications/${candidateId}/status`), {
         method: 'PATCH',
@@ -402,12 +407,17 @@ export async function updateCandidateReview(candidateId: string, payload: {
         },
         body: JSON.stringify({
             status,
-            manual_score: Math.max(0, Math.min(100, payload.manualScore)),
-            notes: payload.notes,
+            manual_score: boundedScore,
+            manualScore: boundedScore,
+            notes: normalizedNotes,
         })
     })
 
-    if (!response.ok) return null
+    if (!response.ok) {
+        const body = (await response.json().catch(() => ({}))) as { error?: string }
+        throw new Error(body.error || 'Could not update candidate review')
+    }
+
     return getCandidateById(candidateId)
 }
 
