@@ -1,0 +1,24 @@
+{{- range $name, $svc := .Values.services }}
+{{- if and $svc.enabled $svc.pdb.create }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "jobbridge.fullname" $ }}-{{ $name }}
+  labels:
+    {{- include "jobbridge.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $name }}
+spec:
+  {{- if $svc.pdb.minAvailable }}
+  minAvailable: {{ $svc.pdb.minAvailable }}
+  {{- end }}
+  {{- if $svc.pdb.maxUnavailable }}
+  maxUnavailable: {{ $svc.pdb.maxUnavailable }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "jobbridge.name" $ }}
+      app.kubernetes.io/instance: {{ $.Release.Name }}
+      app.kubernetes.io/component: {{ $name }}
+{{- end }}
+{{- end }}

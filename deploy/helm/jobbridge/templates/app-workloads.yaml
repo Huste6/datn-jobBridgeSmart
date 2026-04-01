@@ -9,7 +9,9 @@ metadata:
     {{- include "jobbridge.labels" $ | nindent 4 }}
     app.kubernetes.io/component: {{ $name }}
 spec:
+  {{- if not $svc.autoscaling.enabled }}
   replicas: {{ $svc.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "jobbridge.name" $ }}
@@ -33,6 +35,9 @@ spec:
           ports:
             - containerPort: {{ $svc.targetPort }}
               name: http
+          envFrom:
+            - secretRef:
+                name: {{ include "jobbridge.fullname" $ }}-secret
           env:
             {{- if $svc.needsMongo }}
             - name: MONGODB_URI
@@ -42,26 +47,6 @@ spec:
             - name: {{ $k }}
               value: {{ tpl ($v | toString) $ | quote }}
             {{- end }}
-            - name: JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "jobbridge.fullname" $ }}-secret
-                  key: JWT_SECRET
-            - name: OPENAI_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "jobbridge.fullname" $ }}-secret
-                  key: OPENAI_API_KEY
-            - name: CLOUDINARY_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "jobbridge.fullname" $ }}-secret
-                  key: CLOUDINARY_URL
-            - name: CLOUDINARY_FOLDER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "jobbridge.fullname" $ }}-secret
-                  key: CLOUDINARY_FOLDER
           readinessProbe:
             httpGet:
               path: {{ $svc.probes.readiness.path }}
@@ -74,8 +59,25 @@ spec:
               port: http
             initialDelaySeconds: 10
             periodSeconds: 20
+          {{- if $svc.resources }}
           resources:
             {{- toYaml $svc.resources | nindent 12 }}
+          {{- end }}
+          {{- if $.Values.keyvault.enabled }}
+          volumeMounts:
+            - name: secrets-store-inline
+              mountPath: "/mnt/secrets-store"
+              readOnly: true
+          {{- end }}
+      {{- if $.Values.keyvault.enabled }}
+      volumes:
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ include "jobbridge.fullname" $ }}-kv
+      {{- end }}
 ---
 apiVersion: v1
 kind: Service

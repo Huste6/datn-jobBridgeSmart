@@ -1,0 +1,115 @@
+keyvault:
+  enabled: true
+  name: "kv-jobbridge-prod"         # Replace with actual Azure Key Vault name
+  tenantId: "your-tenant-id"        # Replace with actual Azure Tenant ID
+  identityClientId: "client-id"     # Replace with actual User Assigned Identity Client ID
+
+global:
+  imagePullPolicy: Always
+  imageTag: "latest"                # Override this in CD pipeline
+
+services:
+  frontend:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+      targetCPUUtilizationPercentage: 75
+    pdb:
+      create: true
+      minAvailable: 1
+
+  gateway:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 300m
+        memory: 256Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 5
+      targetCPUUtilizationPercentage: 70
+    pdb:
+      create: true
+      minAvailable: 1
+
+  auth:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 300m
+        memory: 256Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 5
+      targetCPUUtilizationPercentage: 70
+    pdb:
+      create: true
+      minAvailable: 1
+
+  jobs:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 300m
+        memory: 256Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 5
+      targetCPUUtilizationPercentage: 70
+    pdb:
+      create: true
+      minAvailable: 1
+
+  ai:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+      targetCPUUtilizationPercentage: 75
+    pdb:
+      create: true
+      minAvailable: 1
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: jobbridge.duckdns.org
+      paths:
+        - path: /
+          pathType: Prefix
+          service: frontend
+    - host: api.jobbridge.duckdns.org
+      paths:
+        - path: /
+          pathType: Prefix
+          service: gateway
+  tls:
+    - hosts:
+        - jobbridge.duckdns.org
+        - api.jobbridge.duckdns.org
+      secretName: jobbridge-tls-secret

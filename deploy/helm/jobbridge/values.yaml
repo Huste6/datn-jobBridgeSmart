@@ -7,13 +7,46 @@ global:
   imagePullPolicy: IfNotPresent
   imageTag: "latest"
 
-secrets:
+keyvault:
+  enabled: false
+  name: "your-keyvault-name"
+  tenantId: "your-tenant-id"
+  identityClientId: "your-managed-identity-client-id"
+  secrets:
+    - name: PORT
+      alias: PORT
+    - name: GIN-MODE
+      alias: GIN_MODE
+    - name: JWT-SECRET
+      alias: JWT_SECRET
+    - name: JWT-ISSUER
+      alias: JWT_ISSUER
+    - name: ACCESS-TOKEN-TTL-MINUTES
+      alias: ACCESS_TOKEN_TTL_MINUTES
+    - name: CLOUDINARY-URL
+      alias: CLOUDINARY_URL
+    - name: CLOUDINARY-FOLDER
+      alias: CLOUDINARY_FOLDER
+    - name: OPENAI-API-KEY
+      alias: OPENAI_API_KEY
+    - name: MODEL
+      alias: MODEL
+    - name: URL-BASE
+      alias: URL_BASE
+
+secretsFallback:
+  PORT: "8080"
+  GIN_MODE: "release"
   JWT_SECRET: "change-me-in-production"
-  OPENAI_API_KEY: ""
+  JWT_ISSUER: "jobbridge-api"
+  ACCESS_TOKEN_TTL_MINUTES: "60"
   CLOUDINARY_URL: ""
   CLOUDINARY_FOLDER: "jobbridge/user"
-  CLOUDINARY_API_KEY: ""
-  CLOUDINARY_API_SECRET: ""
+  OPENAI_API_KEY: ""
+  MODEL: "gpt-4o-mini"
+  URL_BASE: "https://api.openai.com/v1"
+
+
 
 mongodb:
   enabled: true
@@ -45,6 +78,16 @@ services:
       liveness:
         path: /
     resources: {}
+    autoscaling:
+      enabled: false
+      minReplicas: 1
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 80
+      # targetMemoryUtilizationPercentage: 80
+    pdb:
+      create: false
+      minAvailable: 1
+      # maxUnavailable: 1
   
   gateway:
     enabled: true
@@ -66,6 +109,16 @@ services:
       liveness:
         path: /health
     resources: {}
+    autoscaling:
+      enabled: false
+      minReplicas: 1
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 80
+      # targetMemoryUtilizationPercentage: 80
+    pdb:
+      create: false
+      minAvailable: 1
+      # maxUnavailable: 1
 
   auth:
     enabled: true
@@ -78,16 +131,23 @@ services:
     needsMongo: true
     env:
       AUTH_SERVICE_PORT: "8081"
-      GIN_MODE: "release"
       MONGODB_DB: "jobbridge"
-      JWT_ISSUER: "jobbridge-api"
-      ACCESS_TOKEN_TTL_MINUTES: "60"
     probes:
       readiness:
         path: /health
       liveness:
         path: /health
     resources: {}
+    autoscaling:
+      enabled: false
+      minReplicas: 1
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 80
+      # targetMemoryUtilizationPercentage: 80
+    pdb:
+      create: false
+      minAvailable: 1
+      # maxUnavailable: 1
 
   jobs:
     enabled: true
@@ -100,16 +160,23 @@ services:
     needsMongo: true
     env:
       JOBS_SERVICE_PORT: "8082"
-      GIN_MODE: "release"
       MONGODB_DB: "jobbridge"
-      JWT_ISSUER: "jobbridge-api"
-      ACCESS_TOKEN_TTL_MINUTES: "60"
     probes:
       readiness:
         path: /health
       liveness:
         path: /health
     resources: {}
+    autoscaling:
+      enabled: false
+      minReplicas: 1
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 80
+      # targetMemoryUtilizationPercentage: 80
+    pdb:
+      create: false
+      minAvailable: 1
+      # maxUnavailable: 1
   
   ai:
     enabled: true
@@ -122,18 +189,23 @@ services:
     needsMongo: true
     env:
       AI_SERVICE_PORT: "8085"
-      GIN_MODE: "release"
       MONGODB_DB: "jobbridge"
-      JWT_ISSUER: "jobbridge-api"
-      ACCESS_TOKEN_TTL_MINUTES: "60"
-      MODEL: "gpt-4o-mini"
-      URL_BASE: "https://api.openai.com/v1"
     probes:
       readiness:
         path: /health
       liveness:
         path: /health
     resources: {}
+    autoscaling:
+      enabled: false
+      minReplicas: 1
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 80
+      # targetMemoryUtilizationPercentage: 80
+    pdb:
+      create: false
+      minAvailable: 1
+      # maxUnavailable: 1
   
 ingress:
   enabled: true
