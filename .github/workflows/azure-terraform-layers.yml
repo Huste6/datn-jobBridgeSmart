@@ -1,0 +1,285 @@
+name: Azure Terraform Layers
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - deploy/terraforms/**
+      - .github/workflows/azure-terraform-layers.yml
+  pull_request:
+    paths:
+      - deploy/terraforms/**
+      - .github/workflows/azure-terraform-layers.yml
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Which operation to run
+        type: choice
+        required: true
+        default: deploy-layers
+        options:
+          - deploy-layers
+          - bootstrap-backend
+      target_layer:
+        description: Layer to run when deploying
+        type: choice
+        required: true
+        default: auto
+        options:
+          - auto
+          - 01-foundation
+          - 02-cluster
+          - 03-security
+          - all
+      tf_action:
+        description: Terraform action for manual deployment
+        type: choice
+        required: true
+        default: plan
+        options:
+          - plan
+          - apply
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: read
+
+env:
+  TF_IN_AUTOMATION: true
+  TF_INPUT: false
+  LAYERS_BASE_DIR: deploy/terraforms/layers
+
+jobs:
+  bootstrap-backend:
+    if: github.event_name == 'workflow_dispatch' && inputs.operation == 'bootstrap-backend'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Create Terraform state backend resources
+        env:
+          AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+          AZURELOCATION: ${{ vars.AZURELOCATION }}
+          TFSTATE_RESOURCE_GROUP: ${{ vars.TFSTATE_RESOURCE_GROUP }}
+          TFSTATERESOURCEGROUP: ${{ vars.TFSTATERESOURCEGROUP }}
+          TFSTATE_STORAGE_ACCOUNT: ${{ vars.TFSTATE_STORAGE_ACCOUNT }}
+          TFSTATESTORAGEACCOUNT: ${{ vars.TFSTATESTORAGEACCOUNT }}
+          TFSTATE_CONTAINER: ${{ vars.TFSTATE_CONTAINER }}
+          TFSTATECONTAINER: ${{ vars.TFSTATECONTAINER }}
+        run: |
+          set -euo pipefail
+
+          AZURE_LOCATION_RESOLVED="${AZURE_LOCATION:-${AZURELOCATION:-malaysiawest}}"
+          TFSTATE_RESOURCE_GROUP_RESOLVED="${TFSTATE_RESOURCE_GROUP:-${TFSTATERESOURCEGROUP:-rg-terraform-state}}"
+          TFSTATE_STORAGE_ACCOUNT_RESOLVED="${TFSTATE_STORAGE_ACCOUNT:-${TFSTATESTORAGEACCOUNT:-}}"
+          TFSTATE_CONTAINER_RESOLVED="${TFSTATE_CONTAINER:-${TFSTATECONTAINER:-tfstate}}"
+
+          : "${TFSTATE_STORAGE_ACCOUNT_RESOLVED:?Set TFSTATE_STORAGE_ACCOUNT or TFSTATESTORAGEACCOUNT}"
+
+          az group create \
+            --name "$TFSTATE_RESOURCE_GROUP_RESOLVED" \
+            --location "$AZURE_LOCATION_RESOLVED" \
+            --output none
+
+          az storage account create \
+            --name "$TFSTATE_STORAGE_ACCOUNT_RESOLVED" \
+            --resource-group "$TFSTATE_RESOURCE_GROUP_RESOLVED" \
+            --location "$AZURE_LOCATION_RESOLVED" \
+            --sku Standard_LRS \
+            --kind StorageV2 \
+            --encryption-services blob \
+            --output none
+
+          ACCOUNT_KEY=$(az storage account keys list \
+            --resource-group "$TFSTATE_RESOURCE_GROUP_RESOLVED" \
+            --account-name "$TFSTATE_STORAGE_ACCOUNT_RESOLVED" \
+            --query "[0].value" \
+            --output tsv)
+
+          az storage container create \
+            --name "$TFSTATE_CONTAINER_RESOLVED" \
+            --account-name "$TFSTATE_STORAGE_ACCOUNT_RESOLVED" \
+            --account-key "$ACCOUNT_KEY" \
+            --fail-on-exist false \
+            --output none
+
+          echo "Backend bootstrap completed."
+
+  detect-layers:
+    if: github.event_name != 'workflow_dispatch' || inputs.operation == 'deploy-layers'
+    runs-on: ubuntu-latest
+    outputs:
+      has_changes: ${{ steps.matrix.outputs.has_changes }}
+      layers_json: ${{ steps.matrix.outputs.layers_json }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect changed layer paths
+        id: filter
+        if: github.event_name != 'workflow_dispatch' || inputs.target_layer == 'auto'
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            layer01:
+              - 'deploy/terraforms/layers/01-foundation/**'
+            layer02:
+              - 'deploy/terraforms/layers/02-cluster/**'
+            layer03:
+              - 'deploy/terraforms/layers/03-security/**'
+            modules:
+              - 'deploy/terraforms/modules/**'
+
+      - name: Build layer matrix
+        id: matrix
+        run: |
+          set -euo pipefail
+
+          layers=()
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            target="${{ inputs.target_layer }}"
+            case "$target" in
+              "01-foundation"|"02-cluster"|"03-security")
+                layers+=("$target")
+                ;;
+              "all")
+                layers+=("01-foundation" "02-cluster" "03-security")
+                ;;
+              "auto")
+                if [[ "${{ steps.filter.outputs.modules }}" == "true" ]]; then
+                  layers+=("01-foundation" "02-cluster" "03-security")
+                else
+                  [[ "${{ steps.filter.outputs.layer01 }}" == "true" ]] && layers+=("01-foundation")
+                  [[ "${{ steps.filter.outputs.layer02 }}" == "true" ]] && layers+=("02-cluster")
+                  [[ "${{ steps.filter.outputs.layer03 }}" == "true" ]] && layers+=("03-security")
+                fi
+
+                # Manual auto mode with no detected file changes defaults to all layers.
+                if [[ ${#layers[@]} -eq 0 ]]; then
+                  layers+=("01-foundation" "02-cluster" "03-security")
+                fi
+                ;;
+            esac
+          else
+            if [[ "${{ steps.filter.outputs.modules }}" == "true" ]]; then
+              layers+=("01-foundation" "02-cluster" "03-security")
+            else
+              [[ "${{ steps.filter.outputs.layer01 }}" == "true" ]] && layers+=("01-foundation")
+              [[ "${{ steps.filter.outputs.layer02 }}" == "true" ]] && layers+=("02-cluster")
+              [[ "${{ steps.filter.outputs.layer03 }}" == "true" ]] && layers+=("03-security")
+            fi
+          fi
+
+          if [[ ${#layers[@]} -eq 0 ]]; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "layers_json=[]" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          mapfile -t unique_layers < <(printf '%s\n' "${layers[@]}" | awk '!seen[$0]++')
+          layers_json=$(printf '%s\n' "${unique_layers[@]}" | jq -R . | jq -cs .)
+
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          echo "layers_json=$layers_json" >> "$GITHUB_OUTPUT"
+          echo "Will run layers: $layers_json"
+
+  terraform:
+    if: needs.detect-layers.outputs.has_changes == 'true'
+    needs:
+      - detect-layers
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        layer: ${{ fromJSON(needs.detect-layers.outputs.layers_json) }}
+    concurrency:
+      group: terraform-${{ matrix.layer }}-${{ github.ref }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        working-directory: ${{ env.LAYERS_BASE_DIR }}/${{ matrix.layer }}
+        env:
+          TFSTATE_RESOURCE_GROUP: ${{ vars.TFSTATE_RESOURCE_GROUP }}
+          TFSTATERESOURCEGROUP: ${{ vars.TFSTATERESOURCEGROUP }}
+          TFSTATE_STORAGE_ACCOUNT: ${{ vars.TFSTATE_STORAGE_ACCOUNT }}
+          TFSTATESTORAGEACCOUNT: ${{ vars.TFSTATESTORAGEACCOUNT }}
+          TFSTATE_CONTAINER: ${{ vars.TFSTATE_CONTAINER }}
+          TFSTATECONTAINER: ${{ vars.TFSTATECONTAINER }}
+        run: |
+          set -euo pipefail
+
+          TFSTATE_RESOURCE_GROUP_RESOLVED="${TFSTATE_RESOURCE_GROUP:-${TFSTATERESOURCEGROUP:-rg-terraform-state}}"
+          TFSTATE_STORAGE_ACCOUNT_RESOLVED="${TFSTATE_STORAGE_ACCOUNT:-${TFSTATESTORAGEACCOUNT:-}}"
+          TFSTATE_CONTAINER_RESOLVED="${TFSTATE_CONTAINER:-${TFSTATECONTAINER:-tfstate}}"
+
+          : "${TFSTATE_STORAGE_ACCOUNT_RESOLVED:?Set TFSTATE_STORAGE_ACCOUNT or TFSTATESTORAGEACCOUNT}"
+
+          terraform init -input=false \
+            -backend-config="resource_group_name=${TFSTATE_RESOURCE_GROUP_RESOLVED}" \
+            -backend-config="storage_account_name=${TFSTATE_STORAGE_ACCOUNT_RESOLVED}" \
+            -backend-config="container_name=${TFSTATE_CONTAINER_RESOLVED}" \
+            -backend-config="key=${{ matrix.layer }}.tfstate"
+
+      - name: Validate required secrets for security layer
+        if: matrix.layer == '03-security'
+        env:
+          TF_VAR_jwt_secret: ${{ secrets.TF_VAR_JWT_SECRET }}
+        run: |
+          set -euo pipefail
+          : "${TF_VAR_jwt_secret:?Set repository secret TF_VAR_JWT_SECRET}"
+
+      - name: Terraform Validate
+        working-directory: ${{ env.LAYERS_BASE_DIR }}/${{ matrix.layer }}
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: ${{ env.LAYERS_BASE_DIR }}/${{ matrix.layer }}
+        env:
+          TF_VAR_jwt_secret: ${{ secrets.TF_VAR_JWT_SECRET }}
+          TF_VAR_openai_api_key: ${{ secrets.TF_VAR_OPENAI_API_KEY }}
+          TF_VAR_cloudinary_url: ${{ secrets.TF_VAR_CLOUDINARY_URL }}
+          TF_VAR_cloudinary_folder: ${{ vars.TF_VAR_CLOUDINARY_FOLDER }}
+          TFVARCLOUDINARYFOLDER: ${{ vars.TFVARCLOUDINARYFOLDER }}
+          TF_VAR_cloudinary_api_key: ${{ secrets.TF_VAR_CLOUDINARY_API_KEY }}
+          TF_VAR_cloudinary_api_secret: ${{ secrets.TF_VAR_CLOUDINARY_API_SECRET }}
+        run: |
+          set -euo pipefail
+          export TF_VAR_cloudinary_folder="${TF_VAR_cloudinary_folder:-${TFVARCLOUDINARYFOLDER:-jobbridge/user}}"
+          terraform plan -input=false -out=tfplan
+
+      - name: Terraform Apply
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.tf_action == 'apply')
+        working-directory: ${{ env.LAYERS_BASE_DIR }}/${{ matrix.layer }}
+        env:
+          TF_VAR_jwt_secret: ${{ secrets.TF_VAR_JWT_SECRET }}
+          TF_VAR_openai_api_key: ${{ secrets.TF_VAR_OPENAI_API_KEY }}
+          TF_VAR_cloudinary_url: ${{ secrets.TF_VAR_CLOUDINARY_URL }}
+          TF_VAR_cloudinary_folder: ${{ vars.TF_VAR_CLOUDINARY_FOLDER }}
+          TFVARCLOUDINARYFOLDER: ${{ vars.TFVARCLOUDINARYFOLDER }}
+          TF_VAR_cloudinary_api_key: ${{ secrets.TF_VAR_CLOUDINARY_API_KEY }}
+          TF_VAR_cloudinary_api_secret: ${{ secrets.TF_VAR_CLOUDINARY_API_SECRET }}
+        run: |
+          set -euo pipefail
+          export TF_VAR_cloudinary_folder="${TF_VAR_cloudinary_folder:-${TFVARCLOUDINARYFOLDER:-jobbridge/user}}"
+          terraform apply -auto-approve tfplan

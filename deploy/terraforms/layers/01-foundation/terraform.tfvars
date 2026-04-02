@@ -1,4 +1,4 @@
-location            = "southeastasia"
+location            = "malaysiawest"
 resource_group_name = "rg-jobbridge"
 
 # ACR name phải globally unique, chỉ chữ và số
