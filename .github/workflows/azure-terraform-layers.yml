@@ -56,7 +56,34 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && inputs.operation == 'bootstrap-backend'
     runs-on: ubuntu-latest
     steps:
+      - name: Validate Azure auth inputs
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+        run: |
+          set -euo pipefail
+
+          if [[ -n "${AZURE_CREDENTIALS:-}" ]]; then
+            echo "Using AZURE_CREDENTIALS secret for Azure login."
+            exit 0
+          fi
+
+          : "${AZURE_CLIENT_ID:?Set AZURE_CLIENT_ID or AZURE_CREDENTIALS}"
+          : "${AZURE_TENANT_ID:?Set AZURE_TENANT_ID or AZURE_CREDENTIALS}"
+          : "${AZURE_SUBSCRIPTION_ID:?Set AZURE_SUBSCRIPTION_ID or AZURE_CREDENTIALS}"
+
+          echo "Using OIDC Azure login with client/tenant/subscription IDs."
+
+      - name: Azure login (service principal secret)
+        if: secrets.AZURE_CREDENTIALS != ''
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Azure login (OIDC)
+        if: secrets.AZURE_CREDENTIALS == ''
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -207,7 +234,34 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Validate Azure auth inputs
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+        run: |
+          set -euo pipefail
+
+          if [[ -n "${AZURE_CREDENTIALS:-}" ]]; then
+            echo "Using AZURE_CREDENTIALS secret for Azure login."
+            exit 0
+          fi
+
+          : "${AZURE_CLIENT_ID:?Set AZURE_CLIENT_ID or AZURE_CREDENTIALS}"
+          : "${AZURE_TENANT_ID:?Set AZURE_TENANT_ID or AZURE_CREDENTIALS}"
+          : "${AZURE_SUBSCRIPTION_ID:?Set AZURE_SUBSCRIPTION_ID or AZURE_CREDENTIALS}"
+
+          echo "Using OIDC Azure login with client/tenant/subscription IDs."
+
+      - name: Azure login (service principal secret)
+        if: secrets.AZURE_CREDENTIALS != ''
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Azure login (OIDC)
+        if: secrets.AZURE_CREDENTIALS == ''
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
