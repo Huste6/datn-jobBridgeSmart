@@ -1,0 +1,186 @@
+name: Deploy App To AKS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - backend/**
+      - frontend/**
+      - deploy/helm/**
+      - .github/workflows/deploy-aks.yml
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: Optional image tag override (default uses short commit SHA)
+        required: false
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  CHART_DIR: deploy/helm/jobbridge
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve deployment settings
+        env:
+          ACR_NAME: ${{ vars.ACR_NAME }}
+          ACRNAME: ${{ vars.ACRNAME }}
+          AKS_RESOURCE_GROUP: ${{ vars.AKS_RESOURCE_GROUP }}
+          AKSRESOURCEGROUP: ${{ vars.AKSRESOURCEGROUP }}
+          AKS_CLUSTER_NAME: ${{ vars.AKS_CLUSTER_NAME }}
+          AKSCLUSTERNAME: ${{ vars.AKSCLUSTERNAME }}
+          K8S_NAMESPACE: ${{ vars.K8S_NAMESPACE }}
+          K8SNAMESPACE: ${{ vars.K8SNAMESPACE }}
+          HELM_RELEASE_NAME: ${{ vars.HELM_RELEASE_NAME }}
+          HELMRELEASENAME: ${{ vars.HELMRELEASENAME }}
+          KEYVAULT_NAME: ${{ vars.KEYVAULT_NAME }}
+          KEYVAULTNAME: ${{ vars.KEYVAULTNAME }}
+          AKS_KEYVAULT_IDENTITY_CLIENT_ID: ${{ vars.AKS_KEYVAULT_IDENTITY_CLIENT_ID }}
+          AKSKEYVAULTIDENTITYCLIENTID: ${{ vars.AKSKEYVAULTIDENTITYCLIENTID }}
+          INPUT_IMAGE_TAG: ${{ github.event.inputs.image_tag }}
+        run: |
+          set -euo pipefail
+
+          resolved_acr_name="${ACR_NAME:-${ACRNAME:-acrjobbridge}}"
+          resolved_aks_rg="${AKS_RESOURCE_GROUP:-${AKSRESOURCEGROUP:-rg-jobbridge}}"
+          resolved_aks_name="${AKS_CLUSTER_NAME:-${AKSCLUSTERNAME:-aks-jobbridge}}"
+          resolved_namespace="${K8S_NAMESPACE:-${K8SNAMESPACE:-jobbridge}}"
+          resolved_release="${HELM_RELEASE_NAME:-${HELMRELEASENAME:-jobbridge}}"
+          resolved_kv_name="${KEYVAULT_NAME:-${KEYVAULTNAME:-}}"
+          resolved_kv_identity="${AKS_KEYVAULT_IDENTITY_CLIENT_ID:-${AKSKEYVAULTIDENTITYCLIENTID:-}}"
+
+          if [[ -n "${INPUT_IMAGE_TAG:-}" ]]; then
+            resolved_image_tag="$INPUT_IMAGE_TAG"
+          else
+            resolved_image_tag="${GITHUB_SHA::12}"
+          fi
+
+          echo "ACR_NAME=$resolved_acr_name" >> "$GITHUB_ENV"
+          echo "AKS_RESOURCE_GROUP=$resolved_aks_rg" >> "$GITHUB_ENV"
+          echo "AKS_CLUSTER_NAME=$resolved_aks_name" >> "$GITHUB_ENV"
+          echo "K8S_NAMESPACE=$resolved_namespace" >> "$GITHUB_ENV"
+          echo "HELM_RELEASE_NAME=$resolved_release" >> "$GITHUB_ENV"
+          echo "KEYVAULT_NAME=$resolved_kv_name" >> "$GITHUB_ENV"
+          echo "AKS_KEYVAULT_IDENTITY_CLIENT_ID=$resolved_kv_identity" >> "$GITHUB_ENV"
+          echo "IMAGE_TAG=$resolved_image_tag" >> "$GITHUB_ENV"
+
+      - name: Validate Azure auth inputs
+        id: auth_inputs
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+        run: |
+          set -euo pipefail
+
+          if [[ -n "${AZURE_CREDENTIALS:-}" ]]; then
+            echo "has_sp_creds=true" >> "$GITHUB_OUTPUT"
+            echo "Using AZURE_CREDENTIALS for Azure login."
+            exit 0
+          fi
+
+          echo "has_sp_creds=false" >> "$GITHUB_OUTPUT"
+
+          : "${AZURE_CLIENT_ID:?Set AZURE_CLIENT_ID or AZURE_CREDENTIALS}"
+          : "${AZURE_TENANT_ID:?Set AZURE_TENANT_ID or AZURE_CREDENTIALS}"
+          : "${AZURE_SUBSCRIPTION_ID:?Set AZURE_SUBSCRIPTION_ID or AZURE_CREDENTIALS}"
+
+      - name: Azure login (service principal secret)
+        if: steps.auth_inputs.outputs.has_sp_creds == 'true'
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Azure login (OIDC)
+        if: steps.auth_inputs.outputs.has_sp_creds == 'false'
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Resolve ACR login server
+        run: |
+          set -euo pipefail
+          acr_login_server=$(az acr show --name "$ACR_NAME" --query "loginServer" --output tsv)
+          echo "ACR_LOGIN_SERVER=$acr_login_server" >> "$GITHUB_ENV"
+
+      - name: Azure ACR login
+        run: |
+          set -euo pipefail
+          az acr login --name "$ACR_NAME"
+
+      - name: Build and push images
+        run: |
+          set -euo pipefail
+
+          docker build -f backend/Dockerfile.auth -t "$ACR_LOGIN_SERVER/jobbridge-auth:$IMAGE_TAG" backend
+          docker push "$ACR_LOGIN_SERVER/jobbridge-auth:$IMAGE_TAG"
+
+          docker build -f backend/Dockerfile.gateway -t "$ACR_LOGIN_SERVER/jobbridge-gateway:$IMAGE_TAG" backend
+          docker push "$ACR_LOGIN_SERVER/jobbridge-gateway:$IMAGE_TAG"
+
+          docker build -f backend/Dockerfile.jobs -t "$ACR_LOGIN_SERVER/jobbridge-jobs:$IMAGE_TAG" backend
+          docker push "$ACR_LOGIN_SERVER/jobbridge-jobs:$IMAGE_TAG"
+
+          docker build -f backend/Dockerfile.ai -t "$ACR_LOGIN_SERVER/jobbridge-ai:$IMAGE_TAG" backend
+          docker push "$ACR_LOGIN_SERVER/jobbridge-ai:$IMAGE_TAG"
+
+          docker build -f frontend/Dockerfile -t "$ACR_LOGIN_SERVER/jobbridge-frontend:$IMAGE_TAG" frontend
+          docker push "$ACR_LOGIN_SERVER/jobbridge-frontend:$IMAGE_TAG"
+
+      - name: Set AKS context
+        run: |
+          set -euo pipefail
+          az aks get-credentials \
+            --resource-group "$AKS_RESOURCE_GROUP" \
+            --name "$AKS_CLUSTER_NAME" \
+            --overwrite-existing
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+
+      - name: Helm upgrade/install
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        run: |
+          set -euo pipefail
+
+          helm_args=(
+            --namespace "$K8S_NAMESPACE"
+            --create-namespace
+            --wait
+            --timeout 10m
+            -f "$CHART_DIR/values.yaml"
+            -f "$CHART_DIR/values-azure.yaml"
+            --set "global.imageTag=$IMAGE_TAG"
+            --set "services.auth.image.repository=$ACR_LOGIN_SERVER/jobbridge-auth"
+            --set "services.gateway.image.repository=$ACR_LOGIN_SERVER/jobbridge-gateway"
+            --set "services.jobs.image.repository=$ACR_LOGIN_SERVER/jobbridge-jobs"
+            --set "services.ai.image.repository=$ACR_LOGIN_SERVER/jobbridge-ai"
+            --set "services.frontend.image.repository=$ACR_LOGIN_SERVER/jobbridge-frontend"
+          )
+
+          if [[ -n "$KEYVAULT_NAME" && -n "$AKS_KEYVAULT_IDENTITY_CLIENT_ID" ]]; then
+            helm_args+=(
+              --set "keyvault.enabled=true"
+              --set "keyvault.name=$KEYVAULT_NAME"
+              --set "keyvault.tenantId=$AZURE_TENANT_ID"
+              --set "keyvault.identityClientId=$AKS_KEYVAULT_IDENTITY_CLIENT_ID"
+            )
+          else
+            # Deploy still works without CSI integration when Key Vault identity is not configured yet.
+            helm_args+=(--set "keyvault.enabled=false")
+          fi
+
+          helm upgrade --install "$HELM_RELEASE_NAME" "$CHART_DIR" "${helm_args[@]}"
