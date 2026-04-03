@@ -133,12 +133,22 @@ jobs:
             --query "[0].value" \
             --output tsv)
 
-          az storage container create \
+          CONTAINER_EXISTS=$(az storage container exists \
             --name "$TFSTATE_CONTAINER_RESOLVED" \
             --account-name "$TFSTATE_STORAGE_ACCOUNT_RESOLVED" \
             --account-key "$ACCOUNT_KEY" \
-            --fail-on-exist false \
-            --output none
+            --query "exists" \
+            --output tsv)
+
+          if [[ "$CONTAINER_EXISTS" != "true" ]]; then
+            az storage container create \
+              --name "$TFSTATE_CONTAINER_RESOLVED" \
+              --account-name "$TFSTATE_STORAGE_ACCOUNT_RESOLVED" \
+              --account-key "$ACCOUNT_KEY" \
+              --output none
+          else
+            echo "Storage container already exists: $TFSTATE_CONTAINER_RESOLVED"
+          fi
 
           echo "Backend bootstrap completed."
 
