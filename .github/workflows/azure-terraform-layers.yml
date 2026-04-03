@@ -57,6 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Validate Azure auth inputs
+        id: auth_inputs
         env:
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -66,9 +67,12 @@ jobs:
           set -euo pipefail
 
           if [[ -n "${AZURE_CREDENTIALS:-}" ]]; then
+            echo "has_sp_creds=true" >> "$GITHUB_OUTPUT"
             echo "Using AZURE_CREDENTIALS secret for Azure login."
             exit 0
           fi
+
+          echo "has_sp_creds=false" >> "$GITHUB_OUTPUT"
 
           : "${AZURE_CLIENT_ID:?Set AZURE_CLIENT_ID or AZURE_CREDENTIALS}"
           : "${AZURE_TENANT_ID:?Set AZURE_TENANT_ID or AZURE_CREDENTIALS}"
@@ -77,13 +81,13 @@ jobs:
           echo "Using OIDC Azure login with client/tenant/subscription IDs."
 
       - name: Azure login (service principal secret)
-        if: secrets.AZURE_CREDENTIALS != ''
+        if: steps.auth_inputs.outputs.has_sp_creds == 'true'
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Azure login (OIDC)
-        if: secrets.AZURE_CREDENTIALS == ''
+        if: steps.auth_inputs.outputs.has_sp_creds == 'false'
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -235,6 +239,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Validate Azure auth inputs
+        id: auth_inputs
         env:
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -244,9 +249,12 @@ jobs:
           set -euo pipefail
 
           if [[ -n "${AZURE_CREDENTIALS:-}" ]]; then
+            echo "has_sp_creds=true" >> "$GITHUB_OUTPUT"
             echo "Using AZURE_CREDENTIALS secret for Azure login."
             exit 0
           fi
+
+          echo "has_sp_creds=false" >> "$GITHUB_OUTPUT"
 
           : "${AZURE_CLIENT_ID:?Set AZURE_CLIENT_ID or AZURE_CREDENTIALS}"
           : "${AZURE_TENANT_ID:?Set AZURE_TENANT_ID or AZURE_CREDENTIALS}"
@@ -255,13 +263,13 @@ jobs:
           echo "Using OIDC Azure login with client/tenant/subscription IDs."
 
       - name: Azure login (service principal secret)
-        if: secrets.AZURE_CREDENTIALS != ''
+        if: steps.auth_inputs.outputs.has_sp_creds == 'true'
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Azure login (OIDC)
-        if: secrets.AZURE_CREDENTIALS == ''
+        if: steps.auth_inputs.outputs.has_sp_creds == 'false'
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
