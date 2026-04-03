@@ -167,6 +167,8 @@ jobs:
               - 'deploy/terraforms/layers/03-security/**'
             modules:
               - 'deploy/terraforms/modules/**'
+            workflow:
+              - '.github/workflows/azure-terraform-layers.yml'
 
       - name: Build layer matrix
         id: matrix
@@ -185,7 +187,7 @@ jobs:
                 layers+=("01-foundation" "02-cluster" "03-security")
                 ;;
               "auto")
-                if [[ "${{ steps.filter.outputs.modules }}" == "true" ]]; then
+                if [[ "${{ steps.filter.outputs.modules }}" == "true" || "${{ steps.filter.outputs.workflow }}" == "true" ]]; then
                   layers+=("01-foundation" "02-cluster" "03-security")
                 else
                   [[ "${{ steps.filter.outputs.layer01 }}" == "true" ]] && layers+=("01-foundation")
@@ -200,7 +202,7 @@ jobs:
                 ;;
             esac
           else
-            if [[ "${{ steps.filter.outputs.modules }}" == "true" ]]; then
+            if [[ "${{ steps.filter.outputs.modules }}" == "true" || "${{ steps.filter.outputs.workflow }}" == "true" ]]; then
               layers+=("01-foundation" "02-cluster" "03-security")
             else
               [[ "${{ steps.filter.outputs.layer01 }}" == "true" ]] && layers+=("01-foundation")
