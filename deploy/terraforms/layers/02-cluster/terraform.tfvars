@@ -9,7 +9,8 @@ acr_name            = "acrjobbridge"
 # AKS config
 aks_cluster_name   = "aks-jobbridge"
 aks_dns_prefix     = "jobbridge"
-kubernetes_version = "1.30"
+# Leave version unset so Azure picks a currently supported version for this region and SKU.
+# kubernetes_version = "1.29.x"
 aks_sku_tier       = "Free"    # $0 – no SLA
 
 # Node pool – tối ưu chi phí

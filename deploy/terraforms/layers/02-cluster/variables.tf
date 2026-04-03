@@ -25,9 +25,9 @@ variable "aks_dns_prefix" {
 }
 
 variable "kubernetes_version" {
-  description = "Kubernetes version"
+  description = "Kubernetes version. Set null to let Azure choose a supported default for the region/SKU."
   type        = string
-  default     = "1.30"
+  default     = null
 }
 
 variable "aks_sku_tier" {
