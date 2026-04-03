@@ -53,7 +53,6 @@ env:
 
 jobs:
   bootstrap-backend:
-    if: github.event_name == 'workflow_dispatch' && inputs.operation == 'bootstrap-backend'
     runs-on: ubuntu-latest
     steps:
       - name: Validate Azure auth inputs
@@ -227,6 +226,7 @@ jobs:
   terraform:
     if: needs.detect-layers.outputs.has_changes == 'true'
     needs:
+      - bootstrap-backend
       - detect-layers
     runs-on: ubuntu-latest
     strategy:
