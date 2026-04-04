@@ -1,5 +1,5 @@
 keyvault:
-  enabled: true
+  enabled: false
   name: "kv-jobbridge-prod"         # Replace with actual Azure Key Vault name
   tenantId: "your-tenant-id"        # Replace with actual Azure Tenant ID
   identityClientId: "client-id"     # Replace with actual User Assigned Identity Client ID
@@ -100,16 +100,13 @@ ingress:
   hosts:
     - host: jobbridge.duckdns.org
       paths:
+        - path: /api
+          pathType: Prefix
+          service: gateway
         - path: /
           pathType: Prefix
           service: frontend
-    - host: api.jobbridge.duckdns.org
-      paths:
-        - path: /
-          pathType: Prefix
-          service: gateway
   tls:
     - hosts:
         - jobbridge.duckdns.org
-        - api.jobbridge.duckdns.org
       secretName: jobbridge-tls-secret
