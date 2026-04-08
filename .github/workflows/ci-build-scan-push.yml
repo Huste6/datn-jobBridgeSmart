@@ -337,50 +337,9 @@ jobs:
           acr_login_server=$(az acr show --name "$ACR_NAME" --query "loginServer" --output tsv)
           echo "ACR_LOGIN_SERVER=$acr_login_server" >> "$GITHUB_ENV"
 
-      - name: Azure ACR login
+      - name: Build image with Kaniko (no push)
         if: |
-          needs.detect-changes.outputs.should_push == 'true' &&
-          (
-            github.event_name == 'workflow_dispatch' ||
-            (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
-            (matrix.service.component == 'backend' && needs.detect-changes.outputs.backend == 'true')
-          )
-        run: |
-          set -euo pipefail
-          az acr login --name "$ACR_NAME"
-
-      - name: Build image
-        if: |
-          github.event_name == 'workflow_dispatch' ||
-          (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
-          (matrix.service.component == 'backend' && needs.detect-changes.outputs.backend == 'true')
-        env:
-          IMAGE_TAG: ${{ needs.detect-changes.outputs.image_tag }}
-        run: |
-          set -euo pipefail
-
-          local_image="${{ matrix.service.image }}:$IMAGE_TAG"
-          docker build \
-            -f "${{ matrix.service.dockerfile }}" \
-            -t "$local_image" \
-            "${{ matrix.service.context }}"
-
-      - name: Trivy image scan
-        if: |
-          github.event_name == 'workflow_dispatch' ||
-          (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
-          (matrix.service.component == 'backend' && needs.detect-changes.outputs.backend == 'true')
-        uses: aquasecurity/trivy-action@v0.28.0
-        with:
-          image-ref: ${{ matrix.service.image }}:${{ needs.detect-changes.outputs.image_tag }}
-          format: table
-          exit-code: '1'
-          ignore-unfixed: true
-          severity: HIGH,CRITICAL
-
-      - name: Push image to ACR
-        if: |
-          needs.detect-changes.outputs.should_push == 'true' &&
+          needs.detect-changes.outputs.should_push != 'true' &&
           (
             github.event_name == 'workflow_dispatch' ||
             (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
@@ -391,11 +350,80 @@ jobs:
         run: |
           set -euo pipefail
 
-          local_image="${{ matrix.service.image }}:$IMAGE_TAG"
-          remote_image="$ACR_LOGIN_SERVER/${{ matrix.service.image }}:$IMAGE_TAG"
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE":/workspace \
+            gcr.io/kaniko-project/executor:v1.23.2 \
+            --context "/workspace/${{ matrix.service.context }}" \
+            --dockerfile "/workspace/${{ matrix.service.dockerfile }}" \
+            --destination "example.com/local/${{ matrix.service.image }}:$IMAGE_TAG" \
+            --no-push
 
-          docker tag "$local_image" "$remote_image"
-          docker push "$remote_image"
+      - name: Get ACR access token
+        if: |
+          needs.detect-changes.outputs.should_push == 'true' &&
+          (
+            github.event_name == 'workflow_dispatch' ||
+            (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
+            (matrix.service.component == 'backend' && needs.detect-changes.outputs.backend == 'true')
+          )
+        run: |
+          set -euo pipefail
+
+          acr_access_token=$(az acr login --name "$ACR_NAME" --expose-token --output tsv --query accessToken)
+          echo "::add-mask::$acr_access_token"
+          echo "ACR_ACCESS_TOKEN=$acr_access_token" >> "$GITHUB_ENV"
+
+      - name: Build and push image with Kaniko
+        if: |
+          needs.detect-changes.outputs.should_push == 'true' &&
+          (
+            github.event_name == 'workflow_dispatch' ||
+            (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
+            (matrix.service.component == 'backend' && needs.detect-changes.outputs.backend == 'true')
+          )
+        env:
+          IMAGE_TAG: ${{ needs.detect-changes.outputs.image_tag }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p "$RUNNER_TEMP/kaniko/.docker"
+          auth_value=$(printf '00000000-0000-0000-0000-000000000000:%s' "$ACR_ACCESS_TOKEN" | base64 | tr -d '\n')
+
+          cat > "$RUNNER_TEMP/kaniko/.docker/config.json" <<EOF
+          {"auths":{"$ACR_LOGIN_SERVER":{"auth":"$auth_value"}}}
+          EOF
+
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE":/workspace \
+            -v "$RUNNER_TEMP/kaniko/.docker":/kaniko/.docker \
+            gcr.io/kaniko-project/executor:v1.23.2 \
+            --context "/workspace/${{ matrix.service.context }}" \
+            --dockerfile "/workspace/${{ matrix.service.dockerfile }}" \
+            --destination "$ACR_LOGIN_SERVER/${{ matrix.service.image }}:$IMAGE_TAG"
+
+      - name: Trivy image scan (registry image)
+        if: |
+          needs.detect-changes.outputs.should_push == 'true' &&
+          (
+            github.event_name == 'workflow_dispatch' ||
+            (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
+            (matrix.service.component == 'backend' && needs.detect-changes.outputs.backend == 'true')
+          )
+        env:
+          IMAGE_TAG: ${{ needs.detect-changes.outputs.image_tag }}
+        run: |
+          set -euo pipefail
+
+          image_ref="$ACR_LOGIN_SERVER/${{ matrix.service.image }}:$IMAGE_TAG"
+          docker run --rm \
+            aquasec/trivy:0.53.0 image \
+            --username 00000000-0000-0000-0000-000000000000 \
+            --password "$ACR_ACCESS_TOKEN" \
+            --format table \
+            --exit-code 1 \
+            --ignore-unfixed \
+            --severity HIGH,CRITICAL \
+            "$image_ref"
 
       - name: Write deployment metadata
         if: |
