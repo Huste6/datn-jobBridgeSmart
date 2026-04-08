@@ -79,8 +79,6 @@ jobs:
     needs: detect-changes
     if: github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
-    env:
-      SONAR_TOKEN_FE: ${{ secrets.SONAR_TOKEN_FE }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -106,35 +104,19 @@ jobs:
         run: npm run test:coverage
         working-directory: frontend
 
-      - name: SonarCloud scan (frontend)
-        if: env.SONAR_TOKEN_FE != ''
-        uses: SonarSource/sonarqube-scan-action@v5
+      - name: Upload frontend coverage artifact
+        uses: actions/upload-artifact@v4
         with:
-          projectBaseDir: frontend
-          args: >
-            -Dsonar.organization=quan
-            -Dsonar.projectKey=quan_datn-fe
-            -Dsonar.projectName=datn-fe
-            -Dsonar.sources=src
-            -Dsonar.tests=tests
-            -Dsonar.test.inclusions=tests/**/*.test.ts
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-            -Dsonar.exclusions=dist/**,node_modules/**,coverage/**
-        env:
-          SONAR_TOKEN: ${{ env.SONAR_TOKEN_FE }}
-          SONAR_HOST_URL: https://sonarcloud.io
-
-      - name: Warn when frontend Sonar token missing
-        if: env.SONAR_TOKEN_FE == ''
-        run: echo "SONAR_TOKEN_FE is missing. Frontend Sonar scan was skipped."
+          name: coverage-frontend
+          path: frontend/coverage/lcov.info
+          if-no-files-found: error
+          retention-days: 1
 
   quality-backend:
     name: Quality Backend
     needs: detect-changes
     if: github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
-    env:
-      SONAR_TOKEN_BE: ${{ secrets.SONAR_TOKEN_BE }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -158,27 +140,102 @@ jobs:
         run: go test ./... -coverprofile=coverage.out
         working-directory: backend
 
-      - name: SonarCloud scan (backend)
-        if: env.SONAR_TOKEN_BE != ''
+      - name: Upload backend coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-backend
+          path: backend/coverage.out
+          if-no-files-found: error
+          retention-days: 1
+
+  sonar-unified:
+    name: SonarCloud Unified (FE+BE)
+    needs:
+      - detect-changes
+      - quality-frontend
+      - quality-backend
+    if: |
+      always() &&
+      github.event_name != 'pull_request' &&
+      (needs.quality-frontend.result == 'success' || needs.quality-frontend.result == 'skipped') &&
+      (needs.quality-backend.result == 'success' || needs.quality-backend.result == 'skipped') &&
+      (
+        github.event_name == 'workflow_dispatch' ||
+        needs.detect-changes.outputs.frontend == 'true' ||
+        needs.detect-changes.outputs.backend == 'true'
+      )
+    runs-on: ubuntu-latest
+    env:
+      SONAR_TOKEN_PRIMARY: ${{ secrets.SONAR_TOKEN }}
+      SONAR_TOKEN_BE: ${{ secrets.SONAR_TOKEN_BE }}
+      SONAR_TOKEN_FE: ${{ secrets.SONAR_TOKEN_FE }}
+      SONAR_ORGANIZATION_INPUT: ${{ vars.SONAR_ORGANIZATION }}
+      SONAR_PROJECT_KEY_INPUT: ${{ vars.SONAR_PROJECT_KEY }}
+      SONAR_PROJECT_NAME_INPUT: ${{ vars.SONAR_PROJECT_NAME }}
+      SONAR_TF_AZURERM_VERSION_INPUT: ${{ vars.SONAR_TF_AZURERM_VERSION }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download frontend coverage
+        if: github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.frontend == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-frontend
+          path: frontend/coverage
+
+      - name: Download backend coverage
+        if: github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.backend == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-backend
+          path: backend
+
+      - name: Resolve Sonar settings
+        run: |
+          set -euo pipefail
+
+          resolved_token="${SONAR_TOKEN_PRIMARY:-}"
+          if [[ -z "$resolved_token" ]]; then
+            resolved_token="${SONAR_TOKEN_BE:-${SONAR_TOKEN_FE:-}}"
+          fi
+
+          resolved_org="${SONAR_ORGANIZATION_INPUT:-quan}"
+          resolved_key="${SONAR_PROJECT_KEY_INPUT:-Huste6_datn-jobBridgeSmart}"
+          resolved_name="${SONAR_PROJECT_NAME_INPUT:-datn-jobBridgeSmart}"
+          resolved_tf_azurerm_version="${SONAR_TF_AZURERM_VERSION_INPUT:-3.117.1}"
+
+          echo "SONAR_TOKEN_RESOLVED=$resolved_token" >> "$GITHUB_ENV"
+          echo "SONAR_ORGANIZATION=$resolved_org" >> "$GITHUB_ENV"
+          echo "SONAR_PROJECT_KEY=$resolved_key" >> "$GITHUB_ENV"
+          echo "SONAR_PROJECT_NAME=$resolved_name" >> "$GITHUB_ENV"
+          echo "SONAR_TF_AZURERM_VERSION=$resolved_tf_azurerm_version" >> "$GITHUB_ENV"
+
+      - name: SonarCloud scan (unified)
+        if: env.SONAR_TOKEN_RESOLVED != ''
         uses: SonarSource/sonarqube-scan-action@v5
         with:
-          projectBaseDir: backend
+          projectBaseDir: .
           args: >
-            -Dsonar.organization=quan
-            -Dsonar.projectKey=quan_datn-be
-            -Dsonar.projectName=datn-be
-            -Dsonar.sources=cmd,internal
-            -Dsonar.tests=tests
-            -Dsonar.test.inclusions=tests/**/*.go
-            -Dsonar.go.coverage.reportPaths=coverage.out
-            -Dsonar.exclusions=bin/**
+            -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
+            -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
+            -Dsonar.projectName=${{ env.SONAR_PROJECT_NAME }}
+            -Dsonar.sources=frontend/src,backend/cmd,backend/internal
+            -Dsonar.tests=frontend/tests,backend/tests
+            -Dsonar.test.inclusions=frontend/tests/**/*.test.ts,backend/tests/**/*.go
+            -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info
+            -Dsonar.go.coverage.reportPaths=backend/coverage.out
+            -Dsonar.terraform.provider.azure.version=${{ env.SONAR_TF_AZURERM_VERSION }}
+            -Dsonar.exclusions=**/node_modules/**,frontend/dist/**,backend/bin/**,**/.terraform/**
         env:
-          SONAR_TOKEN: ${{ env.SONAR_TOKEN_BE }}
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN_RESOLVED }}
           SONAR_HOST_URL: https://sonarcloud.io
 
-      - name: Warn when backend Sonar token missing
-        if: env.SONAR_TOKEN_BE == ''
-        run: echo "SONAR_TOKEN_BE is missing. Backend Sonar scan was skipped."
+      - name: Warn when unified Sonar token missing
+        if: env.SONAR_TOKEN_RESOLVED == ''
+        run: echo "SONAR_TOKEN (or SONAR_TOKEN_BE/SONAR_TOKEN_FE fallback) is missing. Unified Sonar scan was skipped."
 
   image-build-scan-push:
     name: Build Scan Push (${{ matrix.service.name }})
@@ -186,10 +243,12 @@ jobs:
       - detect-changes
       - quality-frontend
       - quality-backend
+      - sonar-unified
     if: |
       always() &&
       (needs.quality-frontend.result == 'success' || needs.quality-frontend.result == 'skipped') &&
       (needs.quality-backend.result == 'success' || needs.quality-backend.result == 'skipped') &&
+      (needs.sonar-unified.result == 'success' || needs.sonar-unified.result == 'skipped') &&
       (
         github.event_name == 'workflow_dispatch' ||
         needs.detect-changes.outputs.frontend == 'true' ||
