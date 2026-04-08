@@ -370,7 +370,7 @@ jobs:
           github.event_name == 'workflow_dispatch' ||
           (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
           (matrix.service.component == 'backend' && needs.detect-changes.outputs.backend == 'true')
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.28.0
         with:
           image-ref: ${{ matrix.service.image }}:${{ needs.detect-changes.outputs.image_tag }}
           format: table
