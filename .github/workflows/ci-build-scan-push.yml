@@ -417,14 +417,15 @@ jobs:
 
           image_ref="$ACR_LOGIN_SERVER/${{ matrix.service.image }}:$IMAGE_TAG"
           mkdir -p trivy-reports
-          report_file="trivy-reports/${{ matrix.service.name }}-$IMAGE_TAG.txt"
+          report_file="${{ matrix.service.name }}-$IMAGE_TAG.txt"
 
           docker run --rm \
+            -v "$GITHUB_WORKSPACE/trivy-reports":/reports \
             aquasec/trivy:0.53.0 image \
             --username 00000000-0000-0000-0000-000000000000 \
             --password "$ACR_ACCESS_TOKEN" \
             --format table \
-            --output "$report_file" \
+            --output "/reports/$report_file" \
             --exit-code 0 \
             --scanners vuln \
             --ignore-unfixed \
