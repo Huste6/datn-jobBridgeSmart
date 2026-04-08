@@ -167,12 +167,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SONAR_TOKEN_PRIMARY: ${{ secrets.SONAR_TOKEN }}
-      SONAR_TOKEN_BE: ${{ secrets.SONAR_TOKEN_BE }}
-      SONAR_TOKEN_FE: ${{ secrets.SONAR_TOKEN_FE }}
-      SONAR_ORGANIZATION_INPUT: ${{ vars.SONAR_ORGANIZATION }}
-      SONAR_PROJECT_KEY_INPUT: ${{ vars.SONAR_PROJECT_KEY }}
-      SONAR_PROJECT_NAME_INPUT: ${{ vars.SONAR_PROJECT_NAME }}
-      SONAR_TF_AZURERM_VERSION_INPUT: ${{ vars.SONAR_TF_AZURERM_VERSION }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -193,49 +187,18 @@ jobs:
           name: coverage-backend
           path: backend
 
-      - name: Resolve Sonar settings
-        run: |
-          set -euo pipefail
-
-          resolved_token="${SONAR_TOKEN_PRIMARY:-}"
-          if [[ -z "$resolved_token" ]]; then
-            resolved_token="${SONAR_TOKEN_BE:-${SONAR_TOKEN_FE:-}}"
-          fi
-
-          resolved_org="${SONAR_ORGANIZATION_INPUT:-quan}"
-          resolved_key="${SONAR_PROJECT_KEY_INPUT:-Huste6_datn-jobBridgeSmart}"
-          resolved_name="${SONAR_PROJECT_NAME_INPUT:-datn-jobBridgeSmart}"
-          resolved_tf_azurerm_version="${SONAR_TF_AZURERM_VERSION_INPUT:-3.117.1}"
-
-          echo "SONAR_TOKEN_RESOLVED=$resolved_token" >> "$GITHUB_ENV"
-          echo "SONAR_ORGANIZATION=$resolved_org" >> "$GITHUB_ENV"
-          echo "SONAR_PROJECT_KEY=$resolved_key" >> "$GITHUB_ENV"
-          echo "SONAR_PROJECT_NAME=$resolved_name" >> "$GITHUB_ENV"
-          echo "SONAR_TF_AZURERM_VERSION=$resolved_tf_azurerm_version" >> "$GITHUB_ENV"
-
       - name: SonarCloud scan (unified)
-        if: env.SONAR_TOKEN_RESOLVED != ''
-        uses: SonarSource/sonarqube-scan-action@v5
+        if: env.SONAR_TOKEN_PRIMARY != ''
+        uses: SonarSource/sonarqube-scan-action@v6
         with:
           projectBaseDir: .
-          args: >
-            -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
-            -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
-            -Dsonar.projectName=${{ env.SONAR_PROJECT_NAME }}
-            -Dsonar.sources=frontend/src,backend/cmd,backend/internal
-            -Dsonar.tests=frontend/tests,backend/tests
-            -Dsonar.test.inclusions=frontend/tests/**/*.test.ts,backend/tests/**/*.go
-            -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info
-            -Dsonar.go.coverage.reportPaths=backend/coverage.out
-            -Dsonar.terraform.provider.azure.version=${{ env.SONAR_TF_AZURERM_VERSION }}
-            -Dsonar.exclusions=**/node_modules/**,frontend/dist/**,backend/bin/**,**/.terraform/**
         env:
-          SONAR_TOKEN: ${{ env.SONAR_TOKEN_RESOLVED }}
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN_PRIMARY }}
           SONAR_HOST_URL: https://sonarcloud.io
 
       - name: Warn when unified Sonar token missing
-        if: env.SONAR_TOKEN_RESOLVED == ''
-        run: echo "SONAR_TOKEN (or SONAR_TOKEN_BE/SONAR_TOKEN_FE fallback) is missing. Unified Sonar scan was skipped."
+        if: env.SONAR_TOKEN_PRIMARY == ''
+        run: echo "SONAR_TOKEN is missing. Unified Sonar scan was skipped."
 
   image-build-scan-push:
     name: Build Scan Push (${{ matrix.service.name }})
