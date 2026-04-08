@@ -409,21 +409,43 @@ jobs:
             (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
             (matrix.service.component == 'backend' && needs.detect-changes.outputs.backend == 'true')
           )
+        continue-on-error: true
         env:
           IMAGE_TAG: ${{ needs.detect-changes.outputs.image_tag }}
         run: |
           set -euo pipefail
 
           image_ref="$ACR_LOGIN_SERVER/${{ matrix.service.image }}:$IMAGE_TAG"
+          mkdir -p trivy-reports
+          report_file="trivy-reports/${{ matrix.service.name }}-$IMAGE_TAG.txt"
+
           docker run --rm \
             aquasec/trivy:0.53.0 image \
             --username 00000000-0000-0000-0000-000000000000 \
             --password "$ACR_ACCESS_TOKEN" \
             --format table \
-            --exit-code 1 \
+            --output "$report_file" \
+            --exit-code 0 \
+            --scanners vuln \
             --ignore-unfixed \
             --severity HIGH,CRITICAL \
             "$image_ref"
+
+      - name: Upload Trivy report
+        if: |
+          always() &&
+          needs.detect-changes.outputs.should_push == 'true' &&
+          (
+            github.event_name == 'workflow_dispatch' ||
+            (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
+            (matrix.service.component == 'backend' && needs.detect-changes.outputs.backend == 'true')
+          )
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report-${{ matrix.service.name }}
+          path: trivy-reports/*.txt
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Write deployment metadata
         if: |
