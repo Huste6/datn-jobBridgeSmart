@@ -79,6 +79,8 @@ jobs:
     needs: detect-changes
     if: github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
+    env:
+      SONAR_TOKEN_FE: ${{ secrets.SONAR_TOKEN_FE }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -105,7 +107,7 @@ jobs:
         working-directory: frontend
 
       - name: SonarCloud scan (frontend)
-        if: secrets.SONAR_TOKEN_FE != ''
+        if: env.SONAR_TOKEN_FE != ''
         uses: SonarSource/sonarqube-scan-action@v5
         with:
           projectBaseDir: frontend
@@ -119,11 +121,11 @@ jobs:
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
             -Dsonar.exclusions=dist/**,node_modules/**,coverage/**
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_FE }}
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN_FE }}
           SONAR_HOST_URL: https://sonarcloud.io
 
       - name: Warn when frontend Sonar token missing
-        if: secrets.SONAR_TOKEN_FE == ''
+        if: env.SONAR_TOKEN_FE == ''
         run: echo "SONAR_TOKEN_FE is missing. Frontend Sonar scan was skipped."
 
   quality-backend:
@@ -131,6 +133,8 @@ jobs:
     needs: detect-changes
     if: github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
+    env:
+      SONAR_TOKEN_BE: ${{ secrets.SONAR_TOKEN_BE }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -155,7 +159,7 @@ jobs:
         working-directory: backend
 
       - name: SonarCloud scan (backend)
-        if: secrets.SONAR_TOKEN_BE != ''
+        if: env.SONAR_TOKEN_BE != ''
         uses: SonarSource/sonarqube-scan-action@v5
         with:
           projectBaseDir: backend
@@ -169,11 +173,11 @@ jobs:
             -Dsonar.go.coverage.reportPaths=coverage.out
             -Dsonar.exclusions=bin/**
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_BE }}
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN_BE }}
           SONAR_HOST_URL: https://sonarcloud.io
 
       - name: Warn when backend Sonar token missing
-        if: secrets.SONAR_TOKEN_BE == ''
+        if: env.SONAR_TOKEN_BE == ''
         run: echo "SONAR_TOKEN_BE is missing. Backend Sonar scan was skipped."
 
   image-build-scan-push:
@@ -188,8 +192,8 @@ jobs:
       (needs.quality-backend.result == 'success' || needs.quality-backend.result == 'skipped') &&
       (
         github.event_name == 'workflow_dispatch' ||
-        (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
-        (matrix.service.component == 'backend' && needs.detect-changes.outputs.backend == 'true')
+        needs.detect-changes.outputs.frontend == 'true' ||
+        needs.detect-changes.outputs.backend == 'true'
       )
     runs-on: ubuntu-latest
     strategy:
@@ -226,7 +230,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Resolve deployment settings
-        if: needs.detect-changes.outputs.should_push == 'true'
+        if: |
+          needs.detect-changes.outputs.should_push == 'true' &&
+          (
+            github.event_name == 'workflow_dispatch' ||
+            (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
+            (matrix.service.component == 'backend' && needs.detect-changes.outputs.backend == 'true')
+          )
         env:
           ACR_NAME: ${{ vars.ACR_NAME }}
           ACRNAME: ${{ vars.ACRNAME }}
@@ -237,7 +247,13 @@ jobs:
           echo "ACR_NAME=$resolved_acr_name" >> "$GITHUB_ENV"
 
       - name: Validate Azure auth inputs
-        if: needs.detect-changes.outputs.should_push == 'true'
+        if: |
+          needs.detect-changes.outputs.should_push == 'true' &&
+          (
+            github.event_name == 'workflow_dispatch' ||
+            (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
+            (matrix.service.component == 'backend' && needs.detect-changes.outputs.backend == 'true')
+          )
         id: auth_inputs
         env:
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
@@ -259,13 +275,27 @@ jobs:
           : "${AZURE_SUBSCRIPTION_ID:?Set AZURE_SUBSCRIPTION_ID or AZURE_CREDENTIALS}"
 
       - name: Azure login (service principal secret)
-        if: needs.detect-changes.outputs.should_push == 'true' && steps.auth_inputs.outputs.has_sp_creds == 'true'
+        if: |
+          needs.detect-changes.outputs.should_push == 'true' &&
+          steps.auth_inputs.outputs.has_sp_creds == 'true' &&
+          (
+            github.event_name == 'workflow_dispatch' ||
+            (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
+            (matrix.service.component == 'backend' && needs.detect-changes.outputs.backend == 'true')
+          )
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Azure login (OIDC)
-        if: needs.detect-changes.outputs.should_push == 'true' && steps.auth_inputs.outputs.has_sp_creds == 'false'
+        if: |
+          needs.detect-changes.outputs.should_push == 'true' &&
+          steps.auth_inputs.outputs.has_sp_creds == 'false' &&
+          (
+            github.event_name == 'workflow_dispatch' ||
+            (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
+            (matrix.service.component == 'backend' && needs.detect-changes.outputs.backend == 'true')
+          )
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -273,19 +303,35 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Resolve ACR login server
-        if: needs.detect-changes.outputs.should_push == 'true'
+        if: |
+          needs.detect-changes.outputs.should_push == 'true' &&
+          (
+            github.event_name == 'workflow_dispatch' ||
+            (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
+            (matrix.service.component == 'backend' && needs.detect-changes.outputs.backend == 'true')
+          )
         run: |
           set -euo pipefail
           acr_login_server=$(az acr show --name "$ACR_NAME" --query "loginServer" --output tsv)
           echo "ACR_LOGIN_SERVER=$acr_login_server" >> "$GITHUB_ENV"
 
       - name: Azure ACR login
-        if: needs.detect-changes.outputs.should_push == 'true'
+        if: |
+          needs.detect-changes.outputs.should_push == 'true' &&
+          (
+            github.event_name == 'workflow_dispatch' ||
+            (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
+            (matrix.service.component == 'backend' && needs.detect-changes.outputs.backend == 'true')
+          )
         run: |
           set -euo pipefail
           az acr login --name "$ACR_NAME"
 
       - name: Build image
+        if: |
+          github.event_name == 'workflow_dispatch' ||
+          (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
+          (matrix.service.component == 'backend' && needs.detect-changes.outputs.backend == 'true')
         env:
           IMAGE_TAG: ${{ needs.detect-changes.outputs.image_tag }}
         run: |
@@ -298,6 +344,10 @@ jobs:
             "${{ matrix.service.context }}"
 
       - name: Trivy image scan
+        if: |
+          github.event_name == 'workflow_dispatch' ||
+          (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
+          (matrix.service.component == 'backend' && needs.detect-changes.outputs.backend == 'true')
         uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: ${{ matrix.service.image }}:${{ needs.detect-changes.outputs.image_tag }}
@@ -307,7 +357,13 @@ jobs:
           severity: HIGH,CRITICAL
 
       - name: Push image to ACR
-        if: needs.detect-changes.outputs.should_push == 'true'
+        if: |
+          needs.detect-changes.outputs.should_push == 'true' &&
+          (
+            github.event_name == 'workflow_dispatch' ||
+            (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
+            (matrix.service.component == 'backend' && needs.detect-changes.outputs.backend == 'true')
+          )
         env:
           IMAGE_TAG: ${{ needs.detect-changes.outputs.image_tag }}
         run: |
@@ -320,7 +376,13 @@ jobs:
           docker push "$remote_image"
 
       - name: Write deployment metadata
-        if: needs.detect-changes.outputs.should_push == 'true'
+        if: |
+          needs.detect-changes.outputs.should_push == 'true' &&
+          (
+            github.event_name == 'workflow_dispatch' ||
+            (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
+            (matrix.service.component == 'backend' && needs.detect-changes.outputs.backend == 'true')
+          )
         env:
           IMAGE_TAG: ${{ needs.detect-changes.outputs.image_tag }}
         run: |
@@ -338,7 +400,13 @@ jobs:
           EOF
 
       - name: Upload deployment metadata
-        if: needs.detect-changes.outputs.should_push == 'true'
+        if: |
+          needs.detect-changes.outputs.should_push == 'true' &&
+          (
+            github.event_name == 'workflow_dispatch' ||
+            (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
+            (matrix.service.component == 'backend' && needs.detect-changes.outputs.backend == 'true')
+          )
         uses: actions/upload-artifact@v4
         with:
           name: release-metadata-${{ matrix.service.name }}
