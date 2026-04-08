@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: jobbridge
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Huste6/datn-jobBridgeSmart.git
+    targetRevision: main
+    path: deploy/helm/jobbridge
+    helm:
+      valueFiles:
+        - values.yaml
+        - values-azure.yaml
+        - values-azure-argocd.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: jobbridge
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

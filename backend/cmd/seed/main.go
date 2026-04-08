@@ -50,6 +50,12 @@ type candidateSeed struct {
 	CvURL     string
 }
 
+type adminSeed struct {
+	Email    string
+	FullName string
+	Password string
+}
+
 func main() {
 	_ = godotenv.Load()
 	cfg := config.Load()
@@ -72,12 +78,18 @@ func main() {
 
 	seedData := recruiterSeeds()
 	candidateData := candidateSeeds()
+	adminData := defaultAdminSeed()
 	now := time.Now()
 
 	password := "secret123"
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Fatalf("failed to hash password: %v", err)
+	}
+
+	adminPasswordHash, err := bcrypt.GenerateFromPassword([]byte(adminData.Password), bcrypt.DefaultCost)
+	if err != nil {
+		log.Fatalf("failed to hash admin password: %v", err)
 	}
 
 	// Since this script is for full reset seeding, clear all related collections first.
@@ -90,6 +102,22 @@ func main() {
 	if _, err := usersCol.DeleteMany(ctx, bson.M{}); err != nil {
 		log.Fatalf("failed to clear users: %v", err)
 	}
+
+	adminUser := auth.User{
+		ID:           bson.NewObjectID(),
+		Email:        adminData.Email,
+		FullName:     adminData.FullName,
+		Role:         "admin",
+		ProfileDone:  true,
+		IsLocked:     false,
+		PasswordHash: string(adminPasswordHash),
+		CreatedAt:    now,
+		UpdatedAt:    now,
+	}
+	if _, err := usersCol.InsertOne(ctx, adminUser); err != nil {
+		log.Fatalf("failed to insert admin user %s: %v", adminData.Email, err)
+	}
+	log.Printf("seeded admin user %s", adminData.Email)
 
 	for i, hr := range seedData {
 		recruiterID := bson.NewObjectID()
@@ -183,14 +211,24 @@ func main() {
 	}
 
 	log.Printf(
-		"seed completed: recruiters=%d, candidates=%d, users=%d, companies=%d, jobs=%d, password=%s",
+		"seed completed: recruiters=%d, candidates=%d, users=%d, companies=%d, jobs=%d, user_password=%s, admin_email=%s, admin_password=%s",
 		len(seedData),
 		len(candidateData),
-		len(seedData)+len(candidateData),
+		len(seedData)+len(candidateData)+1,
 		len(seedData),
 		totalJobs(seedData),
 		password,
+		adminData.Email,
+		adminData.Password,
 	)
+}
+
+func defaultAdminSeed() adminSeed {
+	return adminSeed{
+		Email:    "admin@jobbridge.com",
+		FullName: "System Admin",
+		Password: "admin123",
+	}
 }
 
 func totalJobs(data []recruiterSeed) int {

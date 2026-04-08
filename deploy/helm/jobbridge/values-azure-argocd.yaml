@@ -1,0 +1,34 @@
+global:
+  imageTag: latest
+
+keyvault:
+  enabled: false
+  name: ""
+  tenantId: ""
+  identityClientId: ""
+
+services:
+  auth:
+    image:
+      repository: ""
+      tag: ""
+
+  gateway:
+    image:
+      repository: ""
+      tag: ""
+
+  jobs:
+    image:
+      repository: ""
+      tag: ""
+
+  ai:
+    image:
+      repository: ""
+      tag: ""
+
+  frontend:
+    image:
+      repository: ""
+      tag: ""

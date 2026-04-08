@@ -1,0 +1,346 @@
+name: CI Build Scan Push
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - backend/**
+      - frontend/**
+      - .github/workflows/ci-build-scan-push.yml
+      - .github/workflows/deploy-aks.yml
+  pull_request:
+    paths:
+      - backend/**
+      - frontend/**
+      - .github/workflows/ci-build-scan-push.yml
+      - .github/workflows/deploy-aks.yml
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: Optional image tag override (default uses short commit SHA)
+        required: false
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+      image_tag: ${{ steps.vars.outputs.image_tag }}
+      should_push: ${{ steps.vars.outputs.should_push }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect changed paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            frontend:
+              - 'frontend/**'
+              - '.github/workflows/ci-build-scan-push.yml'
+              - '.github/workflows/deploy-aks.yml'
+            backend:
+              - 'backend/**'
+              - '.github/workflows/ci-build-scan-push.yml'
+              - '.github/workflows/deploy-aks.yml'
+
+      - name: Resolve CI variables
+        id: vars
+        env:
+          INPUT_IMAGE_TAG: ${{ github.event.inputs.image_tag }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+
+          if [[ -n "${INPUT_IMAGE_TAG:-}" ]]; then
+            image_tag="$INPUT_IMAGE_TAG"
+          else
+            image_tag="${GITHUB_SHA::12}"
+          fi
+
+          should_push=false
+          if [[ "$EVENT_NAME" != "pull_request" ]]; then
+            should_push=true
+          fi
+
+          echo "image_tag=$image_tag" >> "$GITHUB_OUTPUT"
+          echo "should_push=$should_push" >> "$GITHUB_OUTPUT"
+
+  quality-frontend:
+    name: Quality Frontend
+    needs: detect-changes
+    if: github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci --legacy-peer-deps
+        working-directory: frontend
+
+      - name: Build frontend app
+        run: npm run build
+        working-directory: frontend
+
+      - name: Run frontend tests with coverage
+        run: npm run test:coverage
+        working-directory: frontend
+
+      - name: SonarCloud scan (frontend)
+        if: secrets.SONAR_TOKEN_FE != ''
+        uses: SonarSource/sonarqube-scan-action@v5
+        with:
+          projectBaseDir: frontend
+          args: >
+            -Dsonar.organization=quan
+            -Dsonar.projectKey=quan_datn-fe
+            -Dsonar.projectName=datn-fe
+            -Dsonar.sources=src
+            -Dsonar.tests=tests
+            -Dsonar.test.inclusions=tests/**/*.test.ts
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.exclusions=dist/**,node_modules/**,coverage/**
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_FE }}
+          SONAR_HOST_URL: https://sonarcloud.io
+
+      - name: Warn when frontend Sonar token missing
+        if: secrets.SONAR_TOKEN_FE == ''
+        run: echo "SONAR_TOKEN_FE is missing. Frontend Sonar scan was skipped."
+
+  quality-backend:
+    name: Quality Backend
+    needs: detect-changes
+    if: github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: backend/go.mod
+
+      - name: Download backend dependencies
+        run: go mod download
+        working-directory: backend
+
+      - name: Build backend app
+        run: go build ./...
+        working-directory: backend
+
+      - name: Run backend tests with coverage
+        run: go test ./... -coverprofile=coverage.out
+        working-directory: backend
+
+      - name: SonarCloud scan (backend)
+        if: secrets.SONAR_TOKEN_BE != ''
+        uses: SonarSource/sonarqube-scan-action@v5
+        with:
+          projectBaseDir: backend
+          args: >
+            -Dsonar.organization=quan
+            -Dsonar.projectKey=quan_datn-be
+            -Dsonar.projectName=datn-be
+            -Dsonar.sources=cmd,internal
+            -Dsonar.tests=tests
+            -Dsonar.test.inclusions=tests/**/*.go
+            -Dsonar.go.coverage.reportPaths=coverage.out
+            -Dsonar.exclusions=bin/**
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_BE }}
+          SONAR_HOST_URL: https://sonarcloud.io
+
+      - name: Warn when backend Sonar token missing
+        if: secrets.SONAR_TOKEN_BE == ''
+        run: echo "SONAR_TOKEN_BE is missing. Backend Sonar scan was skipped."
+
+  image-build-scan-push:
+    name: Build Scan Push (${{ matrix.service.name }})
+    needs:
+      - detect-changes
+      - quality-frontend
+      - quality-backend
+    if: |
+      always() &&
+      (needs.quality-frontend.result == 'success' || needs.quality-frontend.result == 'skipped') &&
+      (needs.quality-backend.result == 'success' || needs.quality-backend.result == 'skipped') &&
+      (
+        github.event_name == 'workflow_dispatch' ||
+        (matrix.service.component == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
+        (matrix.service.component == 'backend' && needs.detect-changes.outputs.backend == 'true')
+      )
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - name: auth
+            component: backend
+            dockerfile: backend/Dockerfile.auth
+            context: backend
+            image: jobbridge-auth
+          - name: gateway
+            component: backend
+            dockerfile: backend/Dockerfile.gateway
+            context: backend
+            image: jobbridge-gateway
+          - name: jobs
+            component: backend
+            dockerfile: backend/Dockerfile.jobs
+            context: backend
+            image: jobbridge-jobs
+          - name: ai
+            component: backend
+            dockerfile: backend/Dockerfile.ai
+            context: backend
+            image: jobbridge-ai
+          - name: frontend
+            component: frontend
+            dockerfile: frontend/Dockerfile
+            context: frontend
+            image: jobbridge-frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve deployment settings
+        if: needs.detect-changes.outputs.should_push == 'true'
+        env:
+          ACR_NAME: ${{ vars.ACR_NAME }}
+          ACRNAME: ${{ vars.ACRNAME }}
+        run: |
+          set -euo pipefail
+
+          resolved_acr_name="${ACR_NAME:-${ACRNAME:-acrjobbridge}}"
+          echo "ACR_NAME=$resolved_acr_name" >> "$GITHUB_ENV"
+
+      - name: Validate Azure auth inputs
+        if: needs.detect-changes.outputs.should_push == 'true'
+        id: auth_inputs
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+        run: |
+          set -euo pipefail
+
+          if [[ -n "${AZURE_CREDENTIALS:-}" ]]; then
+            echo "has_sp_creds=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "has_sp_creds=false" >> "$GITHUB_OUTPUT"
+
+          : "${AZURE_CLIENT_ID:?Set AZURE_CLIENT_ID or AZURE_CREDENTIALS}"
+          : "${AZURE_TENANT_ID:?Set AZURE_TENANT_ID or AZURE_CREDENTIALS}"
+          : "${AZURE_SUBSCRIPTION_ID:?Set AZURE_SUBSCRIPTION_ID or AZURE_CREDENTIALS}"
+
+      - name: Azure login (service principal secret)
+        if: needs.detect-changes.outputs.should_push == 'true' && steps.auth_inputs.outputs.has_sp_creds == 'true'
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Azure login (OIDC)
+        if: needs.detect-changes.outputs.should_push == 'true' && steps.auth_inputs.outputs.has_sp_creds == 'false'
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Resolve ACR login server
+        if: needs.detect-changes.outputs.should_push == 'true'
+        run: |
+          set -euo pipefail
+          acr_login_server=$(az acr show --name "$ACR_NAME" --query "loginServer" --output tsv)
+          echo "ACR_LOGIN_SERVER=$acr_login_server" >> "$GITHUB_ENV"
+
+      - name: Azure ACR login
+        if: needs.detect-changes.outputs.should_push == 'true'
+        run: |
+          set -euo pipefail
+          az acr login --name "$ACR_NAME"
+
+      - name: Build image
+        env:
+          IMAGE_TAG: ${{ needs.detect-changes.outputs.image_tag }}
+        run: |
+          set -euo pipefail
+
+          local_image="${{ matrix.service.image }}:$IMAGE_TAG"
+          docker build \
+            -f "${{ matrix.service.dockerfile }}" \
+            -t "$local_image" \
+            "${{ matrix.service.context }}"
+
+      - name: Trivy image scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ matrix.service.image }}:${{ needs.detect-changes.outputs.image_tag }}
+          format: table
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: HIGH,CRITICAL
+
+      - name: Push image to ACR
+        if: needs.detect-changes.outputs.should_push == 'true'
+        env:
+          IMAGE_TAG: ${{ needs.detect-changes.outputs.image_tag }}
+        run: |
+          set -euo pipefail
+
+          local_image="${{ matrix.service.image }}:$IMAGE_TAG"
+          remote_image="$ACR_LOGIN_SERVER/${{ matrix.service.image }}:$IMAGE_TAG"
+
+          docker tag "$local_image" "$remote_image"
+          docker push "$remote_image"
+
+      - name: Write deployment metadata
+        if: needs.detect-changes.outputs.should_push == 'true'
+        env:
+          IMAGE_TAG: ${{ needs.detect-changes.outputs.image_tag }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p release-metadata
+
+          cat > "release-metadata/${{ matrix.service.name }}.json" <<EOF
+          {
+            "service": "${{ matrix.service.name }}",
+            "image": "${{ matrix.service.image }}",
+            "repository": "$ACR_LOGIN_SERVER/${{ matrix.service.image }}",
+            "tag": "$IMAGE_TAG"
+          }
+          EOF
+
+      - name: Upload deployment metadata
+        if: needs.detect-changes.outputs.should_push == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-metadata-${{ matrix.service.name }}
+          path: release-metadata/${{ matrix.service.name }}.json
+          retention-days: 1

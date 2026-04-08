@@ -1,186 +1,245 @@
-name: Deploy App To AKS
+name: Update ArgoCD Helm Values
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - backend/**
-      - frontend/**
-      - deploy/helm/**
-      - .github/workflows/deploy-aks.yml
+  workflow_run:
+    workflows:
+      - CI Build Scan Push
+    types:
+      - completed
   workflow_dispatch:
     inputs:
       image_tag:
-        description: Optional image tag override (default uses short commit SHA)
+        description: Optional image tag override for manual run (default uses short commit SHA)
+        required: false
+        type: string
+      services:
+        description: Optional comma-separated services for manual run (auth,gateway,jobs,ai,frontend). Default updates all.
         required: false
         type: string
 
 permissions:
-  id-token: write
-  contents: read
+  contents: write
+  actions: read
 
 env:
-  CHART_DIR: deploy/helm/jobbridge
+  CHART_VALUES_FILE: deploy/helm/jobbridge/values-azure-argocd.yaml
 
 jobs:
-  deploy:
+  update-gitops-values:
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event_name == 'workflow_run' &&
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_branch == 'main'
+      )
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.ref_name }}
+          fetch-depth: 0
 
       - name: Resolve deployment settings
         env:
           ACR_NAME: ${{ vars.ACR_NAME }}
           ACRNAME: ${{ vars.ACRNAME }}
-          AKS_RESOURCE_GROUP: ${{ vars.AKS_RESOURCE_GROUP }}
-          AKSRESOURCEGROUP: ${{ vars.AKSRESOURCEGROUP }}
-          AKS_CLUSTER_NAME: ${{ vars.AKS_CLUSTER_NAME }}
-          AKSCLUSTERNAME: ${{ vars.AKSCLUSTERNAME }}
-          K8S_NAMESPACE: ${{ vars.K8S_NAMESPACE }}
-          K8SNAMESPACE: ${{ vars.K8SNAMESPACE }}
-          HELM_RELEASE_NAME: ${{ vars.HELM_RELEASE_NAME }}
-          HELMRELEASENAME: ${{ vars.HELMRELEASENAME }}
+          ACR_LOGIN_SERVER: ${{ vars.ACR_LOGIN_SERVER }}
+          ACRLOGINSERVER: ${{ vars.ACRLOGINSERVER }}
           KEYVAULT_NAME: ${{ vars.KEYVAULT_NAME }}
           KEYVAULTNAME: ${{ vars.KEYVAULTNAME }}
           AKS_KEYVAULT_IDENTITY_CLIENT_ID: ${{ vars.AKS_KEYVAULT_IDENTITY_CLIENT_ID }}
           AKSKEYVAULTIDENTITYCLIENTID: ${{ vars.AKSKEYVAULTIDENTITYCLIENTID }}
+          SECRET_AKS_KEYVAULT_IDENTITY_CLIENT_ID: ${{ secrets.AKS_KEYVAULT_IDENTITY_CLIENT_ID }}
           INPUT_IMAGE_TAG: ${{ github.event.inputs.image_tag }}
+          INPUT_SERVICES: ${{ github.event.inputs.services }}
+          WORKFLOW_RUN_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
+          WORKFLOW_RUN_HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          REF_NAME: ${{ github.ref_name }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
           set -euo pipefail
 
           resolved_acr_name="${ACR_NAME:-${ACRNAME:-acrjobbridge}}"
-          resolved_aks_rg="${AKS_RESOURCE_GROUP:-${AKSRESOURCEGROUP:-rg-jobbridge}}"
-          resolved_aks_name="${AKS_CLUSTER_NAME:-${AKSCLUSTERNAME:-aks-jobbridge}}"
-          resolved_namespace="${K8S_NAMESPACE:-${K8SNAMESPACE:-jobbridge}}"
-          resolved_release="${HELM_RELEASE_NAME:-${HELMRELEASENAME:-jobbridge}}"
+          resolved_acr_login_server="${ACR_LOGIN_SERVER:-${ACRLOGINSERVER:-${resolved_acr_name}.azurecr.io}}"
           resolved_kv_name="${KEYVAULT_NAME:-${KEYVAULTNAME:-}}"
-          resolved_kv_identity="${AKS_KEYVAULT_IDENTITY_CLIENT_ID:-${AKSKEYVAULTIDENTITYCLIENTID:-}}"
+          resolved_kv_identity="${AKS_KEYVAULT_IDENTITY_CLIENT_ID:-${AKSKEYVAULTIDENTITYCLIENTID:-${SECRET_AKS_KEYVAULT_IDENTITY_CLIENT_ID:-}}}"
+          resolved_workflow_run_id="${WORKFLOW_RUN_ID:-}"
+          resolved_manual_services="${INPUT_SERVICES:-}"
+          if [[ -n "${WORKFLOW_RUN_HEAD_BRANCH:-}" ]]; then
+            target_branch="$WORKFLOW_RUN_HEAD_BRANCH"
+          else
+            target_branch="$REF_NAME"
+          fi
 
           if [[ -n "${INPUT_IMAGE_TAG:-}" ]]; then
             resolved_image_tag="$INPUT_IMAGE_TAG"
+          elif [[ "$EVENT_NAME" == "workflow_run" && -n "${WORKFLOW_RUN_HEAD_SHA:-}" ]]; then
+            resolved_image_tag="${WORKFLOW_RUN_HEAD_SHA::12}"
           else
             resolved_image_tag="${GITHUB_SHA::12}"
           fi
 
           echo "ACR_NAME=$resolved_acr_name" >> "$GITHUB_ENV"
-          echo "AKS_RESOURCE_GROUP=$resolved_aks_rg" >> "$GITHUB_ENV"
-          echo "AKS_CLUSTER_NAME=$resolved_aks_name" >> "$GITHUB_ENV"
-          echo "K8S_NAMESPACE=$resolved_namespace" >> "$GITHUB_ENV"
-          echo "HELM_RELEASE_NAME=$resolved_release" >> "$GITHUB_ENV"
+          echo "ACR_LOGIN_SERVER=$resolved_acr_login_server" >> "$GITHUB_ENV"
           echo "KEYVAULT_NAME=$resolved_kv_name" >> "$GITHUB_ENV"
           echo "AKS_KEYVAULT_IDENTITY_CLIENT_ID=$resolved_kv_identity" >> "$GITHUB_ENV"
+          echo "WORKFLOW_RUN_ID=$resolved_workflow_run_id" >> "$GITHUB_ENV"
+          echo "MANUAL_SERVICES=$resolved_manual_services" >> "$GITHUB_ENV"
+          echo "TARGET_BRANCH=$target_branch" >> "$GITHUB_ENV"
           echo "IMAGE_TAG=$resolved_image_tag" >> "$GITHUB_ENV"
 
-      - name: Validate Azure auth inputs
-        id: auth_inputs
+      - name: Install tooling
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y jq unzip
+          sudo wget -q https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 -O /usr/local/bin/yq
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Collect release metadata
         env:
-          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_API_URL: ${{ github.api_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
           set -euo pipefail
 
-          if [[ -n "${AZURE_CREDENTIALS:-}" ]]; then
-            echo "has_sp_creds=true" >> "$GITHUB_OUTPUT"
-            echo "Using AZURE_CREDENTIALS for Azure login."
-            exit 0
+          rm -rf .tmp/release-metadata
+          mkdir -p .tmp/release-metadata
+
+          if [[ "$EVENT_NAME" == "workflow_run" ]]; then
+            if [[ -z "${WORKFLOW_RUN_ID:-}" ]]; then
+              echo "WORKFLOW_RUN_ID is empty for workflow_run event."
+              exit 1
+            fi
+
+            artifacts_response=".tmp/artifacts.json"
+            curl -fsSL \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$WORKFLOW_RUN_ID/artifacts?per_page=100" \
+              -o "$artifacts_response"
+
+            artifact_count=$(jq '[.artifacts[] | select(.name | startswith("release-metadata-"))] | length' "$artifacts_response")
+            if [[ "$artifact_count" -eq 0 ]]; then
+              echo "No release metadata artifacts found in CI run $WORKFLOW_RUN_ID."
+              exit 1
+            fi
+
+            while IFS= read -r artifact_id; do
+              zip_path=".tmp/release-metadata-$artifact_id.zip"
+              curl -fsSL \
+                -H "Authorization: Bearer $GH_TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id/zip" \
+                -o "$zip_path"
+              unzip -qo "$zip_path" -d .tmp/release-metadata
+            done < <(jq -r '.artifacts[] | select(.name | startswith("release-metadata-")) | .id' "$artifacts_response")
+          else
+            manual_services="${MANUAL_SERVICES:-auth,gateway,jobs,ai,frontend}"
+            manual_services="${manual_services// /}"
+            IFS=',' read -ra service_list <<< "$manual_services"
+
+            for svc in "${service_list[@]}"; do
+              case "$svc" in
+                auth|gateway|jobs|ai|frontend)
+                  ;;
+                *)
+                  echo "Unsupported service '$svc'. Allowed: auth,gateway,jobs,ai,frontend"
+                  exit 1
+                  ;;
+              esac
+
+              cat > ".tmp/release-metadata/$svc.json" <<EOF
+              {
+                "service": "$svc",
+                "image": "jobbridge-$svc",
+                "repository": "$ACR_LOGIN_SERVER/jobbridge-$svc",
+                "tag": "$IMAGE_TAG"
+              }
+              EOF
+            done
           fi
 
-          echo "has_sp_creds=false" >> "$GITHUB_OUTPUT"
+          file_count=$(find .tmp/release-metadata -maxdepth 1 -name '*.json' | wc -l | tr -d ' ')
+          if [[ "$file_count" -eq 0 ]]; then
+            echo "No release metadata json file found."
+            exit 1
+          fi
 
-          : "${AZURE_CLIENT_ID:?Set AZURE_CLIENT_ID or AZURE_CREDENTIALS}"
-          : "${AZURE_TENANT_ID:?Set AZURE_TENANT_ID or AZURE_CREDENTIALS}"
-          : "${AZURE_SUBSCRIPTION_ID:?Set AZURE_SUBSCRIPTION_ID or AZURE_CREDENTIALS}"
-
-      - name: Azure login (service principal secret)
-        if: steps.auth_inputs.outputs.has_sp_creds == 'true'
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Azure login (OIDC)
-        if: steps.auth_inputs.outputs.has_sp_creds == 'false'
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Resolve ACR login server
-        run: |
-          set -euo pipefail
-          acr_login_server=$(az acr show --name "$ACR_NAME" --query "loginServer" --output tsv)
-          echo "ACR_LOGIN_SERVER=$acr_login_server" >> "$GITHUB_ENV"
-
-      - name: Azure ACR login
-        run: |
-          set -euo pipefail
-          az acr login --name "$ACR_NAME"
-
-      - name: Build and push images
-        run: |
-          set -euo pipefail
-
-          docker build -f backend/Dockerfile.auth -t "$ACR_LOGIN_SERVER/jobbridge-auth:$IMAGE_TAG" backend
-          docker push "$ACR_LOGIN_SERVER/jobbridge-auth:$IMAGE_TAG"
-
-          docker build -f backend/Dockerfile.gateway -t "$ACR_LOGIN_SERVER/jobbridge-gateway:$IMAGE_TAG" backend
-          docker push "$ACR_LOGIN_SERVER/jobbridge-gateway:$IMAGE_TAG"
-
-          docker build -f backend/Dockerfile.jobs -t "$ACR_LOGIN_SERVER/jobbridge-jobs:$IMAGE_TAG" backend
-          docker push "$ACR_LOGIN_SERVER/jobbridge-jobs:$IMAGE_TAG"
-
-          docker build -f backend/Dockerfile.ai -t "$ACR_LOGIN_SERVER/jobbridge-ai:$IMAGE_TAG" backend
-          docker push "$ACR_LOGIN_SERVER/jobbridge-ai:$IMAGE_TAG"
-
-          docker build -f frontend/Dockerfile -t "$ACR_LOGIN_SERVER/jobbridge-frontend:$IMAGE_TAG" frontend
-          docker push "$ACR_LOGIN_SERVER/jobbridge-frontend:$IMAGE_TAG"
-
-      - name: Set AKS context
-        run: |
-          set -euo pipefail
-          az aks get-credentials \
-            --resource-group "$AKS_RESOURCE_GROUP" \
-            --name "$AKS_CLUSTER_NAME" \
-            --overwrite-existing
-
-      - name: Setup Helm
-        uses: azure/setup-helm@v4
-
-      - name: Helm upgrade/install
+      - name: Update Helm values for Argo CD
         env:
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         run: |
           set -euo pipefail
 
-          helm_args=(
-            --namespace "$K8S_NAMESPACE"
-            --create-namespace
-            --wait
-            --timeout 10m
-            -f "$CHART_DIR/values.yaml"
-            -f "$CHART_DIR/values-azure.yaml"
-            --set "global.imageTag=$IMAGE_TAG"
-            --set "services.auth.image.repository=$ACR_LOGIN_SERVER/jobbridge-auth"
-            --set "services.gateway.image.repository=$ACR_LOGIN_SERVER/jobbridge-gateway"
-            --set "services.jobs.image.repository=$ACR_LOGIN_SERVER/jobbridge-jobs"
-            --set "services.ai.image.repository=$ACR_LOGIN_SERVER/jobbridge-ai"
-            --set "services.frontend.image.repository=$ACR_LOGIN_SERVER/jobbridge-frontend"
-          )
+          : "${CHART_VALUES_FILE:?CHART_VALUES_FILE is required}"
+
+          if [[ ! -f "$CHART_VALUES_FILE" ]]; then
+            echo "Chart values file '$CHART_VALUES_FILE' does not exist."
+            exit 1
+          fi
+
+          yq -i '.global.imageTag = strenv(IMAGE_TAG)' "$CHART_VALUES_FILE"
+
+          while IFS= read -r metadata_file; do
+            service=$(jq -r '.service' "$metadata_file")
+            repository=$(jq -r '.repository' "$metadata_file")
+            tag=$(jq -r '.tag' "$metadata_file")
+
+            if [[ -z "$service" || -z "$repository" || -z "$tag" ]]; then
+              echo "Invalid metadata file: $metadata_file"
+              exit 1
+            fi
+
+            SERVICE="$service" REPOSITORY="$repository" TAG="$tag" yq -i '
+              .services[strenv(SERVICE)].image.repository = strenv(REPOSITORY) |
+              .services[strenv(SERVICE)].image.tag = strenv(TAG)
+            ' "$CHART_VALUES_FILE"
+          done < <(find .tmp/release-metadata -maxdepth 1 -name '*.json' | sort)
 
           if [[ -n "$KEYVAULT_NAME" && -n "$AKS_KEYVAULT_IDENTITY_CLIENT_ID" ]]; then
-            helm_args+=(
-              --set "keyvault.enabled=true"
-              --set "keyvault.name=$KEYVAULT_NAME"
-              --set "keyvault.tenantId=$AZURE_TENANT_ID"
-              --set "keyvault.identityClientId=$AKS_KEYVAULT_IDENTITY_CLIENT_ID"
-            )
+            yq -i '.keyvault.enabled = true' "$CHART_VALUES_FILE"
+            yq -i '.keyvault.name = strenv(KEYVAULT_NAME)' "$CHART_VALUES_FILE"
+            yq -i '.keyvault.identityClientId = strenv(AKS_KEYVAULT_IDENTITY_CLIENT_ID)' "$CHART_VALUES_FILE"
+
+            if [[ -n "${AZURE_TENANT_ID:-}" ]]; then
+              yq -i '.keyvault.tenantId = strenv(AZURE_TENANT_ID)' "$CHART_VALUES_FILE"
+            fi
           else
-            # Deploy still works without CSI integration when Key Vault identity is not configured yet.
-            helm_args+=(--set "keyvault.enabled=false")
+            yq -i '.keyvault.enabled = false' "$CHART_VALUES_FILE"
           fi
 
-          helm upgrade --install "$HELM_RELEASE_NAME" "$CHART_DIR" "${helm_args[@]}"
+      - name: Check git diff
+        id: git_diff
+        run: |
+          set -euo pipefail
+
+          if git diff --quiet -- "$CHART_VALUES_FILE"; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No changes in $CHART_VALUES_FILE"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push GitOps values
+        if: steps.git_diff.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add "$CHART_VALUES_FILE"
+          git commit -m "chore(cd): update argocd image tags to $IMAGE_TAG [skip ci]"
+          git push origin "HEAD:$TARGET_BRANCH"
+
+      - name: Print Argo CD next step
+        run: |
+          set -euo pipefail
+          echo "GitOps values updated in $CHART_VALUES_FILE."
+          echo "If Argo CD app auto-sync is enabled, AKS deployment will reconcile automatically."
