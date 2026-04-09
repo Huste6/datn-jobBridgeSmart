@@ -1,34 +1,28 @@
 global:
-  imageTag: latest
-
+  imageTag: 6ce075d2fa7a
 keyvault:
-  enabled: false
-  name: ""
-  tenantId: ""
-  identityClientId: ""
-
+  enabled: true
+  name: "kv-jobbridge"
+  tenantId: "79dabbf3-8591-44a1-b318-202d64488915"
+  identityClientId: "c041558d-ddad-4e06-b819-1ff049af1d1d"
 services:
   auth:
     image:
-      repository: ""
-      tag: ""
-
+      repository: "acrjobbridge.azurecr.io/jobbridge-auth"
+      tag: "6ce075d2fa7a"
   gateway:
     image:
-      repository: ""
-      tag: ""
-
+      repository: "acrjobbridge.azurecr.io/jobbridge-gateway"
+      tag: "6ce075d2fa7a"
   jobs:
     image:
-      repository: ""
-      tag: ""
-
+      repository: "acrjobbridge.azurecr.io/jobbridge-jobs"
+      tag: "6ce075d2fa7a"
   ai:
     image:
-      repository: ""
-      tag: ""
-
+      repository: "acrjobbridge.azurecr.io/jobbridge-ai"
+      tag: "6ce075d2fa7a"
   frontend:
     image:
-      repository: ""
-      tag: ""
+      repository: "acrjobbridge.azurecr.io/jobbridge-frontend"
+      tag: "6ce075d2fa7a"
