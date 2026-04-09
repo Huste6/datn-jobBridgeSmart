@@ -154,14 +154,17 @@ jobs:
                   ;;
               esac
 
-              cat > ".tmp/release-metadata/$svc.json" <<EOF
-              {
-                "service": "$svc",
-                "image": "jobbridge-$svc",
-                "repository": "$ACR_LOGIN_SERVER/jobbridge-$svc",
-                "tag": "$IMAGE_TAG"
-              }
-              EOF
+              jq -n \
+                --arg service "$svc" \
+                --arg image "jobbridge-$svc" \
+                --arg repository "$ACR_LOGIN_SERVER/jobbridge-$svc" \
+                --arg tag "$IMAGE_TAG" \
+                '{
+                  service: $service,
+                  image: $image,
+                  repository: $repository,
+                  tag: $tag
+                }' > ".tmp/release-metadata/$svc.json"
             done
           fi
 
