@@ -8,13 +8,11 @@ on:
       - backend/**
       - frontend/**
       - .github/workflows/ci-build-scan-push.yml
-      - .github/workflows/deploy-aks.yml
   pull_request:
     paths:
       - backend/**
       - frontend/**
       - .github/workflows/ci-build-scan-push.yml
-      - .github/workflows/deploy-aks.yml
   workflow_dispatch:
     inputs:
       image_tag:
@@ -46,11 +44,9 @@ jobs:
             frontend:
               - 'frontend/**'
               - '.github/workflows/ci-build-scan-push.yml'
-              - '.github/workflows/deploy-aks.yml'
             backend:
               - 'backend/**'
               - '.github/workflows/ci-build-scan-push.yml'
-              - '.github/workflows/deploy-aks.yml'
 
       - name: Resolve CI variables
         id: vars

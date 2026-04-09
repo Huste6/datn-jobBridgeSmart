@@ -1,0 +1,110 @@
+name: Bootstrap ArgoCD On AKS
+
+on:
+  workflow_dispatch:
+    inputs:
+      aks_resource_group:
+        description: AKS resource group name
+        required: true
+        default: rg-jobbridge
+        type: string
+      aks_cluster_name:
+        description: AKS cluster name
+        required: true
+        default: aks-jobbridge
+        type: string
+      argocd_host:
+        description: Public host for Argo CD UI (must point to ingress public IP)
+        required: true
+        default: argocd.jobbridge.duckdns.org
+        type: string
+      app_repo_url:
+        description: Git repository URL tracked by Argo CD Application
+        required: true
+        default: https://github.com/Huste6/datn-jobBridgeSmart.git
+        type: string
+      app_target_revision:
+        description: Git revision Argo CD tracks
+        required: true
+        default: main
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  bootstrap-argocd:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Azure auth inputs
+        id: auth_inputs
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+        run: |
+          set -euo pipefail
+
+          if [[ -n "${AZURE_CREDENTIALS:-}" ]]; then
+            echo "has_sp_creds=true" >> "$GITHUB_OUTPUT"
+            echo "Using AZURE_CREDENTIALS secret for Azure login."
+            exit 0
+          fi
+
+          echo "has_sp_creds=false" >> "$GITHUB_OUTPUT"
+
+          : "${AZURE_CLIENT_ID:?Set AZURE_CLIENT_ID or AZURE_CREDENTIALS}"
+          : "${AZURE_TENANT_ID:?Set AZURE_TENANT_ID or AZURE_CREDENTIALS}"
+          : "${AZURE_SUBSCRIPTION_ID:?Set AZURE_SUBSCRIPTION_ID or AZURE_CREDENTIALS}"
+
+      - name: Azure login (service principal secret)
+        if: steps.auth_inputs.outputs.has_sp_creds == 'true'
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Azure login (OIDC)
+        if: steps.auth_inputs.outputs.has_sp_creds == 'false'
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Get AKS credentials
+        env:
+          AKS_RESOURCE_GROUP: ${{ inputs.aks_resource_group }}
+          AKS_CLUSTER_NAME: ${{ inputs.aks_cluster_name }}
+        run: |
+          set -euo pipefail
+
+          az aks get-credentials \
+            --resource-group "$AKS_RESOURCE_GROUP" \
+            --name "$AKS_CLUSTER_NAME" \
+            --overwrite-existing
+
+      - name: Bootstrap Argo CD and JobBridge application
+        env:
+          ARGOCD_HOST: ${{ inputs.argocd_host }}
+          APP_REPO_URL: ${{ inputs.app_repo_url }}
+          APP_TARGET_REVISION: ${{ inputs.app_target_revision }}
+        run: |
+          set -euo pipefail
+
+          chmod +x deploy/scripts/bootstrap-argocd.sh
+          deploy/scripts/bootstrap-argocd.sh "$ARGOCD_HOST" "$APP_REPO_URL" "$APP_TARGET_REVISION"
+
+      - name: Print quick checks
+        env:
+          ARGOCD_HOST: ${{ inputs.argocd_host }}
+        run: |
+          set -euo pipefail
+
+          echo "Argo CD UI: http://$ARGOCD_HOST"
+          echo "App sync state:"
+          kubectl -n argocd get application jobbridge -o wide

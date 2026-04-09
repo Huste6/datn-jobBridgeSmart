@@ -9,6 +9,7 @@ metadata:
     {{- include "jobbridge.labels" $ | nindent 4 }}
     app.kubernetes.io/component: {{ $name }}
 spec:
+  revisionHistoryLimit: {{ default (default 2 $.Values.global.revisionHistoryLimit) $svc.revisionHistoryLimit }}
   {{- if not $svc.autoscaling.enabled }}
   replicas: {{ $svc.replicaCount }}
   {{- end }}

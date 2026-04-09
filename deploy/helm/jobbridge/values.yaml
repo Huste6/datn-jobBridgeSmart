@@ -6,6 +6,7 @@ imagePullSecrets: []
 global:
   imagePullPolicy: IfNotPresent
   imageTag: "latest"
+  revisionHistoryLimit: 2
 
 keyvault:
   enabled: false
