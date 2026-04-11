@@ -56,7 +56,7 @@ const LandingPage = ({
                         </div>
                         <nav className="hidden md:flex space-x-8">
                             <button onClick={() => onNavigate?.('jobsList')} className="text-slate-600 hover:text-blue-600 font-medium">Tìm việc làm</button>
-                            <a href="#" className="text-slate-600 hover:text-blue-600 font-medium">Công ty</a>
+                            <button onClick={() => onNavigate?.('companiesList')} className="text-slate-600 hover:text-blue-600 font-medium">Công ty</button>
                             <button onClick={() => onNavigate?.('aiCoach')} className="text-slate-600 hover:text-blue-600 font-medium">AI luyện phỏng vấn</button>
                         </nav>
                         <div className="flex items-center gap-4">

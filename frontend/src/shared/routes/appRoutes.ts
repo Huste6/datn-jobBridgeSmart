@@ -10,6 +10,8 @@ export type AppPage =
     | 'hrJobCandidates'
     | 'hrCandidateReview'
     | 'jobsList'
+    | 'companiesList'
+    | 'companyDetails'
     | 'applications'
     | 'aiCoach'
     | 'login'
@@ -45,6 +47,10 @@ export function pathFromPage(page: AppPage): string {
             return '/hr/candidates/review'
         case 'jobsList':
             return '/jobs'
+        case 'companiesList':
+            return '/companies'
+        case 'companyDetails':
+            return '/companies/detail'
         case 'applications':
             return '/applications'
         case 'aiCoach':
@@ -98,6 +104,10 @@ export function pageFromPath(pathname: string): AppPage {
             return 'hrCandidateReview'
         case '/jobs':
             return 'jobsList'
+        case '/companies':
+            return 'companiesList'
+        case '/companies/detail':
+            return 'companyDetails'
         case '/applications':
             return 'applications'
         case '/ai-coach':

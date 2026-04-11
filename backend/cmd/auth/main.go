@@ -75,6 +75,12 @@ func main() {
 			userRoutes.POST("/me/onboarding", authHandler.CompleteOnboarding)
 		}
 
+		publicRoutes := api.Group("/public")
+		{
+			publicRoutes.GET("/companies", authHandler.GetPublicCompanies)
+			publicRoutes.GET("/companies/:id", authHandler.GetPublicCompany)
+		}
+
 		hrRoutes := api.Group("/hr")
 		hrRoutes.Use(auth.AuthMiddleware(cfg.JWTSecret))
 		{

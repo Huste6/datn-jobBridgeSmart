@@ -182,7 +182,7 @@ const JobsListPage = ({ onNavigate, currentUser, role, onLogout }: JobsListPageP
                         </button>
                         <nav className="hidden md:flex space-x-8">
                             <button onClick={() => onNavigate?.('jobsList')} className="text-slate-600 hover:text-blue-600 font-medium">Tìm việc làm</button>
-                            <span className="text-slate-500 font-medium">Công ty</span>
+                            <button onClick={() => onNavigate?.('companiesList')} className="text-slate-600 hover:text-blue-600 font-medium">Công ty</button>
                             <button onClick={() => onNavigate?.('aiCoach')} className="text-slate-600 hover:text-blue-600 font-medium">AI luyện phỏng vấn</button>
                         </nav>
                         <div className="flex items-center gap-3">
@@ -246,7 +246,7 @@ const JobsListPage = ({ onNavigate, currentUser, role, onLogout }: JobsListPageP
                             ) : (
                                 <div className="flex items-center gap-2">
                                     <button onClick={() => onNavigate?.('login')} className="text-slate-600 hover:text-blue-600 font-medium px-4 py-2">Đăng nhập</button>
-                                    <button onClick={() => onNavigate?.('register')} className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition-colors shadow-sm">Nhà tuyển dụng</button>
+                                    <button onClick={() => onNavigate?.('register')} className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition-colors shadow-sm">Đăng ký</button>
                                 </div>
                             )}
                         </div>

@@ -14,6 +14,8 @@ import NotFoundPage from './pages/errors/NotFoundPage'
 import RoleSelectPage from './pages/onboarding/RoleSelectPage'
 import BasicProfilePage from './pages/onboarding/BasicProfilePage'
 import JobsListPage from './pages/app/JobsListPage'
+import CompaniesListPage from './pages/companies/CompaniesListPage'
+import CompanyDetailsPage from './pages/companies/CompanyDetailsPage'
 import ProfilePage from './pages/app/ProfilePage'
 import CandidateApplicationsPage from './pages/app/CandidateApplicationsPage'
 import AiInterviewCoachPage from './pages/app/AiInterviewCoachPage'
@@ -45,10 +47,15 @@ function App() {
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null)
   const [isBootstrapping, setIsBootstrapping] = useState(true)
 
-  const navigate = useCallback((page: AppPage, options?: { replace?: boolean }) => {
+  const navigate = useCallback((page: AppPage, options?: { replace?: boolean, searchParams?: Record<string, string> }) => {
     setCurrentPage(page)
-    const nextPath = pathFromPage(page)
-    if (window.location.pathname !== nextPath) {
+    let nextPath = pathFromPage(page)
+    if (options?.searchParams) {
+      const params = new URLSearchParams(options.searchParams)
+      nextPath += '?' + params.toString()
+    }
+    const currentPathWithSearch = window.location.pathname + window.location.search
+    if (currentPathWithSearch !== nextPath) {
       if (options?.replace) {
         window.history.replaceState({}, '', nextPath)
       } else {
@@ -226,6 +233,22 @@ function App() {
       {currentPage === 'hrCandidateReview' && currentUser && <HrCandidateReviewPage onNavigate={navigate} currentUser={currentUser} onLogout={handleLogout} />}
       {currentPage === 'jobsList' && (
         <JobsListPage
+          onNavigate={navigate}
+          currentUser={currentUser}
+          role={selectedRole ?? (currentUser ? toUserRole(currentUser.role) : null)}
+          onLogout={handleLogout}
+        />
+      )}
+      {currentPage === 'companiesList' && (
+        <CompaniesListPage
+          onNavigate={navigate}
+          currentUser={currentUser}
+          role={selectedRole ?? (currentUser ? toUserRole(currentUser.role) : null)}
+          onLogout={handleLogout}
+        />
+      )}
+      {currentPage === 'companyDetails' && (
+        <CompanyDetailsPage
           onNavigate={navigate}
           currentUser={currentUser}
           role={selectedRole ?? (currentUser ? toUserRole(currentUser.role) : null)}
