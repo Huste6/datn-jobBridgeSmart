@@ -1,0 +1,237 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jobbridge-pod-stress-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  jobbridge-pod-stress.json: |
+    {
+      "annotations": {
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": {"type": "grafana", "uid": "-- Grafana --"},
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "type": "dashboard"
+          }
+        ]
+      },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "links": [],
+      "panels": [
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {
+            "defaults": {"color": {"mode": "palette-classic"}, "unit": "cores"},
+            "overrides": []
+          },
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+          "id": 1,
+          "options": {"legend": {"displayMode": "table", "placement": "bottom"}, "tooltip": {"mode": "multi"}},
+          "targets": [
+            {
+              "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"jobbridge\",pod=~\"$pod\",container!=\"\",image!=\"\"}[1m]))",
+              "legendFormat": "CPU Usage",
+              "refId": "A"
+            },
+            {
+              "expr": "sum(kube_pod_container_resource_limits{namespace=\"jobbridge\",pod=~\"$pod\",resource=\"cpu\",unit=\"core\"})",
+              "legendFormat": "CPU Limit",
+              "refId": "B"
+            }
+          ],
+          "title": "CPU Usage vs Limit (cores)",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "thresholds"},
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {"color": "green", "value": null},
+                  {"color": "orange", "value": 70},
+                  {"color": "red", "value": 90}
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+          "id": 2,
+          "options": {
+            "orientation": "auto",
+            "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+            "showThresholdLabels": false,
+            "showThresholdMarkers": true
+          },
+          "targets": [
+            {
+              "expr": "100 * (sum(rate(container_cpu_usage_seconds_total{namespace=\"jobbridge\",pod=~\"$pod\",container!=\"\",image!=\"\"}[1m])) / clamp_min(sum(kube_pod_container_resource_limits{namespace=\"jobbridge\",pod=~\"$pod\",resource=\"cpu\",unit=\"core\"}), 0.001))",
+              "legendFormat": "CPU % of limit",
+              "refId": "A"
+            }
+          ],
+          "title": "CPU Utilization (% of Limit)",
+          "type": "gauge"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {
+            "defaults": {"color": {"mode": "palette-classic"}, "unit": "bytes"},
+            "overrides": []
+          },
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+          "id": 3,
+          "options": {"legend": {"displayMode": "table", "placement": "bottom"}, "tooltip": {"mode": "multi"}},
+          "targets": [
+            {
+              "expr": "sum(container_memory_working_set_bytes{namespace=\"jobbridge\",pod=~\"$pod\",container!=\"\",image!=\"\"})",
+              "legendFormat": "Memory Usage",
+              "refId": "A"
+            },
+            {
+              "expr": "sum(kube_pod_container_resource_limits{namespace=\"jobbridge\",pod=~\"$pod\",resource=\"memory\",unit=\"byte\"})",
+              "legendFormat": "Memory Limit",
+              "refId": "B"
+            }
+          ],
+          "title": "Memory Usage vs Limit",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "thresholds"},
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {"color": "green", "value": null},
+                  {"color": "orange", "value": 75},
+                  {"color": "red", "value": 90}
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+          "id": 4,
+          "options": {
+            "orientation": "auto",
+            "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+            "showThresholdLabels": false,
+            "showThresholdMarkers": true
+          },
+          "targets": [
+            {
+              "expr": "100 * (sum(container_memory_working_set_bytes{namespace=\"jobbridge\",pod=~\"$pod\",container!=\"\",image!=\"\"}) / clamp_min(sum(kube_pod_container_resource_limits{namespace=\"jobbridge\",pod=~\"$pod\",resource=\"memory\",unit=\"byte\"}), 1))",
+              "legendFormat": "Memory % of limit",
+              "refId": "A"
+            }
+          ],
+          "title": "Memory Utilization (% of Limit)",
+          "type": "gauge"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {
+            "defaults": {"color": {"mode": "palette-classic"}, "unit": "Bps"},
+            "overrides": []
+          },
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+          "id": 5,
+          "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "multi"}},
+          "targets": [
+            {
+              "expr": "sum(rate(container_network_receive_bytes_total{namespace=\"jobbridge\",pod=~\"$pod\"}[5m]))",
+              "legendFormat": "Rx",
+              "refId": "A"
+            },
+            {
+              "expr": "sum(rate(container_network_transmit_bytes_total{namespace=\"jobbridge\",pod=~\"$pod\"}[5m]))",
+              "legendFormat": "Tx",
+              "refId": "B"
+            }
+          ],
+          "title": "Network Traffic (Rx/Tx)",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "thresholds"},
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {"color": "green", "value": null},
+                  {"color": "orange", "value": 1},
+                  {"color": "red", "value": 3}
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+          "id": 6,
+          "options": {
+            "orientation": "auto",
+            "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+            "showThresholdLabels": false,
+            "showThresholdMarkers": true
+          },
+          "targets": [
+            {
+              "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"jobbridge\",pod=~\"$pod\"}[15m]))",
+              "legendFormat": "Restarts",
+              "refId": "A"
+            }
+          ],
+          "title": "Restarts in Last 15m",
+          "type": "gauge"
+        }
+      ],
+      "refresh": "15s",
+      "schemaVersion": 39,
+      "style": "dark",
+      "tags": ["jobbridge", "stress-test", "pod"],
+      "templating": {
+        "list": [
+          {
+            "name": "pod",
+            "type": "query",
+            "datasource": {"type": "prometheus", "uid": "prometheus"},
+            "definition": "label_values(kube_pod_info{namespace=\"jobbridge\"}, pod)",
+            "query": {
+              "query": "label_values(kube_pod_info{namespace=\"jobbridge\"}, pod)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            },
+            "refresh": 1,
+            "multi": false,
+            "includeAll": false,
+            "sort": 1,
+            "current": {}
+          }
+        ]
+      },
+      "time": {"from": "now-30m", "to": "now"},
+      "timepicker": {},
+      "timezone": "browser",
+      "title": "JobBridge - Pod Stress Test",
+      "uid": "jobbridge-pod-stress",
+      "version": 1,
+      "weekStart": ""
+    }
