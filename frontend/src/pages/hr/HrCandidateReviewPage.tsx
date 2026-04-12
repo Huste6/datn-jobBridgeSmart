@@ -142,7 +142,7 @@ const HrCandidateReviewPage = ({
                         </label>
 
                         <label className="space-y-1 block">
-                            <span className="text-sm font-medium text-slate-700">Nhận xét HR</span>
+                            <span className="text-sm font-medium text-slate-700">Nhận xét</span>
                             <textarea rows={6} value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-slate-300" />
                         </label>
 
