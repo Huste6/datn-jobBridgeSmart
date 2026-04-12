@@ -66,7 +66,7 @@ kubectl apply -f "$tmp_ingress_manifest"
 rm -f "$tmp_ingress_manifest"
 
 echo "Setting Argo CD external URL to match ingress host..."
-kubectl -n "$ARGOCD_NAMESPACE" patch configmap argocd-cm --type merge -p "{\"data\":{\"url\":\"http://$ARGOCD_HOST\"}}"
+kubectl -n "$ARGOCD_NAMESPACE" patch configmap argocd-cm --type merge -p "{\"data\":{\"url\":\"https://$ARGOCD_HOST\"}}"
 
 echo "Applying JobBridge Application manifest..."
 kubectl apply -f "$REPO_ROOT/deploy/argocd/jobbridge-application.yaml"
@@ -78,7 +78,7 @@ echo "Current Argo CD application status:"
 kubectl -n "$ARGOCD_NAMESPACE" get application "$APP_NAME" -o wide
 
 echo ""
-echo "Argo CD UI: http://$ARGOCD_HOST"
+echo "Argo CD UI: https://$ARGOCD_HOST"
 echo "Username: admin"
 echo "Initial password command:"
 echo "kubectl -n $ARGOCD_NAMESPACE get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d; echo"
