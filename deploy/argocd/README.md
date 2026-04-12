@@ -10,6 +10,17 @@ After Argo CD is installed, it watches Git commits and auto-syncs the Helm relea
 - [deploy/argocd/argocd-cmd-params-cm.yaml](argocd-cmd-params-cm.yaml): Enables Argo CD server insecure mode for HTTP ingress.
 - [deploy/argocd/argocd-server-ingress.yaml](argocd-server-ingress.yaml): NGINX ingress for Argo CD UI.
 
+## HTTPS/TLS for app domain
+
+- The bootstrap script now installs `cert-manager` in the cluster.
+- JobBridge Helm values for Azure enable a `ClusterIssuer` named `letsencrypt-prod`.
+- App ingress uses `cert-manager.io/cluster-issuer: letsencrypt-prod` and writes certificate to `jobbridge-tls-secret`.
+
+Important:
+
+- Update `certManager.clusterIssuer.email` in [deploy/helm/jobbridge/values-azure.yaml](../helm/jobbridge/values-azure.yaml) to your real email before production rollout.
+- Ensure `jobbridge.duckdns.org` points to your ingress public IP; HTTP-01 validation depends on this.
+
 ## Bootstrap from local machine
 
 1. Make sure your `kubectl` context points to AKS.
@@ -48,6 +59,16 @@ kubectl -n argocd port-forward svc/argocd-server 8081:80
 ```
 
 Open `http://localhost:8081`.
+
+## Verify HTTPS certificate
+
+```bash
+kubectl -n jobbridge get certificate,challenge,order
+kubectl -n jobbridge describe certificate jobbridge-tls-secret
+kubectl -n jobbridge get secret jobbridge-tls-secret
+```
+
+After certificate issuance succeeds, open `https://jobbridge.duckdns.org`.
 
 ## GitOps flow in this project
 

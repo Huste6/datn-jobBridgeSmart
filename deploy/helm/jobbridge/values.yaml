@@ -224,3 +224,12 @@ ingress:
           pathType: Prefix
           service: gateway
   tls: []
+
+certManager:
+  enabled: false
+  clusterIssuer:
+    create: false
+    name: letsencrypt-prod
+    email: admin@example.com
+    server: https://acme-v02.api.letsencrypt.org/directory
+    ingressClass: nginx

@@ -97,6 +97,10 @@ services:
 ingress:
   enabled: true
   className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
   hosts:
     - host: jobbridge.duckdns.org
       paths:
@@ -110,3 +114,12 @@ ingress:
     - hosts:
         - jobbridge.duckdns.org
       secretName: jobbridge-tls-secret
+
+certManager:
+  enabled: true
+  clusterIssuer:
+    create: true
+    name: letsencrypt-prod
+    email: quannghihai@gmail.com
+    server: https://acme-v02.api.letsencrypt.org/directory
+    ingressClass: nginx

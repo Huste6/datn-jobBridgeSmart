@@ -12,6 +12,8 @@ ARGOCD_HOST="${1:-argocd.jobbridge.duckdns.org}"
 APP_REPO_URL="${2:-https://github.com/Huste6/datn-jobBridgeSmart.git}"
 APP_TARGET_REVISION="${3:-main}"
 APP_NAME="${4:-jobbridge}"
+CERT_MANAGER_NAMESPACE="${CERT_MANAGER_NAMESPACE:-cert-manager}"
+CERT_MANAGER_VERSION="${CERT_MANAGER_VERSION:-v1.15.3}"
 
 for cmd in kubectl sed; do
   if ! command -v "$cmd" > /dev/null 2>&1; then
@@ -22,6 +24,15 @@ done
 
 echo "Checking Kubernetes connectivity..."
 kubectl cluster-info > /dev/null
+
+echo "Installing/refreshing cert-manager (required for TLS certificates)..."
+kubectl apply -f "https://github.com/cert-manager/cert-manager/releases/download/${CERT_MANAGER_VERSION}/cert-manager.crds.yaml"
+kubectl apply -f "https://github.com/cert-manager/cert-manager/releases/download/${CERT_MANAGER_VERSION}/cert-manager.yaml"
+
+echo "Waiting for cert-manager deployments..."
+for dep in cert-manager cert-manager-webhook cert-manager-cainjector; do
+  kubectl -n "$CERT_MANAGER_NAMESPACE" rollout status "deployment/$dep" --timeout=300s
+done
 
 echo "Ensuring namespace '$ARGOCD_NAMESPACE' exists..."
 kubectl create namespace "$ARGOCD_NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
