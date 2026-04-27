@@ -14,7 +14,11 @@ import {
 } from 'lucide-react'
 import type { AuthUser } from '../../features/auth/api/auth'
 import { uploadCV } from '../../features/auth/api/auth'
-import { coachInterview } from '../../features/jobs/api/aiCoach'
+import {
+    coachInterview,
+    generateInterviewQuiz,
+    type AiInterviewQuizResponse,
+} from '../../features/jobs/api/aiCoach'
 import { getSavedApplications } from '../../features/jobs/api/applications'
 import { fetchJobs } from '../../features/jobs/api/jobs'
 import type { AppPage, UserRole } from '../../shared/routes/appRoutes'
@@ -38,6 +42,39 @@ type ChatMessage = {
     role: 'assistant' | 'user'
     content: string
     time: string
+    quiz?: QuizContent
+}
+
+type QuizOption = {
+    label: 'A' | 'B' | 'C' | 'D'
+    text: string
+}
+
+type QuizQuestion = {
+    number: number
+    question: string
+    options: QuizOption[]
+    correctAnswer?: 'A' | 'B' | 'C' | 'D'
+    explanation?: string
+}
+
+type QuizContent = {
+    questions: QuizQuestion[]
+}
+
+function mapQuizFromApi(response: AiInterviewQuizResponse): QuizContent {
+    return {
+        questions: response.questions.map((question) => ({
+            number: question.number,
+            question: question.question,
+            options: question.options.map((option) => ({
+                label: option.label,
+                text: option.text,
+            })),
+            correctAnswer: question.correct_answer,
+            explanation: question.explanation,
+        })),
+    }
 }
 
 function nowLabel(): string {
@@ -51,6 +88,96 @@ const defaultAssistantMessage: ChatMessage = {
     time: nowLabel(),
 }
 
+const quizQuestionCountOptions = [5, 10, 15, 20]
+
+function parseQuizContent(raw: string): QuizContent | null {
+    const normalized = raw.replace(/\r/g, '')
+    const lines = normalized
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean)
+
+    if (lines.length === 0) {
+        return null
+    }
+
+    const answerSectionIndex = lines.findIndex((line) => {
+        const lowered = line.toLowerCase()
+        return lowered.startsWith('đáp án') || lowered.startsWith('dap an')
+    })
+
+    const questionLines = answerSectionIndex >= 0 ? lines.slice(0, answerSectionIndex) : lines
+    const answerLines = answerSectionIndex >= 0 ? lines.slice(answerSectionIndex + 1) : []
+
+    const questionsMap = new Map<number, QuizQuestion>()
+    let currentQuestionNumber: number | null = null
+
+    for (const line of questionLines) {
+        const questionMatch = line.match(/^câu\s*(\d+)\s*[:.)-]\s*(.+)$/i)
+        if (questionMatch) {
+            const number = Number(questionMatch[1])
+            const question = questionMatch[2].trim()
+            if (!Number.isNaN(number) && question) {
+                questionsMap.set(number, {
+                    number,
+                    question,
+                    options: [],
+                })
+                currentQuestionNumber = number
+            }
+            continue
+        }
+
+        const optionMatch = line.match(/^([ABCD])\s*[.)-:]\s*(.+)$/i)
+        if (optionMatch && currentQuestionNumber !== null) {
+            const optionLabel = optionMatch[1].toUpperCase() as 'A' | 'B' | 'C' | 'D'
+            const optionText = optionMatch[2].trim()
+            const question = questionsMap.get(currentQuestionNumber)
+            if (question && optionText) {
+                question.options.push({
+                    label: optionLabel,
+                    text: optionText,
+                })
+            }
+        }
+    }
+
+    if (questionsMap.size === 0) {
+        return null
+    }
+
+    for (const line of answerLines) {
+        const answerMatch = line.match(/^câu\s*(\d+)\s*[:.)-]\s*([ABCD])\s*(?:[-:–]\s*(.+))?$/i)
+        if (!answerMatch) {
+            continue
+        }
+
+        const number = Number(answerMatch[1])
+        const correctAnswer = answerMatch[2].toUpperCase() as 'A' | 'B' | 'C' | 'D'
+        const explanation = (answerMatch[3] ?? '').trim()
+        const question = questionsMap.get(number)
+
+        if (question) {
+            question.correctAnswer = correctAnswer
+            if (explanation) {
+                question.explanation = explanation
+            }
+        }
+    }
+
+    const questions = Array.from(questionsMap.values()).sort((a, b) => a.number - b.number)
+    if (questions.length === 0) {
+        return null
+    }
+
+    const validQuestionCount = questions.filter((question) => question.options.length >= 2).length
+    if (validQuestionCount === 0) {
+        return null
+    }
+
+    return { questions }
+}
+
 const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props) => {
     const [messages, setMessages] = useState<ChatMessage[]>([defaultAssistantMessage])
     const [input, setInput] = useState('')
@@ -62,6 +189,8 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
     const [cvUrl, setCvUrl] = useState('')
     const [cvStatus, setCvStatus] = useState<'idle' | 'uploading' | 'ready' | 'error'>('idle')
     const [cvError, setCvError] = useState('')
+    const [quizQuestionCount, setQuizQuestionCount] = useState(10)
+    const [quizAnswerVisibilityByMessage, setQuizAnswerVisibilityByMessage] = useState<Record<string, boolean>>({})
     const profileMenuRef = useRef<HTMLDivElement | null>(null)
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
     const fileInputRef = useRef<HTMLInputElement | null>(null)
@@ -173,11 +302,16 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
         }
     }
 
-    const handleSend = async () => {
-        const trimmed = input.trim()
+    const sendMessage = async (
+        rawMessage: string,
+        options?: { clearInput?: boolean; displayMessage?: string },
+    ) => {
+        const trimmed = rawMessage.trim()
         if (!trimmed || isSending) {
             return
         }
+
+        const displayMessage = options?.displayMessage?.trim() || trimmed
 
         if (!selectedJobId) {
             const assistantMessage: ChatMessage = {
@@ -193,12 +327,14 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
         const userMessage: ChatMessage = {
             id: `u-${Date.now()}`,
             role: 'user',
-            content: trimmed,
+            content: displayMessage,
             time: nowLabel(),
         }
 
         setMessages((prev) => [...prev, userMessage])
-        setInput('')
+        if (options?.clearInput) {
+            setInput('')
+        }
         setIsSending(true)
 
         try {
@@ -237,6 +373,80 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
         } finally {
             setIsSending(false)
         }
+    }
+
+    const handleSend = async () => {
+        await sendMessage(input, { clearInput: true })
+    }
+
+    const handleGenerateQuiz = async () => {
+        if (isSending) {
+            return
+        }
+
+        if (!selectedJobId) {
+            const assistantMessage: ChatMessage = {
+                id: `a-${Date.now()}`,
+                role: 'assistant',
+                content: 'Bạn hãy chọn một job đã ứng tuyển trước khi tạo quiz.',
+                time: nowLabel(),
+            }
+            setMessages((prev) => [...prev, assistantMessage])
+            return
+        }
+
+        const userMessage: ChatMessage = {
+            id: `u-${Date.now()}`,
+            role: 'user',
+            content: `Tạo quiz ${quizQuestionCount} câu theo JD đã chọn`,
+            time: nowLabel(),
+        }
+        setMessages((prev) => [...prev, userMessage])
+        setIsSending(true)
+
+        try {
+            const quizResponse = await generateInterviewQuiz({
+                jobId: selectedJobId,
+                questionCount: quizQuestionCount,
+            })
+
+            const assistantMessage: ChatMessage = {
+                id: `a-${Date.now()}`,
+                role: 'assistant',
+                content: `AI đã tạo quiz ${quizResponse.question_count} câu theo JD.`,
+                time: nowLabel(),
+                quiz: mapQuizFromApi(quizResponse),
+            }
+            setMessages((prev) => [...prev, assistantMessage])
+
+            if (quizResponse.cv_ready) {
+                setCvStatus('ready')
+                if (quizResponse.cv_url) {
+                    setCvUrl(quizResponse.cv_url)
+                }
+                if (!cvFileName && quizResponse.cv_url) {
+                    const guessedName = quizResponse.cv_url.split('/').pop()?.split('?')[0] ?? 'cv-da-upload'
+                    setCvFileName(guessedName)
+                }
+            }
+        } catch (error) {
+            const assistantMessage: ChatMessage = {
+                id: `a-${Date.now()}`,
+                role: 'assistant',
+                content: `Mình chưa tạo được quiz từ AI backend: ${error instanceof Error ? error.message : 'unknown error'}`,
+                time: nowLabel(),
+            }
+            setMessages((prev) => [...prev, assistantMessage])
+        } finally {
+            setIsSending(false)
+        }
+    }
+
+    const toggleQuizAnswers = (messageId: string) => {
+        setQuizAnswerVisibilityByMessage((prev) => ({
+            ...prev,
+            [messageId]: !prev[messageId],
+        }))
     }
 
     return (
@@ -401,6 +611,35 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
                             </p>
                         </div>
 
+                        <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                            <h2 className="text-sm font-semibold text-slate-900 mb-3">Quiz theo JD</h2>
+                            <label className="block text-xs font-medium text-slate-600">Số lượng câu hỏi trắc nghiệm</label>
+                            <select
+                                value={quizQuestionCount}
+                                onChange={(e) => setQuizQuestionCount(Number(e.target.value))}
+                                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                                disabled={isSending}
+                            >
+                                {quizQuestionCountOptions.map((count) => (
+                                    <option key={count} value={count}>
+                                        {count} câu
+                                    </option>
+                                ))}
+                            </select>
+
+                            <button
+                                onClick={() => void handleGenerateQuiz()}
+                                disabled={isSending || !selectedJobId}
+                                className="mt-3 w-full rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                            >
+                                Tạo quiz trắc nghiệm
+                            </button>
+
+                            <p className="mt-2 text-xs text-slate-500">
+                                AI sẽ tạo bộ câu hỏi trắc nghiệm theo job đã chọn để bạn luyện tập nhanh.
+                            </p>
+                        </div>
+
                         <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-xs text-blue-800">
                             <p className="font-semibold mb-2 inline-flex items-center gap-2"><Sparkles className="w-4 h-4" /> Gợi ý sử dụng</p>
                             <ul className="space-y-1 list-disc list-inside">
@@ -411,7 +650,7 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
                         </div>
                     </aside>
 
-                    <div className="rounded-2xl border border-slate-200 bg-white flex flex-col h-[72vh]">
+                    <div className="rounded-2xl border border-slate-200 bg-white flex flex-col h-[72vh] lg:h-[calc(100vh-110px)] lg:sticky lg:top-20 lg:self-start">
                         <div className="border-b border-slate-200 px-4 py-3 flex items-center gap-2">
                             <Bot className="w-5 h-5 text-blue-600" />
                             <div>
@@ -422,15 +661,67 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
                         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
                             {messages.map((message) => (
                                 <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                    <div className={`max-w-[85%] rounded-2xl px-4 py-3 whitespace-pre-wrap text-sm ${message.role === 'user'
-                                        ? 'bg-blue-600 text-white rounded-br-md'
-                                        : 'bg-slate-100 text-slate-800 rounded-bl-md'
-                                        }`}>
-                                        <p>{message.content}</p>
-                                        <p className={`mt-1 text-[11px] ${message.role === 'user' ? 'text-blue-100' : 'text-slate-500'}`}>
-                                            {message.time}
-                                        </p>
-                                    </div>
+                                    {(() => {
+                                        const quiz = message.quiz ?? (message.role === 'assistant' ? parseQuizContent(message.content) : null)
+                                        const isQuiz = Boolean(quiz)
+                                        const showAnswers = quizAnswerVisibilityByMessage[message.id] ?? false
+
+                                        if (!isQuiz || !quiz) {
+                                            return (
+                                                <div className={`max-w-[85%] rounded-2xl px-4 py-3 whitespace-pre-wrap text-sm ${message.role === 'user'
+                                                    ? 'bg-blue-600 text-white rounded-br-md'
+                                                    : 'bg-slate-100 text-slate-800 rounded-bl-md'
+                                                    }`}>
+                                                    <p>{message.content}</p>
+                                                    <p className={`mt-1 text-[11px] ${message.role === 'user' ? 'text-blue-100' : 'text-slate-500'}`}>
+                                                        {message.time}
+                                                    </p>
+                                                </div>
+                                            )
+                                        }
+
+                                        return (
+                                            <div className="max-w-[95%] rounded-2xl bg-slate-100 text-slate-800 rounded-bl-md px-4 py-3 text-sm">
+                                                <div className="flex items-center justify-between gap-3">
+                                                    <p className="font-semibold text-slate-900">Quiz theo JD ({quiz.questions.length} câu)</p>
+                                                    <button
+                                                        onClick={() => toggleQuizAnswers(message.id)}
+                                                        className="rounded-lg border border-slate-300 bg-white px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                                                    >
+                                                        {showAnswers ? 'Ẩn đáp án' : 'Hiện đáp án'}
+                                                    </button>
+                                                </div>
+
+                                                <div className="mt-3 space-y-3">
+                                                    {quiz.questions.map((question) => (
+                                                        <div key={`${message.id}-q-${question.number}`} className="rounded-xl border border-slate-200 bg-white p-3">
+                                                            <p className="font-medium text-slate-900">
+                                                                Câu {question.number}: {question.question}
+                                                            </p>
+                                                            <ul className="mt-2 space-y-1 text-slate-700">
+                                                                {question.options.map((option) => (
+                                                                    <li key={`${message.id}-q-${question.number}-opt-${option.label}`}>
+                                                                        <span className="font-medium">{option.label}.</span> {option.text}
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+
+                                                            {showAnswers && question.correctAnswer ? (
+                                                                <div className="mt-2 rounded-lg bg-emerald-50 px-3 py-2 text-emerald-800">
+                                                                    <p className="text-xs font-semibold">Đáp án đúng: {question.correctAnswer}</p>
+                                                                    {question.explanation ? (
+                                                                        <p className="mt-1 text-xs">Giải thích: {question.explanation}</p>
+                                                                    ) : null}
+                                                                </div>
+                                                            ) : null}
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                <p className="mt-2 text-[11px] text-slate-500">{message.time}</p>
+                                            </div>
+                                        )
+                                    })()}
                                 </div>
                             ))}
                             <div ref={chatEndRef} />

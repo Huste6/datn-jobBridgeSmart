@@ -110,6 +110,44 @@ curl http://localhost:8080/health
 		- Backend tự lấy CV từ hồ sơ user (`cv_url`) hoặc từ application đã nộp, không bắt buộc upload lại.
 		- Chỉ cho phép gọi với job mà ứng viên đã ứng tuyển.
 
+- `POST /api/ai/interview-quiz`
+	- Header: `Authorization: Bearer <access_token>` (role `seeker`)
+	- Request body:
+	```json
+	{
+	  "job_id": "<applied_job_id>",
+	  "question_count": 10
+	}
+	```
+	- Response body:
+	```json
+	{
+	  "job_id": "<applied_job_id>",
+	  "question_count": 10,
+	  "questions": [
+	    {
+	      "number": 1,
+	      "question": "...",
+	      "options": [
+	        {"label": "A", "text": "..."},
+	        {"label": "B", "text": "..."},
+	        {"label": "C", "text": "..."},
+	        {"label": "D", "text": "..."}
+	      ],
+	      "correct_answer": "B",
+	      "explanation": "..."
+	    }
+	  ],
+	  "cv_url": "...",
+	  "cv_ready": true,
+	  "cv_text_used": true,
+	  "model": "gpt-4o-mini"
+	}
+	```
+	- Notes:
+		- Chỉ cho phép tạo quiz cho job mà ứng viên đã ứng tuyển.
+		- `question_count` hỗ trợ từ `1` đến `30`.
+
 ## Run with Tilt (auto-reload)
 Project root contains a `Tiltfile` configured for local orchestration.
 
