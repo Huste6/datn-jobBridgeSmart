@@ -1,6 +1,6 @@
-PWD C:\learn_it_skill\Bao-cao-datn
+PWD c:\learn_it_skill\datn-jobBridge\Bao-cao-datn
 INPUT C:\Users\Admin\AppData\Local\MiKTeX\miktex\data\le\pdftex\pdflatex.fmt
-INPUT DoAn.tex
+INPUT c:\learn_it_skill\datn-jobBridge\Bao-cao-datn\DoAn.tex
 OUTPUT DoAn.log
 INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\base\report.cls
 INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\base\report.cls
@@ -333,18 +333,10 @@ INPUT .\DoAn.bbl
 INPUT .\DoAn.bbl
 INPUT .\DoAn.bbl
 INPUT DoAn.bbl
-INPUT .\DoAn.out
-INPUT .\DoAn.out
-INPUT DoAn.out
-INPUT DoAn.out
-OUTPUT DoAn.pdf
-INPUT .\DoAn.out
-INPUT .\DoAn.out
 OUTPUT DoAn.out
-INPUT .\Bia.tex
+OUTPUT DoAn.pdf
 INPUT .\Bia.tex
 INPUT Bia.tex
-INPUT .\Bia.tex
 INPUT .\Bia.tex
 INPUT Bia.tex
 INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
@@ -387,29 +379,33 @@ INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\sym
 INPUT C:\Users\Admin\AppData\Local\MiKTeX\fonts\map\pdftex\pdftex.map
 INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\vntex\t5.enc
 INPUT .\Bia_lot.tex
-INPUT .\Bia_lot.tex
 INPUT Bia_lot.tex
-INPUT .\Bia_lot.tex
 INPUT .\Bia_lot.tex
 INPUT Bia_lot.tex
 INPUT .\Chuong\0_2_Loi_cam_on.tex
 INPUT Chuong\0_2_Loi_cam_on.tex
 INPUT .\Chuong\0_2_Loi_cam_on.tex
 INPUT Chuong\0_2_Loi_cam_on.tex
-INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
-INPUT .\Chuong\0_3_Tom_tat_noi_dung.tex
-INPUT Chuong\0_3_Tom_tat_noi_dung.tex
-INPUT .\Chuong\0_3_Tom_tat_noi_dung.tex
-INPUT Chuong\0_3_Tom_tat_noi_dung.tex
+INPUT .\Chuong\0_1_Loi_cam_ket.tex
+INPUT Chuong\0_1_Loi_cam_ket.tex
+INPUT .\Chuong\0_1_Loi_cam_ket.tex
+INPUT Chuong\0_1_Loi_cam_ket.tex
 INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmri8v.tfm
+INPUT .\Chuong\0_3_Tom_tat_noi_dung.tex
+INPUT Chuong\0_3_Tom_tat_noi_dung.tex
+INPUT .\Chuong\0_3_Tom_tat_noi_dung.tex
+INPUT Chuong\0_3_Tom_tat_noi_dung.tex
+OUTPUT DoAn.toc
+OUTPUT DoAn.lof
+OUTPUT DoAn.lot
 INPUT .\Chuong\0_4_Tom_tat_noi_dung_English.tex
 INPUT Chuong\0_4_Tom_tat_noi_dung_English.tex
 INPUT .\Chuong\0_4_Tom_tat_noi_dung_English.tex
 INPUT Chuong\0_4_Tom_tat_noi_dung_English.tex
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
 INPUT .\DoAn.toc
 INPUT .\DoAn.toc
 INPUT DoAn.toc
-INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmbc8v.tfm
 OUTPUT DoAn.toc
 INPUT .\DoAn.lof
 INPUT .\DoAn.lof
@@ -420,52 +416,211 @@ INPUT .\DoAn.lot
 INPUT DoAn.lot
 OUTPUT DoAn.lot
 INPUT .\Chuong\1_Gioi_thieu.tex
-INPUT .\Chuong\1_Gioi_thieu.tex
 INPUT Chuong\1_Gioi_thieu.tex
 INPUT .\Chuong\1_Gioi_thieu.tex
-INPUT .\Chuong\1_Gioi_thieu.tex
 INPUT Chuong\1_Gioi_thieu.tex
-INPUT .\Chuong\2_Khao_sat.tex
-INPUT .\Chuong\2_Khao_sat.tex
-INPUT Chuong\2_Khao_sat.tex
-INPUT .\Chuong\2_Khao_sat.tex
-INPUT .\Chuong\2_Khao_sat.tex
-INPUT Chuong\2_Khao_sat.tex
-INPUT .\Chuong\3_Cong_nghe.tex
-INPUT .\Chuong\3_Cong_nghe.tex
-INPUT Chuong\3_Cong_nghe.tex
-INPUT .\Chuong\3_Cong_nghe.tex
-INPUT .\Chuong\3_Cong_nghe.tex
-INPUT Chuong\3_Cong_nghe.tex
-INPUT .\Chuong\4_Ket_qua_thuc_nghiem.tex
-INPUT .\Chuong\4_Ket_qua_thuc_nghiem.tex
-INPUT Chuong\4_Ket_qua_thuc_nghiem.tex
-INPUT .\Chuong\4_Ket_qua_thuc_nghiem.tex
-INPUT .\Chuong\4_Ket_qua_thuc_nghiem.tex
-INPUT Chuong\4_Ket_qua_thuc_nghiem.tex
-INPUT .\Hinhve\Picture1.png
-INPUT .\Hinhve\Picture1.png
-INPUT Hinhve\Picture1.png
-INPUT .\Hinhve\Picture1.png
-INPUT .\Hinhve\Picture1.png
-INPUT .\Hinhve\Picture1.png
-INPUT .\Hinhve\Picture1.png
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\ts1ptm.fd
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\ts1ptm.fd
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\ts1ptm.fd
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\ts1ptm.fd
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8c.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmr8c.vf
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8r.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\base\8r.enc
+INPUT .\Chuong\2_Co_so_ly_thuyet.tex
+INPUT Chuong\2_Co_so_ly_thuyet.tex
+INPUT .\Chuong\2_Co_so_ly_thuyet.tex
+INPUT Chuong\2_Co_so_ly_thuyet.tex
+INPUT .\Chuong\so-do-chuong-2\microservices_architecture.png
+INPUT .\Chuong\so-do-chuong-2\microservices_architecture.png
+INPUT Chuong\so-do-chuong-2\microservices_architecture.png
+INPUT .\Chuong\so-do-chuong-2\microservices_architecture.png
+INPUT .\Chuong\so-do-chuong-2\microservices_architecture.png
+INPUT .\Chuong\so-do-chuong-2\microservices_architecture.png
+INPUT .\Chuong\so-do-chuong-2\microservices_architecture.png
 INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
 INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
-INPUT .\Hinhve\Picture2.png
-INPUT .\Hinhve\Picture2.png
-INPUT Hinhve\Picture2.png
-INPUT .\Hinhve\Picture2.png
-INPUT .\Hinhve\Picture2.png
-INPUT .\Hinhve\Picture2.png
-INPUT .\Hinhve\Picture2.png
-INPUT .\Chuong\5_Giai_phap_dong_gop.tex
-INPUT .\Chuong\5_Giai_phap_dong_gop.tex
-INPUT Chuong\5_Giai_phap_dong_gop.tex
-INPUT .\Chuong\5_Giai_phap_dong_gop.tex
-INPUT .\Chuong\5_Giai_phap_dong_gop.tex
-INPUT Chuong\5_Giai_phap_dong_gop.tex
+INPUT .\Chuong\so-do-chuong-2\4_technology_stack.png
+INPUT .\Chuong\so-do-chuong-2\4_technology_stack.png
+INPUT Chuong\so-do-chuong-2\4_technology_stack.png
+INPUT .\Chuong\so-do-chuong-2\4_technology_stack.png
+INPUT .\Chuong\so-do-chuong-2\4_technology_stack.png
+INPUT .\Chuong\so-do-chuong-2\4_technology_stack.png
+INPUT .\Chuong\so-do-chuong-2\4_technology_stack.png
+INPUT .\Chuong\so-do-chuong-2\kubernetes_deploymeny.png
+INPUT .\Chuong\so-do-chuong-2\kubernetes_deploymeny.png
+INPUT Chuong\so-do-chuong-2\kubernetes_deploymeny.png
+INPUT .\Chuong\so-do-chuong-2\kubernetes_deploymeny.png
+INPUT .\Chuong\so-do-chuong-2\kubernetes_deploymeny.png
+INPUT .\Chuong\so-do-chuong-2\kubernetes_deploymeny.png
+INPUT .\Chuong\so-do-chuong-2\kubernetes_deploymeny.png
+INPUT .\Chuong\so-do-chuong-2\ci_cd_flow.png
+INPUT .\Chuong\so-do-chuong-2\ci_cd_flow.png
+INPUT Chuong\so-do-chuong-2\ci_cd_flow.png
+INPUT .\Chuong\so-do-chuong-2\ci_cd_flow.png
+INPUT .\Chuong\so-do-chuong-2\ci_cd_flow.png
+INPUT .\Chuong\so-do-chuong-2\ci_cd_flow.png
+INPUT .\Chuong\so-do-chuong-2\ci_cd_flow.png
+INPUT .\Chuong\3_Phan_tich_thiet_ke.tex
+INPUT Chuong\3_Phan_tich_thiet_ke.tex
+INPUT .\Chuong\3_Phan_tich_thiet_ke.tex
+INPUT Chuong\3_Phan_tich_thiet_ke.tex
+INPUT .\Chuong\so-do-chuong-3\1_use-case-tong-quat.png
+INPUT Chuong\so-do-chuong-3\1_use-case-tong-quat.png
+INPUT .\Chuong\so-do-chuong-3\1_use-case-tong-quat.png
+INPUT .\Chuong\so-do-chuong-3\1_use-case-tong-quat.png
+INPUT .\Chuong\so-do-chuong-3\1_use-case-tong-quat.png
+INPUT .\Chuong\so-do-chuong-3\1_use-case-tong-quat.png
+INPUT .\Chuong\so-do-chuong-3\Đăng ký.png
+INPUT Chuong\so-do-chuong-3\Đăng ký.png
+INPUT .\Chuong\so-do-chuong-3\Đăng ký.png
+INPUT .\Chuong\so-do-chuong-3\Đăng ký.png
+INPUT .\Chuong\so-do-chuong-3\Đăng ký.png
+INPUT .\Chuong\so-do-chuong-3\Đăng ký.png
+INPUT .\Chuong\so-do-chuong-3\Đăng nhập.png
+INPUT Chuong\so-do-chuong-3\Đăng nhập.png
+INPUT .\Chuong\so-do-chuong-3\Đăng nhập.png
+INPUT .\Chuong\so-do-chuong-3\Đăng nhập.png
+INPUT .\Chuong\so-do-chuong-3\Đăng nhập.png
+INPUT .\Chuong\so-do-chuong-3\Đăng nhập.png
+INPUT .\Chuong\so-do-chuong-3\Đăng xuất.png
+INPUT Chuong\so-do-chuong-3\Đăng xuất.png
+INPUT .\Chuong\so-do-chuong-3\Đăng xuất.png
+INPUT .\Chuong\so-do-chuong-3\Đăng xuất.png
+INPUT .\Chuong\so-do-chuong-3\Đăng xuất.png
+INPUT .\Chuong\so-do-chuong-3\Đăng xuất.png
+INPUT .\Chuong\so-do-chuong-3\Onboard chọn vai trò.png
+INPUT Chuong\so-do-chuong-3\Onboard chọn vai trò.png
+INPUT .\Chuong\so-do-chuong-3\Onboard chọn vai trò.png
+INPUT .\Chuong\so-do-chuong-3\Onboard chọn vai trò.png
+INPUT .\Chuong\so-do-chuong-3\Onboard chọn vai trò.png
+INPUT .\Chuong\so-do-chuong-3\Onboard chọn vai trò.png
+INPUT .\Chuong\so-do-chuong-3\Cập nhật hồ sơ cá nhân.png
+INPUT Chuong\so-do-chuong-3\Cập nhật hồ sơ cá nhân.png
+INPUT .\Chuong\so-do-chuong-3\Cập nhật hồ sơ cá nhân.png
+INPUT .\Chuong\so-do-chuong-3\Cập nhật hồ sơ cá nhân.png
+INPUT .\Chuong\so-do-chuong-3\Cập nhật hồ sơ cá nhân.png
+INPUT .\Chuong\so-do-chuong-3\Cập nhật hồ sơ cá nhân.png
+INPUT .\Chuong\so-do-chuong-3\danh sách công việc.png
+INPUT Chuong\so-do-chuong-3\danh sách công việc.png
+INPUT .\Chuong\so-do-chuong-3\danh sách công việc.png
+INPUT .\Chuong\so-do-chuong-3\danh sách công việc.png
+INPUT .\Chuong\so-do-chuong-3\danh sách công việc.png
+INPUT .\Chuong\so-do-chuong-3\danh sách công việc.png
+INPUT .\Chuong\so-do-chuong-3\xem chi tiết công việc.png
+INPUT Chuong\so-do-chuong-3\xem chi tiết công việc.png
+INPUT .\Chuong\so-do-chuong-3\xem chi tiết công việc.png
+INPUT .\Chuong\so-do-chuong-3\xem chi tiết công việc.png
+INPUT .\Chuong\so-do-chuong-3\xem chi tiết công việc.png
+INPUT .\Chuong\so-do-chuong-3\xem chi tiết công việc.png
+INPUT .\Chuong\so-do-chuong-3\ứng tuyển công việc.png
+INPUT Chuong\so-do-chuong-3\ứng tuyển công việc.png
+INPUT .\Chuong\so-do-chuong-3\ứng tuyển công việc.png
+INPUT .\Chuong\so-do-chuong-3\ứng tuyển công việc.png
+INPUT .\Chuong\so-do-chuong-3\ứng tuyển công việc.png
+INPUT .\Chuong\so-do-chuong-3\ứng tuyển công việc.png
+INPUT .\Chuong\so-do-chuong-3\lưu công việc yêu thích.png
+INPUT Chuong\so-do-chuong-3\lưu công việc yêu thích.png
+INPUT .\Chuong\so-do-chuong-3\lưu công việc yêu thích.png
+INPUT .\Chuong\so-do-chuong-3\lưu công việc yêu thích.png
+INPUT .\Chuong\so-do-chuong-3\lưu công việc yêu thích.png
+INPUT .\Chuong\so-do-chuong-3\lưu công việc yêu thích.png
+INPUT .\Chuong\so-do-chuong-3\AI Interview Coach.png
+INPUT Chuong\so-do-chuong-3\AI Interview Coach.png
+INPUT .\Chuong\so-do-chuong-3\AI Interview Coach.png
+INPUT .\Chuong\so-do-chuong-3\AI Interview Coach.png
+INPUT .\Chuong\so-do-chuong-3\AI Interview Coach.png
+INPUT .\Chuong\so-do-chuong-3\AI Interview Coach.png
+INPUT .\Chuong\so-do-chuong-3\AI Interview Quiz.png
+INPUT Chuong\so-do-chuong-3\AI Interview Quiz.png
+INPUT .\Chuong\so-do-chuong-3\AI Interview Quiz.png
+INPUT .\Chuong\so-do-chuong-3\AI Interview Quiz.png
+INPUT .\Chuong\so-do-chuong-3\AI Interview Quiz.png
+INPUT .\Chuong\so-do-chuong-3\AI Interview Quiz.png
+INPUT .\Chuong\so-do-chuong-3\quản lý tin tuyển dụng.png
+INPUT Chuong\so-do-chuong-3\quản lý tin tuyển dụng.png
+INPUT .\Chuong\so-do-chuong-3\quản lý tin tuyển dụng.png
+INPUT .\Chuong\so-do-chuong-3\quản lý tin tuyển dụng.png
+INPUT .\Chuong\so-do-chuong-3\quản lý tin tuyển dụng.png
+INPUT .\Chuong\so-do-chuong-3\quản lý tin tuyển dụng.png
+INPUT .\Chuong\so-do-chuong-3\danh sách ứng viên theo job.png
+INPUT Chuong\so-do-chuong-3\danh sách ứng viên theo job.png
+INPUT .\Chuong\so-do-chuong-3\danh sách ứng viên theo job.png
+INPUT .\Chuong\so-do-chuong-3\danh sách ứng viên theo job.png
+INPUT .\Chuong\so-do-chuong-3\danh sách ứng viên theo job.png
+INPUT .\Chuong\so-do-chuong-3\danh sách ứng viên theo job.png
+INPUT .\Chuong\so-do-chuong-3\xem danh sách công ty.png
+INPUT Chuong\so-do-chuong-3\xem danh sách công ty.png
+INPUT .\Chuong\so-do-chuong-3\xem danh sách công ty.png
+INPUT .\Chuong\so-do-chuong-3\xem danh sách công ty.png
+INPUT .\Chuong\so-do-chuong-3\xem danh sách công ty.png
+INPUT .\Chuong\so-do-chuong-3\xem danh sách công ty.png
+INPUT .\Chuong\so-do-chuong-3\duyệt công ty public profile.png
+INPUT Chuong\so-do-chuong-3\duyệt công ty public profile.png
+INPUT .\Chuong\so-do-chuong-3\duyệt công ty public profile.png
+INPUT .\Chuong\so-do-chuong-3\duyệt công ty public profile.png
+INPUT .\Chuong\so-do-chuong-3\duyệt công ty public profile.png
+INPUT .\Chuong\so-do-chuong-3\duyệt công ty public profile.png
+INPUT .\Chuong\so-do-chuong-3\erd_database.png
+INPUT Chuong\so-do-chuong-3\erd_database.png
+INPUT .\Chuong\so-do-chuong-3\erd_database.png
+INPUT .\Chuong\so-do-chuong-3\erd_database.png
+INPUT .\Chuong\so-do-chuong-3\erd_database.png
+INPUT .\Chuong\so-do-chuong-3\erd_database.png
+INPUT .\Chuong\so-do-chuong-3\màn hình đăng ký.png
+INPUT Chuong\so-do-chuong-3\màn hình đăng ký.png
+INPUT .\Chuong\so-do-chuong-3\màn hình đăng ký.png
+INPUT .\Chuong\so-do-chuong-3\màn hình đăng ký.png
+INPUT .\Chuong\so-do-chuong-3\màn hình đăng ký.png
+INPUT .\Chuong\so-do-chuong-3\màn hình đăng ký.png
 INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
+INPUT .\Chuong\so-do-chuong-3\man_hinh_dang_nhap.png
+INPUT Chuong\so-do-chuong-3\man_hinh_dang_nhap.png
+INPUT .\Chuong\so-do-chuong-3\man_hinh_dang_nhap.png
+INPUT .\Chuong\so-do-chuong-3\man_hinh_dang_nhap.png
+INPUT .\Chuong\so-do-chuong-3\man_hinh_dang_nhap.png
+INPUT .\Chuong\so-do-chuong-3\man_hinh_dang_nhap.png
+INPUT .\Chuong\so-do-chuong-3\màn hình danh sách việc làm.png
+INPUT Chuong\so-do-chuong-3\màn hình danh sách việc làm.png
+INPUT .\Chuong\so-do-chuong-3\màn hình danh sách việc làm.png
+INPUT .\Chuong\so-do-chuong-3\màn hình danh sách việc làm.png
+INPUT .\Chuong\so-do-chuong-3\màn hình danh sách việc làm.png
+INPUT .\Chuong\so-do-chuong-3\màn hình danh sách việc làm.png
+INPUT .\Chuong\so-do-chuong-3\màn hình ai-coach.png
+INPUT Chuong\so-do-chuong-3\màn hình ai-coach.png
+INPUT .\Chuong\so-do-chuong-3\màn hình ai-coach.png
+INPUT .\Chuong\so-do-chuong-3\màn hình ai-coach.png
+INPUT .\Chuong\so-do-chuong-3\màn hình ai-coach.png
+INPUT .\Chuong\so-do-chuong-3\màn hình ai-coach.png
+INPUT .\Chuong\so-do-chuong-3\quản lý tin tuyển dụng.png
+INPUT Chuong\so-do-chuong-3\quản lý tin tuyển dụng.png
+INPUT .\Chuong\so-do-chuong-3\quản lý tin tuyển dụng.png
+INPUT .\Chuong\so-do-chuong-3\màn hình AI đánh giá cv ứng viên.png
+INPUT Chuong\so-do-chuong-3\màn hình AI đánh giá cv ứng viên.png
+INPUT .\Chuong\so-do-chuong-3\màn hình AI đánh giá cv ứng viên.png
+INPUT .\Chuong\so-do-chuong-3\màn hình AI đánh giá cv ứng viên.png
+INPUT .\Chuong\so-do-chuong-3\màn hình AI đánh giá cv ứng viên.png
+INPUT .\Chuong\so-do-chuong-3\màn hình AI đánh giá cv ứng viên.png
+INPUT .\Chuong\so-do-chuong-3\màn hình dashboard dành cho admin.png
+INPUT Chuong\so-do-chuong-3\màn hình dashboard dành cho admin.png
+INPUT .\Chuong\so-do-chuong-3\màn hình dashboard dành cho admin.png
+INPUT .\Chuong\so-do-chuong-3\màn hình dashboard dành cho admin.png
+INPUT .\Chuong\so-do-chuong-3\màn hình dashboard dành cho admin.png
+INPUT .\Chuong\so-do-chuong-3\màn hình dashboard dành cho admin.png
+INPUT .\Chuong\4_Ket_qua_thuc_nghiem.tex
+INPUT Chuong\4_Ket_qua_thuc_nghiem.tex
+INPUT .\Chuong\4_Ket_qua_thuc_nghiem.tex
+INPUT Chuong\4_Ket_qua_thuc_nghiem.tex
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\ucrr8v.tfm
+INPUT .\Chuong\5_Giai_phap_dong_gop.tex
+INPUT Chuong\5_Giai_phap_dong_gop.tex
+INPUT .\Chuong\5_Giai_phap_dong_gop.tex
+INPUT Chuong\5_Giai_phap_dong_gop.tex
 INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
 INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr10.tfm
 INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr8.tfm
@@ -487,69 +642,26 @@ INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\sym
 INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm5.tfm
 INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
 INPUT .\Chuong\6_Ket_luan.tex
-INPUT .\Chuong\6_Ket_luan.tex
 INPUT Chuong\6_Ket_luan.tex
-INPUT .\Chuong\6_Ket_luan.tex
 INPUT .\Chuong\6_Ket_luan.tex
 INPUT Chuong\6_Ket_luan.tex
 INPUT .\Chuong\7_Luu_y_tai_lieu_tham_khao.tex
-INPUT .\Chuong\7_Luu_y_tai_lieu_tham_khao.tex
 INPUT Chuong\7_Luu_y_tai_lieu_tham_khao.tex
 INPUT .\Chuong\7_Luu_y_tai_lieu_tham_khao.tex
-INPUT .\Chuong\7_Luu_y_tai_lieu_tham_khao.tex
 INPUT Chuong\7_Luu_y_tai_lieu_tham_khao.tex
-INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
-INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
-INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
-INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
-INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\ucrr8v.tfm
 INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
 INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
 INPUT .\Chuong\Phu_luc_A.tex
-INPUT .\Chuong\Phu_luc_A.tex
 INPUT Chuong\Phu_luc_A.tex
 INPUT .\Chuong\Phu_luc_A.tex
-INPUT .\Chuong\Phu_luc_A.tex
 INPUT Chuong\Phu_luc_A.tex
-INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\ts1ptm.fd
-INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\ts1ptm.fd
-INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\ts1ptm.fd
-INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\ts1ptm.fd
-INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8c.tfm
-INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmr8c.vf
-INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8r.tfm
-INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\base\8r.enc
-INPUT .\Hinhve\IoT.png
-INPUT .\Hinhve\IoT.png
-INPUT Hinhve\IoT.png
-INPUT .\Hinhve\IoT.png
-INPUT .\Hinhve\IoT.png
-INPUT .\Hinhve\IoT.png
-INPUT .\Hinhve\IoT.png
-INPUT .\Hinhve\Bia.PNG
-INPUT .\Hinhve\Bia.PNG
-INPUT Hinhve\Bia.PNG
-INPUT .\Hinhve\Bia.PNG
-INPUT .\Hinhve\Bia.PNG
-INPUT .\Hinhve\Bia.PNG
-INPUT .\Hinhve\Bia.PNG
-INPUT .\Hinhve\GayBia.PNG
-INPUT .\Hinhve\GayBia.PNG
-INPUT Hinhve\GayBia.PNG
-INPUT .\Hinhve\GayBia.PNG
-INPUT .\Hinhve\GayBia.PNG
-INPUT .\Hinhve\GayBia.PNG
-INPUT .\Hinhve\GayBia.PNG
-INPUT .\Chuong\Phu_luc_B.tex
 INPUT .\Chuong\Phu_luc_B.tex
 INPUT Chuong\Phu_luc_B.tex
-INPUT .\Chuong\Phu_luc_B.tex
 INPUT .\Chuong\Phu_luc_B.tex
 INPUT Chuong\Phu_luc_B.tex
 INPUT DoAn.aux
 INPUT .\DoAn.out
 INPUT .\DoAn.out
-INPUT DoAn.run.xml
 OUTPUT DoAn.run.xml
 INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmex10.pfb
 INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmex10.pfb

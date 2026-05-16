@@ -1,0 +1,364 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+\chapter{Phân tích và Thiết kế hệ thống}
+\label{chapter:3}
+
+\section{Tổng quan}
+Chương 2 đã trình bày các cơ sở lý thuyết và công nghệ nền tảng được sử dụng trong dự án. Dựa trên nền tảng đó, chương này sẽ đi sâu vào việc phân tích các yêu cầu của hệ thống "JobBridge AI" và trình bày chi tiết bản thiết kế kỹ thuật. Mục tiêu của chương này là chuyển đổi từ các yêu cầu nghiệp vụ thành một mô hình hệ thống rõ ràng, sẵn sàng cho việc triển khai ở chương sau.
+
+Nội dung chính của chương bao gồm:
+\begin{itemize}
+    \item Phân tích các yêu cầu chức năng và phi chức năng của hệ thống.
+    \item Trình bày các sơ đồ ca sử dụng (Use Case) để mô tả tương tác của người dùng.
+    \item Thiết kế chi tiết cho cơ sở dữ liệu.
+    \item Thiết kế giao diện người dùng (UI/UX) cho các luồng nghiệp vụ chính.
+\end{itemize}
+
+\section{Phân tích yêu cầu}
+\label{sec:phan-tich-yeu-cau}
+Hệ thống JobBridge AI được xây dựng nhằm giải quyết các thách thức trong quy trình tuyển dụng hiện đại, mang lại lợi ích cho cả ứng viên và nhà tuyển dụng. Để đạt được mục tiêu này, hệ thống cần đáp ứng các yêu cầu chức năng và phi chức năng cụ thể.
+
+\subsection{Yêu cầu chức năng}
+\label{ssec:yeu-cau-chuc-nang}
+Yêu cầu chức năng (Functional Requirements) là những gì hệ thống phải làm. Dựa trên các vai trò người dùng chính là Ứng viên và Nhà tuyển dụng, các yêu cầu chức năng được phân loại như sau:
+
+\subsubsection{Đối với Ứng viên}
+\begin{itemize}
+    \item \textbf{F1 - Quản lý tài khoản:} Ứng viên có thể đăng ký, đăng nhập, đăng xuất và quản lý thông tin hồ sơ cá nhân.
+    \item \textbf{F2 - Tìm kiếm việc làm:} Cung cấp công cụ tìm kiếm và bộ lọc nâng cao (theo vị trí, mức lương, ngành nghề) để ứng viên tìm được công việc phù hợp.
+    \item \textbf{F3 - Xem chi tiết việc làm:} Hiển thị đầy đủ thông tin về một tin tuyển dụng, bao gồm mô tả công việc, yêu cầu, và thông tin công ty.
+    \item \textbf{F4 - Quản lý CV:} Ứng viên có thể tải lên và lưu trữ nhiều phiên bản CV.
+    \item \textbf{F5 - Nộp hồ sơ ứng tuyển:} Cho phép ứng viên nộp hồ sơ (apply) vào các vị trí mong muốn chỉ với vài cú nhấp chuột.
+    \item \textbf{F6 - Sử dụng tính năng AI tư vấn phỏng vấn:} Ứng viên có thể tham gia một buổi phỏng vấn giả lập với AI, nhận câu hỏi và được đánh giá câu trả lời.
+    \item \textbf{F7 - Nhận gợi ý việc làm từ AI:} Dựa trên nội dung CV và lịch sử tìm kiếm, AI sẽ tự động gợi ý các công việc phù hợp.
+\end{itemize}
+
+\subsubsection{Đối với Nhà tuyển dụng}
+\begin{itemize}
+    \item \textbf{F9 - Quản lý tài khoản:} Nhà tuyển dụng có thể đăng ký, đăng nhập, và quản lý thông tin công ty.
+    \item \textbf{F10 - Đăng tin tuyển dụng:} Cung cấp biểu mẫu chi tiết để nhà tuyển dụng có thể tạo và đăng các vị trí đang cần tuyển.
+    \item \textbf{F11 - Quản lý tin tuyển dụng:} Cho phép chỉnh sửa, cập nhật trạng thái (đang mở, đã đóng) hoặc xóa các tin đã đăng.
+    \item \textbf{F12 - Quản lý ứng viên:} Xem danh sách các ứng viên đã nộp hồ sơ cho một vị trí cụ thể, xem chi tiết hồ sơ và CV của họ.
+    \item \textbf{F13 - Phân tích CV ứng viên bằng AI:} Khi xem một CV, hệ thống tự động dùng AI để tóm tắt, trích xuất các thông tin quan trọng như kỹ năng, kinh nghiệm, trình độ học vấn, giúp nhà tuyển dụng sàng lọc nhanh hơn.
+\end{itemize}
+
+\subsection{Yêu cầu phi chức năng}
+\label{ssec:yeu-cau-phi-chuc-nang}
+Yêu cầu phi chức năng (Non-functional Requirements) định nghĩa các tiêu chuẩn về chất lượng và cách thức hoạt động của hệ thống.
+\begin{itemize}
+    \item \textbf{NF1 - Hiệu năng (Performance):}
+    \begin{itemize}
+        \item Thời gian phản hồi của trang web phải dưới 2 giây cho các tác vụ thông thường.
+        \item Thời gian phản hồi của AI (tạo CV, trả lời phỏng vấn) phải dưới 5 giây để đảm bảo trải nghiệm tương tác tự nhiên.
+        \item Hệ thống có khả năng chịu tải ít nhất 100 người dùng đồng thời.
+    \end{itemize}
+    \item \textbf{NF2 - Tính sẵn sàng (Availability):} Hệ thống phải hoạt động 99.5\% thời gian, đảm bảo người dùng có thể truy cập bất cứ lúc nào.
+    \item \textbf{NF3 - Khả năng mở rộng (Scalability):} Kiến trúc microservices và triển khai trên Kubernetes cho phép hệ thống dễ dàng nâng cấp (scale-out) từng dịch vụ độc lập khi lưu lượng truy cập tăng cao.
+    \item \textbf{NF4 - Bảo mật (Security):}
+    \begin{itemize}
+        \item Mật khẩu người dùng phải được băm (hashing) trước khi lưu vào cơ sở dữ liệu.
+        \item Sử dụng JWT (JSON Web Tokens) để xác thực và phân quyền truy cập API.
+        \item Áp dụng các biện pháp chống lại các tấn công phổ biến như XSS, CSRF.
+        \item Toàn bộ giao tiếp giữa client và server phải được mã hóa bằng HTTPS.
+    \end{itemize}
+    \item \textbf{NF5 - Tính dễ sử dụng (Usability):} Giao diện người dùng phải trực quan, thân thiện và dễ dàng điều hướng cho cả người dùng không chuyên về công nghệ.
+    \item \textbf{NF6 - Khả năng bảo trì (Maintainability):} Mã nguồn được chia thành các module (microservices) rõ ràng, tuân thủ các nguyên tắc code sạch (clean code), có tài liệu và comment đầy đủ để dễ dàng bảo trì và phát triển trong tương lai.
+\end{itemize}
+
+\section{Thiết kế hệ thống}
+\label{section:3.2}
+
+\subsection{Thiết kế ca sử dụng (Use Case)}
+\label{ssec:thiet-ke-use-case}
+Sơ đồ Use Case được sử dụng để mô hình hóa các yêu cầu chức năng của hệ thống, xác định các tương tác giữa người dùng (actors) và hệ thống.
+
+\subsubsection{Xác định các tác nhân (Actors)}
+Hệ thống có hai tác nhân chính:
+\begin{itemize}
+    \item \textbf{Ứng viên (Candidate):} Người tìm việc, sử dụng hệ thống để tìm kiếm công việc, tạo và quản lý hồ sơ, và tận dụng các công cụ AI.
+    \item \textbf{Nhà tuyển dụng (Recruiter):} Người đại diện cho công ty, sử dụng hệ thống để đăng tin tuyển dụng và tìm kiếm ứng viên tiềm năng.
+\end{itemize}
+
+\subsubsection{Sơ đồ Use Case tổng quát}
+Sơ đồ dưới đây thể hiện một cách tổng quan các chức năng chính mà mỗi tác nhân có thể thực hiện trong hệ thống JobBridge.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth,height=0.7\textheight,keepaspectratio]{"so-do-chuong-3/1_use-case-tong-quat.png"}
+    \caption{Sơ đồ Use Case tổng quát của hệ thống.}
+    \label{fig:use-case-tong-quat}
+\end{figure}
+
+\subsubsection{Sơ đồ Use Case chi tiết}
+Phần này trình bày các sơ đồ Use Case riêng cho từng chức năng chính của hệ thống. Mỗi sơ đồ thể hiện tác nhân liên quan và các bước con (include) trong luồng nghiệp vụ.
+\setlength{\textfloatsep}{8pt}
+\setlength{\intextsep}{8pt}
+\vspace{-0.5em}
+
+\noindent\textbf{Đăng ký tài khoản.} Người dùng mới (ứng viên hoặc nhà tuyển dụng) thực hiện đăng ký bằng cách chọn vai trò, nhập thông tin cơ bản, xác thực email và tạo tài khoản.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/Đăng ký.png"}
+    \caption{Use Case: Đăng ký tài khoản.}
+    \label{fig:uc-dang-ky}
+\end{figure}
+
+\noindent\textbf{Đăng nhập.} Người dùng nhập thông tin đăng nhập, hệ thống xác thực và tạo phiên làm việc để truy cập các chức năng tương ứng.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/Đăng nhập.png"}
+    \caption{Use Case: Đăng nhập.}
+    \label{fig:uc-dang-nhap}
+\end{figure}
+
+\noindent\textbf{Đăng xuất.} Người dùng kết thúc phiên làm việc; hệ thống hủy phiên đăng nhập để đảm bảo an toàn thông tin.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/Đăng xuất.png"}
+    \caption{Use Case: Đăng xuất.}
+    \label{fig:uc-dang-xuat}
+\end{figure}
+
+\noindent\textbf{Onboarding chọn vai trò.} Sau khi tạo tài khoản, người dùng chọn vai trò (ứng viên/nhà tuyển dụng) và hoàn tất thông tin cơ bản để kích hoạt trải nghiệm phù hợp.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/Onboard chọn vai trò.png"}
+    \caption{Use Case: Onboarding chọn vai trò.}
+    \label{fig:uc-onboard-vai-tro}
+\end{figure}
+
+\noindent\textbf{Cập nhật hồ sơ cá nhân.} Ứng viên cập nhật thông tin cá nhân và tải lên avatar/CV để hoàn thiện hồ sơ trước khi ứng tuyển.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/Cập nhật hồ sơ cá nhân.png"}
+    \caption{Use Case: Cập nhật hồ sơ cá nhân.}
+    \label{fig:uc-cap-nhat-ho-so}
+\end{figure}
+
+\noindent\textbf{Xem danh sách công việc.} Ứng viên tìm kiếm, lọc theo tiêu chí và xem danh sách kết quả việc làm phù hợp.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/danh sách công việc.png"}
+    \caption{Use Case: Xem danh sách công việc.}
+    \label{fig:uc-danh-sach-cong-viec}
+\end{figure}
+
+\noindent\textbf{Xem chi tiết công việc.} Ứng viên xem mô tả, yêu cầu và thông tin công ty để quyết định ứng tuyển.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/xem chi tiết công việc.png"}
+    \caption{Use Case: Xem chi tiết công việc.}
+    \label{fig:uc-chi-tiet-cong-viec}
+\end{figure}
+
+\noindent\textbf{Ứng tuyển công việc.} Ứng viên chọn CV/hồ sơ phù hợp, gửi hồ sơ ứng tuyển và hệ thống lưu lại thông tin application.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/ứng tuyển công việc.png"}
+    \caption{Use Case: Ứng tuyển công việc.}
+    \label{fig:uc-ung-tuyen}
+\end{figure}
+
+\noindent\textbf{Lưu công việc yêu thích.} Ứng viên lưu lại các công việc quan tâm để xem và ứng tuyển sau.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/lưu công việc yêu thích.png"}
+    \caption{Use Case: Lưu công việc yêu thích.}
+    \label{fig:uc-luu-yeu-thich}
+\end{figure}
+
+\noindent\textbf{AI Interview Coach.} Ứng viên chọn job đã ứng tuyển, hệ thống tạo kịch bản phỏng vấn và phản hồi theo từng lượt trao đổi.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/AI Interview Coach.png"}
+    \caption{Use Case: AI Interview Coach.}
+    \label{fig:uc-ai-coach}
+\end{figure}
+
+\noindent\textbf{AI Interview Quiz.} Hệ thống tạo bộ câu hỏi trắc nghiệm theo JD, hiển thị quiz và ghi nhận đáp án của ứng viên.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/AI Interview Quiz.png"}
+    \caption{Use Case: AI Interview Quiz.}
+    \label{fig:uc-ai-quiz}
+\end{figure}
+
+\noindent\textbf{Quản lý tin tuyển dụng.} Nhà tuyển dụng tạo, chỉnh sửa và xóa các tin tuyển dụng, cập nhật trạng thái hiển thị.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/quản lý tin tuyển dụng.png"}
+    \caption{Use Case: Quản lý tin tuyển dụng.}
+    \label{fig:uc-quan-ly-tin}
+\end{figure}
+
+\noindent\textbf{Danh sách ứng viên theo job.} Nhà tuyển dụng chọn một tin tuyển dụng và xem danh sách ứng viên đã nộp hồ sơ.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/danh sách ứng viên theo job.png"}
+    \caption{Use Case: Xem danh sách ứng viên theo job.}
+    \label{fig:uc-ung-vien-theo-job}
+\end{figure}
+
+\noindent\textbf{Xem danh sách công ty.} Ứng viên/khách truy cập duyệt danh sách công ty, tìm kiếm và lọc theo tiêu chí.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/xem danh sách công ty.png"}
+    \caption{Use Case: Xem danh sách công ty.}
+    \label{fig:uc-danh-sach-cong-ty}
+\end{figure}
+
+\noindent\textbf{Duyệt công ty/public profile.} Quản trị viên duyệt thông tin công ty, cập nhật trạng thái công khai để hiển thị với người dùng.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/duyệt công ty public profile.png"}
+    \caption{Use Case: Duyệt công ty/public profile.}
+    \label{fig:uc-duyet-cong-ty}
+\end{figure}
+
+\subsubsection{Mô tả chi tiết một số Use Case quan trọng}
+\begin{itemize}
+    \item \textbf{UC5: Nộp hồ sơ ứng tuyển}
+    \begin{itemize}
+        \item \textbf{Tác nhân:} Ứng viên.
+        \item \textbf{Mô tả:} Ứng viên sau khi tìm thấy một công việc phù hợp có thể tiến hành nộp hồ sơ trực tuyến.
+        \item \textbf{Luồng sự kiện:}
+        \begin{enumerate}
+            \item Ứng viên nhấn nút "Nộp hồ sơ" tại trang chi tiết việc làm.
+            \item Hệ thống hiển thị form ứng tuyển, yêu cầu chọn CV từ danh sách đã tải lên.
+            \item Ứng viên chọn CV và xác nhận nộp.
+            \item Hệ thống ghi nhận thông tin ứng tuyển vào cơ sở dữ liệu và thông báo thành công cho ứng viên.
+        \end{enumerate}
+    \end{itemize}
+    \item \textbf{UC13: Phân tích CV ứng viên bằng AI}
+    \begin{itemize}
+        \item \textbf{Tác nhân:} Nhà tuyển dụng.
+        \item \textbf{Mô tả:} Khi nhà tuyển dụng xem CV của một ứng viên, AI sẽ tự động phân tích và đưa ra các thông tin tóm tắt quan trọng.
+        \item \textbf{Luồng sự kiện:}
+        \begin{enumerate}
+            \item Nhà tuyển dụng mở trang chi tiết một hồ sơ ứng tuyển.
+            \item Hệ thống lấy nội dung text từ file CV và gửi đến service AI.
+            \item Service AI xử lý văn bản, trích xuất các thực thể như: Kỹ năng (Skills), Kinh nghiệm làm việc (Work Experience), Trình độ học vấn (Education), Thông tin liên hệ (Contact Info).
+            \item Kết quả phân tích được hiển thị ở một khu vực riêng biệt bên cạnh CV, giúp nhà tuyển dụng nắm bắt thông tin nhanh chóng.
+        \end{enumerate}
+    \end{itemize}
+\end{itemize}
+
+\subsection{Thiết kế cơ sở dữ liệu}
+\label{ssec:thiet-ke-csdl}
+Hệ thống sử dụng MongoDB, một cơ sở dữ liệu NoSQL hướng tài liệu (document-oriented), vì những lý do sau:
+\begin{itemize}
+    \item \textbf{Linh hoạt:} Cấu trúc schema linh hoạt cho phép dễ dàng lưu trữ các loại dữ liệu đa dạng và thay đổi cấu trúc khi cần, rất phù hợp với các thông tin như hồ sơ người dùng, CV, hay mô tả công việc.
+    \item \textbf{Khả năng mở rộng:} MongoDB hỗ trợ mở rộng theo chiều ngang (horizontal scaling) một cách hiệu quả, sẵn sàng cho việc tăng trưởng dữ liệu và lưu lượng truy cập trong tương lai.
+    \item \textbf{Hiệu năng:} Khả năng truy vấn và ghi dữ liệu nhanh chóng đối với các tập dữ liệu lớn.
+\end{itemize}
+
+Sơ đồ quan hệ thực thể (ERD) dưới đây mô tả các collection chính và mối quan hệ logic giữa chúng. Cần lưu ý rằng các "khóa ngoại" trong sơ đồ này thể hiện sự tham chiếu ở cấp độ ứng dụng, không phải là ràng buộc được thực thi bởi MongoDB.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{"so-do-chuong-3/erd_database.png"}
+    \caption{Sơ đồ quan hệ thực thể (ERD) của hệ thống.}
+    \label{fig:erd-database}
+\end{figure}
+
+\subsubsection{Mô tả các collection}
+\begin{itemize}
+    \item \textbf{users:} Lưu trữ thông tin tài khoản của cả ứng viên và nhà tuyển dụng.
+    \item \textbf{companies:} Lưu trữ thông tin chi tiết về các công ty tuyển dụng. Mỗi công ty được quản lý bởi một người dùng có vai trò là `recruiter`.
+    \item \textbf{jobs:} Chứa thông tin về các tin tuyển dụng do các công ty đăng tải.
+    \item \textbf{resumes:} Lưu trữ đường dẫn và nội dung text đã được trích xuất từ file CV của ứng viên.
+    \item \textbf{applications:} Là collection trung gian, ghi lại lịch sử ứng tuyển của ứng viên vào các công việc.
+    \item \textbf{ai\_history:} Lưu lại lịch sử các cuộc hội thoại giữa người dùng và các tính năng AI.
+\end{itemize}
+
+\subsection{Thiết kế giao diện (UI/UX)}
+\label{ssec:thiet-ke-giao-dien}
+Giao diện người dùng được thiết kế theo phong cách hiện đại, tối giản và tập trung vào trải nghiệm người dùng. Dưới đây là thiết kế cho một số màn hình chức năng chính.
+
+\subsubsection{Xác thực người dùng}
+Hệ thống cung cấp các màn hình cho việc đăng ký và đăng nhập.
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{"so-do-chuong-3/màn hình đăng ký.png"}
+        \caption{Màn hình đăng ký}
+        \label{fig:ui-dang-ky}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{"so-do-chuong-3/man_hinh_dang_nhap.png"}
+        \caption{Màn hình đăng nhập}
+        \label{fig:ui-dang-nhap}
+    \end{subfigure}
+    \caption{Giao diện các chức năng xác thực.}
+    \label{fig:ui-xac-thuc}
+\end{figure}
+
+\subsubsection{Chức năng cho Ứng viên}
+\begin{itemize}
+    \item \textbf{Tìm kiếm và xem việc làm:} Giao diện hiển thị danh sách các công việc, đi kèm bộ lọc chi tiết và trang xem thông tin đầy đủ của công việc.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\textwidth]{"so-do-chuong-3/màn hình danh sách việc làm.png"}
+        \caption{Giao diện trang danh sách việc làm.}
+        \label{fig:ui-danh-sach-viec-lam}
+    \end{figure}
+
+    \item \textbf{Tư vấn phỏng vấn với AI (AI Coach):} Giao diện phỏng vấn giả lập, AI đưa ra câu hỏi và người dùng trả lời.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\textwidth]{"so-do-chuong-3/màn hình ai-coach.png"}
+        \caption{Giao diện chức năng tư vấn phỏng vấn với AI.}
+        \label{fig:ui-phong-van-ai}
+    \end{figure}
+\end{itemize}
+
+\subsubsection{Chức năng cho Nhà tuyển dụng}
+\begin{itemize}
+    \item \textbf{Quản lý tin tuyển dụng:} Giao diện để cập nhật trạng thái, chỉnh sửa vị trí cần tuyển.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\textwidth]{"so-do-chuong-3/quản lý tin tuyển dụng.png"}
+        \caption{Giao diện trang quản lý tin tuyển dụng.}
+        \label{fig:ui-dang-tin}
+    \end{figure}
+
+    \item \textbf{Quản lý ứng viên và phân tích CV:} Giao diện hiển thị danh sách ứng viên đã nộp hồ sơ. Khi xem chi tiết, CV của ứng viên được phân tích bởi AI (đánh giá mức độ phù hợp, kỹ năng).
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=1\textwidth]{"so-do-chuong-3/màn hình AI đánh giá cv ứng viên.png"}
+        \caption{Giao diện quản lý ứng viên với tính năng phân tích CV của AI.}
+        \label{fig:ui-quan-ly-ung-vien}
+    \end{figure}
+\end{itemize}
+
+\subsubsection{Chức năng cho Quản trị viên}
+\begin{itemize}
+    \item \textbf{Dashboard quản trị:} Hiển thị tổng quan số lượng người dùng, công ty và tin tuyển dụng, hỗ trợ quản trị viên giám sát hoạt động hệ thống.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\textwidth]{"so-do-chuong-3/màn hình dashboard dành cho admin.png"}
+        \caption{Giao diện dashboard dành cho quản trị viên.}
+        \label{fig:ui-admin-dashboard}
+    \end{figure}
+\end{itemize}
+
+\subsection{Thiết kế triển khai và DevOps}
+Phần này trình bày thiết kế triển khai hệ thống theo hướng DevOps, tập trung vào cách đóng gói, triển khai và tự động hóa quá trình phát hành. Mục tiêu là đảm bảo hệ thống có thể triển khai nhanh, nhất quán và dễ mở rộng.
+
+\subsubsection{Đóng gói dịch vụ bằng Docker}
+Mỗi microservice (Auth, Jobs, AI, Gateway) và Frontend được đóng gói thành một Docker image riêng. Thiết kế này đảm bảo tính nhất quán môi trường và cho phép triển khai độc lập từng thành phần. Các image được chuẩn hóa theo cấu trúc dự án để phục vụ build tự động trong pipeline.
+
+\subsubsection{Triển khai trên Kubernetes (AKS)}
+Hệ thống được triển khai trên Azure Kubernetes Service (AKS). Mỗi service chạy trong một Deployment riêng, cấu hình Service nội bộ để giao tiếp và Ingress cho truy cập từ bên ngoài. Thiết kế này hỗ trợ scale-out theo từng service, giúp tối ưu tài nguyên và khả năng chịu tải.
+
+\subsubsection{Quy trình CI/CD theo mô hình GitOps}
+Quy trình CI/CD được thiết kế theo GitOps: mã nguồn khi được đẩy lên sẽ kích hoạt GitHub Actions để build, test và đẩy image lên Azure Container Registry (ACR). Sau đó, Argo CD đồng bộ cấu hình triển khai từ repository GitOps, tự động cập nhật các phiên bản mới lên cluster. Cách tiếp cận này giúp kiểm soát tốt lịch sử triển khai và dễ rollback khi cần.
+
+\section{Kết chương}
+Trong chương này, hệ thống được phân tích từ yêu cầu đến thiết kế, thể hiện rõ cách các chức năng cốt lõi vận hành và cách dữ liệu, giao diện, cũng như triển khai được tổ chức. Các sơ đồ Use Case và CSDL giúp làm rõ luồng nghiệp vụ, còn phần UI/UX và DevOps cho thấy hướng hiện thực hóa cụ thể. Đây là nền tảng để bước sang Chương 4, nơi các thành phần sẽ được triển khai và đánh giá trên môi trường thực tế.
+
+\end{document}

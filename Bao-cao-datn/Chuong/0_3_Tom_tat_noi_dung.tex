@@ -1,16 +1,19 @@
 \documentclass[../DoAn.tex]{subfiles}
 \begin{document}
 
-\begin{center}
-    \Large{\textbf{TÓM TẮT NỘI DUNG ĐỒ ÁN}}\\
-\end{center}
-\vspace{1cm}
-Sinh viên viết tóm tắt ĐATN của mình trong mục này, với 200 đến 350 từ. Theo trình tự, các nội dung tóm tắt cần có: (i) Giới thiệu vấn đề (tại sao có vấn đề đó, hiện tại được giải quyết chưa, có những hướng tiếp cận nào, các hướng này giải quyết như thế nào, hạn chế là gì), (ii) Hướng tiếp cận sinh viên lựa chọn là gì, vì sao chọn hướng đó, (iii) Tổng quan giải pháp của sinh viên theo hướng tiếp cận đã chọn, và (iv) Đóng góp chính của ĐATN là gì, kết quả đạt được sau cùng là gì. Sinh viên cần viết thành đoạn văn, không được viết ý hoặc gạch đầu dòng.
-\begin{flushright}
-Sinh viên thực hiện\\
-\begin{tabular}{@{}c@{}}
-\textit{(Ký và ghi rõ họ tên)}
-\end{tabular}
-\end{flushright}
+\chapter*{Tóm tắt nội dung đồ án}
+\addcontentsline{toc}{chapter}{Tóm tắt}
 
+Trong bối cảnh hiện nay, quy trình tuyển dụng truyền thống đang có nhiều bất cập. Các bộ phận nhân sự (HR) thường xuyên bị quá tải khi phải lọc thủ công hàng trăm hồ sơ trong thời gian ngắn. Ở chiều ngược lại, ứng viên lại thiếu các công cụ và môi trường để rèn luyện kỹ năng phỏng vấn sát với thực tế công việc. Bên cạnh đó, việc xây dựng một nền tảng tuyển dụng hiện đại để giải quyết các vấn đề này đòi hỏi hệ thống phải có tính sẵn sàng cao, dễ mở rộng và tự động hóa được quá trình triển khai để tránh các sai sót do thao tác thủ công.
+
+Nhằm giải quyết những bài toán trên, đồ án này tiến hành xây dựng và phát triển JobBridge AI - một hệ thống tuyển dụng thông minh dựa trên kiến trúc Microservices. Bên cạnh các tính năng kết nối việc làm cơ bản, hệ thống còn tích hợp Trí tuệ Nhân tạo để cung cấp trợ lý ảo giúp ứng viên luyện tập phỏng vấn theo kịch bản thực tế. Đồng thời, hệ thống cũng hỗ trợ nhà tuyển dụng tự động phân tích, tóm tắt và đánh giá độ phù hợp của CV một cách nhanh chóng.
+
+Đóng góp nổi bật của đồ án nằm ở việc áp dụng hiệu quả quy trình DevOps và các tiêu chuẩn vận hành hệ thống phân tán. Toàn bộ các dịch vụ được container hóa và triển khai trên nền tảng đám mây Azure Kubernetes Service (AKS). Quy trình tích hợp và triển khai liên tục (CI/CD) được thiết lập thông qua GitHub Actions và mô hình GitOps với Argo CD, cho phép cập nhật ứng dụng mà không làm gián đoạn dịch vụ (zero-downtime). Cơ sở hạ tầng của hệ thống cũng được tự động hóa hoàn toàn bằng Terraform (Infrastructure as Code) và được theo dõi, giám sát liên tục thông qua Prometheus cùng Grafana.
+
+Kết quả đạt được của đồ án là nền tảng JobBridge AI hoạt động ổn định trên môi trường thực tế, đáp ứng tốt yêu cầu về trải nghiệm người dùng. Đồ án đã minh chứng cho sự kết hợp hiệu quả giữa phát triển phần mềm hiện đại, ứng dụng AI và vận hành hệ thống đám mây, tạo tiền đề vững chắc để có thể tiếp tục mở rộng quy mô trong tương lai.
+
+\tableofcontents
+\listoffigures
+\listoftables
+\clearpage
 \end{document}
