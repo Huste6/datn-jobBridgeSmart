@@ -1,44 +1,52 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Sơ đồ kiến trúc Microservices của JobBridge AI}}{6}{figure.caption.12}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Các công nghệ chính được sử dụng trong dự án}}{8}{figure.caption.13}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Kiến trúc triển khai trên Azure Kubernetes Service}}{11}{figure.caption.14}%
+\contentsline {figure}{\numberline {2.4}{\ignorespaces Sơ đồ luồng CI/CD của dự án}}{12}{figure.caption.15}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces Sơ đồ kiến trúc Microservices của JobBridge AI}}{7}{figure.caption.12}%
-\contentsline {figure}{\numberline {3.2}{\ignorespaces Các công nghệ chính được sử dụng trong dự án}}{9}{figure.caption.13}%
-\contentsline {figure}{\numberline {3.3}{\ignorespaces Kiến trúc triển khai trên Azure Kubernetes Service}}{12}{figure.caption.14}%
-\contentsline {figure}{\numberline {3.4}{\ignorespaces Sơ đồ luồng CI/CD của dự án}}{13}{figure.caption.15}%
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Sơ đồ Use Case tổng quát của hệ thống.}}{19}{figure.caption.16}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Use Case: Đăng ký tài khoản.}}{20}{figure.caption.17}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Use Case: Đăng nhập.}}{20}{figure.caption.18}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Use Case: Đăng xuất.}}{21}{figure.caption.19}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Use Case: Onboarding chọn vai trò.}}{21}{figure.caption.20}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Use Case: Cập nhật hồ sơ cá nhân.}}{22}{figure.caption.21}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Use Case: Xem danh sách công việc.}}{22}{figure.caption.22}%
+\contentsline {figure}{\numberline {3.8}{\ignorespaces Use Case: Xem chi tiết công việc.}}{23}{figure.caption.23}%
+\contentsline {figure}{\numberline {3.9}{\ignorespaces Use Case: Ứng tuyển công việc.}}{23}{figure.caption.24}%
+\contentsline {figure}{\numberline {3.10}{\ignorespaces Use Case: Lưu công việc yêu thích.}}{24}{figure.caption.25}%
+\contentsline {figure}{\numberline {3.11}{\ignorespaces Use Case: AI Interview Coach.}}{24}{figure.caption.26}%
+\contentsline {figure}{\numberline {3.12}{\ignorespaces Use Case: AI Interview Quiz.}}{25}{figure.caption.27}%
+\contentsline {figure}{\numberline {3.13}{\ignorespaces Use Case: Quản lý tin tuyển dụng.}}{25}{figure.caption.28}%
+\contentsline {figure}{\numberline {3.14}{\ignorespaces Use Case: Xem danh sách ứng viên theo job.}}{26}{figure.caption.29}%
+\contentsline {figure}{\numberline {3.15}{\ignorespaces Use Case: Xem danh sách công ty.}}{26}{figure.caption.30}%
+\contentsline {figure}{\numberline {3.16}{\ignorespaces Use Case: Duyệt công ty/public profile.}}{27}{figure.caption.31}%
+\contentsline {figure}{\numberline {3.17}{\ignorespaces Sơ đồ quan hệ thực thể (ERD) của hệ thống.}}{29}{figure.caption.32}%
+\contentsline {figure}{\numberline {3.18}{\ignorespaces Bản phác thảo giao diện (Wireframe) các chức năng xác thực.}}{30}{figure.caption.33}%
+\contentsline {figure}{\numberline {3.19}{\ignorespaces Bản phác thảo giao diện (Wireframe) trang danh sách việc làm.}}{31}{figure.caption.34}%
+\contentsline {figure}{\numberline {3.20}{\ignorespaces Bản phác thảo giao diện (Wireframe) chức năng phỏng vấn thử với AI Coach.}}{31}{figure.caption.35}%
+\contentsline {figure}{\numberline {3.21}{\ignorespaces Bản phác thảo giao diện (Wireframe) trang quản lý tin tuyển dụng.}}{32}{figure.caption.36}%
+\contentsline {figure}{\numberline {3.22}{\ignorespaces Bản phác thảo giao diện (Wireframe) quản lý ứng viên tích hợp AI chấm điểm CV.}}{32}{figure.caption.37}%
+\contentsline {figure}{\numberline {3.23}{\ignorespaces Bản phác thảo giao diện (Wireframe) dashboard dành cho quản trị viên (Admin).}}{33}{figure.caption.38}%
 \addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Sơ đồ gói UML (Package Diagram) của hệ thống JobBridge AI.}}{36}{figure.caption.39}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Sơ đồ lớp UML (Class Diagram) của các package Auth, Jobs và AI.}}{37}{figure.caption.40}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Giao diện xác thực người dùng.}}{39}{figure.caption.43}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Giao diện trang tìm kiếm và danh sách việc làm.}}{40}{figure.caption.44}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Giao diện tính năng AI Interview Coach.}}{40}{figure.caption.45}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Giao diện chức năng dành cho Nhà tuyển dụng.}}{41}{figure.caption.46}%
+\contentsline {figure}{\numberline {4.7}{\ignorespaces Giao diện Dashboard dành cho Quản trị viên.}}{41}{figure.caption.47}%
+\contentsline {figure}{\numberline {4.8}{\ignorespaces Biểu đồ trình tự (Sequence Diagram) cho luồng ứng tuyển và AI Interview.}}{42}{figure.caption.48}%
+\contentsline {figure}{\numberline {4.9}{\ignorespaces Sơ đồ kiến trúc triển khai trên Azure Kubernetes Service.}}{44}{figure.caption.52}%
+\contentsline {figure}{\numberline {4.10}{\ignorespaces Trạng thái đồng bộ hóa GitOps của ứng dụng JobBridge trên giao diện ArgoCD.}}{45}{figure.caption.53}%
+\contentsline {figure}{\numberline {4.11}{\ignorespaces Dashboard giám sát sức khỏe API và trạng thái Pod trên Grafana.}}{46}{figure.caption.54}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces Sơ đồ Use Case tổng quát của hệ thống.}}{21}{figure.caption.16}%
-\contentsline {figure}{\numberline {5.2}{\ignorespaces Use Case: Đăng ký tài khoản.}}{22}{figure.caption.17}%
-\contentsline {figure}{\numberline {5.3}{\ignorespaces Use Case: Đăng nhập.}}{22}{figure.caption.18}%
-\contentsline {figure}{\numberline {5.4}{\ignorespaces Use Case: Đăng xuất.}}{23}{figure.caption.19}%
-\contentsline {figure}{\numberline {5.5}{\ignorespaces Use Case: Onboarding chọn vai trò.}}{23}{figure.caption.20}%
-\contentsline {figure}{\numberline {5.6}{\ignorespaces Use Case: Cập nhật hồ sơ cá nhân.}}{24}{figure.caption.21}%
-\contentsline {figure}{\numberline {5.7}{\ignorespaces Use Case: Xem danh sách công việc.}}{24}{figure.caption.22}%
-\contentsline {figure}{\numberline {5.8}{\ignorespaces Use Case: Xem chi tiết công việc.}}{25}{figure.caption.23}%
-\contentsline {figure}{\numberline {5.9}{\ignorespaces Use Case: Ứng tuyển công việc.}}{25}{figure.caption.24}%
-\contentsline {figure}{\numberline {5.10}{\ignorespaces Use Case: Lưu công việc yêu thích.}}{26}{figure.caption.25}%
-\contentsline {figure}{\numberline {5.11}{\ignorespaces Use Case: AI Interview Coach.}}{26}{figure.caption.26}%
-\contentsline {figure}{\numberline {5.12}{\ignorespaces Use Case: AI Interview Quiz.}}{27}{figure.caption.27}%
-\contentsline {figure}{\numberline {5.13}{\ignorespaces Use Case: Quản lý tin tuyển dụng.}}{27}{figure.caption.28}%
-\contentsline {figure}{\numberline {5.14}{\ignorespaces Use Case: Xem danh sách ứng viên theo job.}}{28}{figure.caption.29}%
-\contentsline {figure}{\numberline {5.15}{\ignorespaces Use Case: Xem danh sách công ty.}}{28}{figure.caption.30}%
-\contentsline {figure}{\numberline {5.16}{\ignorespaces Use Case: Duyệt công ty/public profile.}}{29}{figure.caption.31}%
-\contentsline {figure}{\numberline {5.17}{\ignorespaces Sơ đồ quan hệ thực thể (ERD) của hệ thống.}}{31}{figure.caption.32}%
-\contentsline {figure}{\numberline {5.18}{\ignorespaces Giao diện các chức năng xác thực.}}{32}{figure.caption.33}%
-\contentsline {figure}{\numberline {5.19}{\ignorespaces Giao diện trang danh sách việc làm.}}{32}{figure.caption.34}%
-\contentsline {figure}{\numberline {5.20}{\ignorespaces Giao diện chức năng tư vấn phỏng vấn với AI.}}{33}{figure.caption.35}%
-\contentsline {figure}{\numberline {5.21}{\ignorespaces Giao diện trang quản lý tin tuyển dụng.}}{33}{figure.caption.36}%
-\contentsline {figure}{\numberline {5.22}{\ignorespaces Giao diện quản lý ứng viên với tính năng phân tích CV của AI.}}{34}{figure.caption.37}%
-\contentsline {figure}{\numberline {5.23}{\ignorespaces Giao diện dashboard dành cho quản trị viên.}}{34}{figure.caption.38}%
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Sơ đồ luồng trích xuất văn bản và lưu bộ nhớ đệm (Cache) CV ứng viên.}}{49}{figure.caption.56}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Cấu trúc Prompt phân tầng lắp ghép ngữ cảnh động gửi tới OpenAI API.}}{51}{figure.caption.57}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Cơ chế bảo mật phân tầng từ API Gateway đến Logic Nghiệp vụ Microservice.}}{54}{figure.caption.58}%
+\contentsline {figure}{\numberline {5.4}{\ignorespaces Giao diện ArgoCD thực tế hiển thị cấu trúc liên kết và sự đồng bộ thành công của ứng dụng.}}{57}{figure.caption.60}%
+\contentsline {figure}{\numberline {5.5}{\ignorespaces Dashboard giám sát sức khỏe API và tài nguyên các Pod thực tế trên cụm Kubernetes Azure.}}{57}{figure.caption.61}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {6.1}{\ignorespaces Ví dụ biểu đồ phụ thuộc gói}}{36}{figure.caption.39}%
-\contentsline {figure}{\numberline {6.2}{\ignorespaces Ví dụ thiết kế gói}}{37}{figure.caption.40}%
-\addvspace {10\p@ }
-\addvspace {10\p@ }
-\addvspace {10\p@ }
-\contentsline {figure}{\numberline {A.1}{\ignorespaces Internet vạn vật}}{46}{figure.caption.46}%
-\contentsline {figure}{\numberline {A.2}{\ignorespaces Qui cách đóng quyển đồ án}}{48}{figure.caption.49}%
-\contentsline {figure}{\numberline {A.3}{\ignorespaces Qui cách đóng quyển đồ án}}{48}{figure.caption.50}%
 \addvspace {10\p@ }
 \contentsfinish 
 \contentsfinish 

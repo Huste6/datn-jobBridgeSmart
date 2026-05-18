@@ -1,12 +1,64 @@
 \documentclass[../DoAn.tex]{subfiles}
 \begin{document}
+
 \section{Kết luận}
-Sinh viên so sánh kết quả nghiên cứu hoặc sản phẩm của mình với các nghiên cứu hoặc sản phẩm tương tự.
+Đồ án tốt nghiệp ``Xây dựng hệ thống hỗ trợ tuyển dụng và chuẩn bị phỏng vấn tích hợp Trí tuệ nhân tạo (JobBridge AI)'' đã hoàn thành đầy đủ các mục tiêu đề ra ban đầu, giải quyết trọn vẹn cả khía cạnh nghiên cứu lý thuyết lẫn ứng dụng thực tiễn công nghệ.
 
-Sinh viên phân tích trong suốt quá trình thực hiện ĐATN, mình đã làm được gì, chưa làm được gì, các đóng góp nổi bật là gì, và tổng hợp những bài học kinh nghiệm rút ra nếu có.
+\subsection{Những kết quả thực tiễn đạt được}
+Thông qua quá trình nghiên cứu và xây dựng, đồ án đã đạt được các kết quả cụ thể sau:
+\begin{enumerate}
+    \item \textbf{Xây dựng hoàn chỉnh hệ thống phần mềm:} Hiện thực hóa một nền tảng tuyển dụng hiện đại theo kiến trúc Microservices gồm 4 dịch vụ cốt lõi (Gateway, Auth, Jobs, AI) viết bằng ngôn ngữ Go hiệu năng cao, kết hợp cùng Frontend React/TypeScript tối giản và trực quan.
+    \item \textbf{Tích hợp thành công Trí tuệ nhân tạo (AI) thực tiễn:} Triển khai hai tính năng đột phá: (1) \textit{AI Interview Coach} giúp ứng viên luyện phỏng vấn giả lập thời gian thực thích ứng ngữ cảnh cao; (2) \textit{AI Evaluate CV} hỗ trợ nhà tuyển dụng chấm điểm và phân tích CV tự động với độ chính xác cao.
+    \item \textbf{Giải quyết triệt để các bài toán kỹ thuật tối ưu:} 
+    \begin{itemize}
+        \item Đề xuất và triển khai thành công cơ chế trích xuất và cache văn bản từ file PDF CV, giúp rút ngắn độ trễ chuẩn bị dữ liệu AI từ $1.5$ giây xuống còn dưới $20$ mili-giây.
+        \item Thiết kế kiến trúc bảo mật phân lớp nghiêm ngặt (API Gateway JWT kết hợp Role-based Microservice Middleware và Business Verification) giúp ngăn chặn $100\%$ lỗi rò rỉ quyền hạn tài nguyên dữ liệu.
+    \end{itemize}
+    \item \textbf{Chuẩn hóa quy trình vận hành đám mây (DevOps/Observability):} Tự động hóa hoàn toàn chu trình từ mã nguồn đến môi trường production đám mây Azure AKS bằng công cụ GitOps (ArgoCD) và hạ tầng khai báo Terraform. Thiết lập hệ thống giám sát tập trung Prometheus và Grafana đo lường trực quan sức khỏe hệ thống thời gian thực với tỷ lệ sẵn sàng của cụm đạt $100\%$.
+\end{enumerate}
 
-\section{Hướng phát triển}
-Trong phần này, sinh viên trình bày định hướng công việc trong tương lai để hoàn thiện sản phẩm hoặc nghiên cứu của mình.
+\subsection{Đánh giá và So sánh}
+So với các nền tảng tuyển dụng truyền thống trên thị trường (chỉ đơn thuần đóng vai trò là bảng tin đăng tuyển dụng tĩnh), JobBridge AI mang lại sự khác biệt lớn nhờ khả năng tương tác chủ động dựa trên AI. Hệ thống không chỉ kết nối nhu cầu tuyển dụng mà còn đồng hành cùng ứng viên nâng cao năng lực phỏng vấn và hỗ trợ đắc lực cho doanh nghiệp sàng lọc ứng viên tự động dựa trên kỹ nghệ prompt tối ưu.
 
-Trước tiên, sinh viên trình bày các công việc cần thiết để hoàn thiện các chức năng/nhiệm vụ đã làm. Sau đó sinh viên phân tích các hướng đi mới cho phép cải thiện và nâng cấp các chức năng/nhiệm vụ đã làm.
+\subsection{Bài học kinh nghiệm rút ra}
+Quá trình thực hiện đồ án đã giúp tác giả tích lũy được nhiều bài học kinh nghiệm quý báu:
+\begin{itemize}
+    \item Làm chủ tư duy thiết kế hệ thống phân tán microservices, cách thiết lập giao tiếp bảo mật và tin cậy giữa các dịch vụ nội bộ Kubernetes.
+    \item Nâng cao năng lực DevOps, tự động hóa hạ tầng đám mây và kỹ năng phân tích số liệu đo lường hệ thống (Observability).
+    \item Nắm vững phương pháp thiết kế Kỹ nghệ Prompt (Prompt Engineering) chuyên nghiệp để kiểm soát và điều hướng các mô hình ngôn ngữ lớn hoạt động ổn định và chính xác trong môi trường sản xuất.
+\end{itemize}
+
+---
+
+\section{Hạn chế và Hướng phát triển}
+
+Mặc dù hệ thống đã hoạt động ổn định và đạt hiệu năng cao, đồ án vẫn còn một số điểm hạn chế cần tiếp tục nghiên cứu và hoàn thiện trong tương lai.
+
+\subsection{Hạn chế hiện tại}
+\begin{enumerate}
+    \item \textbf{Thiếu thông báo thời gian thực (Real-time Notification):} Các hành động cập nhật trạng thái ứng tuyển hoặc kết quả duyệt doanh nghiệp hiện tại vẫn dựa trên cơ chế tải lại trang hoặc gọi API thông thường, chưa hỗ trợ đẩy thông báo đẩy thời gian thực qua WebSockets.
+    \item \textbf{Tìm kiếm dựa trên từ khóa truyền thống:} Việc tìm kiếm việc làm của ứng viên hiện đang dựa trên truy vấn văn bản truyền thống của MongoDB, chưa áp dụng công nghệ tìm kiếm ngữ nghĩa sâu (Semantic Search) dựa trên Vector Embedding để so khớp mức độ tương thích trực tiếp giữa CV và JD.
+    \item \textbf{Sự phụ thuộc vào bên thứ ba:} Hệ thống AI hiện đang phụ thuộc hoàn toàn vào dịch vụ OpenAI API trả phí bên ngoài, có nguy cơ gián đoạn nếu dịch vụ này gặp sự cố và làm tăng chi phí vận hành lâu dài.
+\end{enumerate}
+
+\subsection{Hướng phát triển tương lai}
+Để khắc phục các hạn chế trên và nâng tầm hệ thống JobBridge AI, tác giả đề xuất định hướng phát triển trong tương lai như sau:
+
+\subsubsection{Ngắn hạn (1 -- 3 tháng)}
+\begin{itemize}
+    \item Triển khai hệ thống \textbf{WebSockets Notification Service} để đẩy thông báo thời gian thực lập tức cho ứng viên khi CV được nhà tuyển dụng duyệt hoặc khi có lịch phỏng vấn mới.
+    \item Tích hợp cơ chế tự động gửi email thông báo kết quả phỏng vấn AI Coach chi tiết định kỳ về hòm thư cá nhân của ứng viên.
+\end{itemize}
+
+\subsubsection{Trung hạn (3 -- 6 tháng)}
+\begin{itemize}
+    \item Tích hợp CSDL Vector (Vector Database như \textbf{Qdrant} hoặc \textbf{Milvus}) kết hợp mô hình \texttt{text-embedding-3-small} của OpenAI để xây dựng hệ thống gợi ý việc làm thông minh (Recommendation Engine) dựa trên độ tương đồng Cosine (Cosine Similarity) giữa CV của ứng viên và JD của doanh nghiệp.
+\end{itemize}
+
+\subsubsection{Dài hạn (Trên 6 tháng)}
+\begin{itemize}
+    \item Nghiên cứu triển khai các mô hình ngôn ngữ lớn nguồn mở quy mô nhỏ chạy cục bộ (như \textbf{Llama 3-8B} hoặc \textbf{Mistral-7B}) trực tiếp bên trong cụm AKS riêng tư của doanh nghiệp bằng KServe hoặc vLLM. 
+    \item Giải pháp tự chủ này sẽ loại bỏ hoàn toàn chi phí sử dụng OpenAI API bên ngoài, đồng thời bảo mật tuyệt đối dữ liệu CV và thông tin tuyển dụng nhạy cảm của ứng viên và doanh nghiệp.
+\end{itemize}
+
 \end{document}

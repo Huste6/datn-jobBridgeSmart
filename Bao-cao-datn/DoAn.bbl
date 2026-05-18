@@ -1,0 +1,207 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated as
+% required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+\datalist[entry]{none/global//global/global/global}
+  \entry{kubernetes}{online}{}{}
+    \name{author}{1}{}{%
+      {{hash=AK}{%
+         family={Authors},
+         familyi={A\bibinitperiod},
+         given={Kubernetes},
+         giveni={K\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{AK1}
+    \strng{fullhash}{AK1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Kubernetes Documentation: Production-Grade Container
+  Orchestration}
+    \verb{url}
+    \verb https://kubernetes.io/docs/
+    \endverb
+    \field{year}{2026}
+    \field{urlday}{17}
+    \field{urlmonth}{05}
+    \field{urlyear}{2026}
+  \endentry
+
+  \entry{azure_aks}{online}{}{}
+    \name{author}{1}{}{%
+      {{hash=AM}{%
+         family={Azure},
+         familyi={A\bibinitperiod},
+         given={Microsoft},
+         giveni={M\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{AM1}
+    \strng{fullhash}{AM1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Azure Kubernetes Service (AKS) Managed Kubernetes Service}
+    \verb{url}
+    \verb https://learn.microsoft.com/en-us/azure/aks/
+    \endverb
+    \field{year}{2026}
+    \field{urlday}{17}
+    \field{urlmonth}{05}
+    \field{urlyear}{2026}
+  \endentry
+
+  \entry{prometheus}{online}{}{}
+    \name{author}{1}{}{%
+      {{hash=AP}{%
+         family={Authors},
+         familyi={A\bibinitperiod},
+         given={Prometheus},
+         giveni={P\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{AP1}
+    \strng{fullhash}{AP1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Prometheus - An open-source systems monitoring and alerting
+  toolkit}
+    \verb{url}
+    \verb https://prometheus.io/docs/
+    \endverb
+    \field{year}{2026}
+    \field{urlday}{17}
+    \field{urlmonth}{05}
+    \field{urlyear}{2026}
+  \endentry
+
+  \entry{grafana}{online}{}{}
+    \name{author}{1}{}{%
+      {{hash=LG}{%
+         family={Labs},
+         familyi={L\bibinitperiod},
+         given={Grafana},
+         giveni={G\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LG1}
+    \strng{fullhash}{LG1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Grafana - The open observability platform}
+    \verb{url}
+    \verb https://grafana.com/docs/
+    \endverb
+    \field{year}{2026}
+    \field{urlday}{17}
+    \field{urlmonth}{05}
+    \field{urlyear}{2026}
+  \endentry
+
+  \entry{argocd}{online}{}{}
+    \name{author}{1}{}{%
+      {{hash=PA}{%
+         family={Project},
+         familyi={P\bibinitperiod},
+         given={Argo},
+         giveni={A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{PA1}
+    \strng{fullhash}{PA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Argo CD - Declarative GitOps continuous delivery for
+  Kubernetes}
+    \verb{url}
+    \verb https://argoproj.github.io/cd/
+    \endverb
+    \field{year}{2026}
+    \field{urlday}{17}
+    \field{urlmonth}{05}
+    \field{urlyear}{2026}
+  \endentry
+
+  \entry{donovan2015go}{book}{}{}
+    \name{author}{2}{}{%
+      {{hash=DAAA}{%
+         family={Donovan},
+         familyi={D\bibinitperiod},
+         given={Alan A.\bibnamedelima A.},
+         giveni={A\bibinitperiod\bibinitdelim A\bibinitperiod\bibinitdelim
+  A\bibinitperiod},
+      }}%
+      {{hash=KBW}{%
+         family={Kernighan},
+         familyi={K\bibinitperiod},
+         given={Brian\bibnamedelima W.},
+         giveni={B\bibinitperiod\bibinitdelim W\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Addison-Wesley Professional}%
+    }
+    \strng{namehash}{DAAAKBW1}
+    \strng{fullhash}{DAAAKBW1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{The Go Programming Language}
+    \field{year}{2015}
+  \endentry
+
+  \entry{openai_api}{online}{}{}
+    \name{author}{1}{}{%
+      {{hash=O}{%
+         family={OpenAI},
+         familyi={O\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{O1}
+    \strng{fullhash}{O1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{OpenAI API Reference and Large Language Models Guides}
+    \verb{url}
+    \verb https://platform.openai.com/docs/
+    \endverb
+    \field{year}{2026}
+    \field{urlday}{17}
+    \field{urlmonth}{05}
+    \field{urlyear}{2026}
+  \endentry
+
+  \entry{chodorow2013mongodb}{book}{}{}
+    \name{author}{1}{}{%
+      {{hash=CK}{%
+         family={Chodorow},
+         familyi={C\bibinitperiod},
+         given={Kristina},
+         giveni={K\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {"O'Reilly Media, Inc."}%
+    }
+    \strng{namehash}{CK1}
+    \strng{fullhash}{CK1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{MongoDB: The Definitive Guide: Powerful and Scalable Data
+  Storage}
+    \field{year}{2013}
+  \endentry
+\enddatalist
+\endinput

@@ -1,7 +1,6 @@
 \documentclass[../DoAn.tex]{subfiles}
 \begin{document}
 
-\chapter{Phân tích và Thiết kế hệ thống}
 \label{chapter:3}
 
 \section{Tổng quan}
@@ -274,74 +273,74 @@ Sơ đồ quan hệ thực thể (ERD) dưới đây mô tả các collection ch
 
 \subsection{Thiết kế giao diện (UI/UX)}
 \label{ssec:thiet-ke-giao-dien}
-Giao diện người dùng được thiết kế theo phong cách hiện đại, tối giản và tập trung vào trải nghiệm người dùng. Dưới đây là thiết kế cho một số màn hình chức năng chính.
+Bản phác thảo giao diện người dùng (Wireframe) được thiết kế theo hướng tập trung tối giản bố cục và luồng trải nghiệm người dùng trước khi tiến hành lập trình. Dưới đây là thiết kế chi tiết cho một số màn hình chức năng chính dưới dạng wireframe.
 
 \subsubsection{Xác thực người dùng}
-Hệ thống cung cấp các màn hình cho việc đăng ký và đăng nhập.
+Hệ thống cung cấp bản phác thảo thiết kế (Wireframe) cho màn hình đăng ký và đăng nhập của người dùng.
 \begin{figure}[H]
     \centering
     \begin{subfigure}[b]{0.48\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{"so-do-chuong-3/màn hình đăng ký.png"}
+        \includegraphics[width=\textwidth]{"so-do-chuong-3/ui_wireframe_dang_ky.png"}
         \caption{Màn hình đăng ký}
         \label{fig:ui-dang-ky}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.48\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{"so-do-chuong-3/man_hinh_dang_nhap.png"}
+        \includegraphics[width=\textwidth]{"so-do-chuong-3/ui_wireframe_dang_nhap.png"}
         \caption{Màn hình đăng nhập}
         \label{fig:ui-dang-nhap}
     \end{subfigure}
-    \caption{Giao diện các chức năng xác thực.}
+    \caption{Bản phác thảo giao diện (Wireframe) các chức năng xác thực.}
     \label{fig:ui-xac-thuc}
 \end{figure}
 
 \subsubsection{Chức năng cho Ứng viên}
 \begin{itemize}
-    \item \textbf{Tìm kiếm và xem việc làm:} Giao diện hiển thị danh sách các công việc, đi kèm bộ lọc chi tiết và trang xem thông tin đầy đủ của công việc.
+    \item \textbf{Tìm kiếm và xem việc làm:} Bản phác thảo giao diện hiển thị danh sách các công việc, đi kèm thanh tìm kiếm, bộ lọc chi tiết ở cột trái và danh sách thẻ việc làm ở giữa.
     \begin{figure}[H]
         \centering
-        \includegraphics[width=0.8\textwidth]{"so-do-chuong-3/màn hình danh sách việc làm.png"}
-        \caption{Giao diện trang danh sách việc làm.}
+        \includegraphics[width=0.8\textwidth]{"so-do-chuong-3/ui_wireframe_danh_sach_viec_lam.png"}
+        \caption{Bản phác thảo giao diện (Wireframe) trang danh sách việc làm.}
         \label{fig:ui-danh-sach-viec-lam}
     \end{figure}
 
-    \item \textbf{Tư vấn phỏng vấn với AI (AI Coach):} Giao diện phỏng vấn giả lập, AI đưa ra câu hỏi và người dùng trả lời.
+    \item \textbf{Tư vấn phỏng vấn với AI (AI Coach):} Bản phác thảo giao diện phỏng vấn giả lập, khung chat hiển thị tin nhắn phản hồi của AI ở cột trái và người dùng ở cột phải.
     \begin{figure}[H]
         \centering
-        \includegraphics[width=0.8\textwidth]{"so-do-chuong-3/màn hình ai-coach.png"}
-        \caption{Giao diện chức năng tư vấn phỏng vấn với AI.}
+        \includegraphics[width=0.8\textwidth]{"so-do-chuong-3/ui_wireframe_ai_coach.png"}
+        \caption{Bản phác thảo giao diện (Wireframe) chức năng phỏng vấn thử với AI Coach.}
         \label{fig:ui-phong-van-ai}
     \end{figure}
 \end{itemize}
 
 \subsubsection{Chức năng cho Nhà tuyển dụng}
 \begin{itemize}
-    \item \textbf{Quản lý tin tuyển dụng:} Giao diện để cập nhật trạng thái, chỉnh sửa vị trí cần tuyển.
+    \item \textbf{Quản lý tin tuyển dụng:} Bản phác thảo giao diện hiển thị bảng danh sách các tin tuyển dụng đang hoạt động và nút đăng tin mới.
     \begin{figure}[H]
         \centering
-        \includegraphics[width=0.8\textwidth]{"so-do-chuong-3/quản lý tin tuyển dụng.png"}
-        \caption{Giao diện trang quản lý tin tuyển dụng.}
+        \includegraphics[width=0.8\textwidth]{"so-do-chuong-3/ui_wireframe_quan_ly_tin_tuyen_dung.png"}
+        \caption{Bản phác thảo giao diện (Wireframe) trang quản lý tin tuyển dụng.}
         \label{fig:ui-dang-tin}
     \end{figure}
 
-    \item \textbf{Quản lý ứng viên và phân tích CV:} Giao diện hiển thị danh sách ứng viên đã nộp hồ sơ. Khi xem chi tiết, CV của ứng viên được phân tích bởi AI (đánh giá mức độ phù hợp, kỹ năng).
+    \item \textbf{Quản lý ứng viên và phân tích CV:} Bản phác thảo giao diện hiển thị CV ứng viên ở cột trái và khung phân tích AI (đánh giá mức độ phù hợp, điểm số và nhận xét) ở cột phải.
     \begin{figure}[H]
         \centering
-        \includegraphics[width=1\textwidth]{"so-do-chuong-3/màn hình AI đánh giá cv ứng viên.png"}
-        \caption{Giao diện quản lý ứng viên với tính năng phân tích CV của AI.}
+        \includegraphics[width=1\textwidth]{"so-do-chuong-3/ui_wireframe_ai_danh_gia_cv.png"}
+        \caption{Bản phác thảo giao diện (Wireframe) quản lý ứng viên tích hợp AI chấm điểm CV.}
         \label{fig:ui-quan-ly-ung-vien}
     \end{figure}
 \end{itemize}
 
 \subsubsection{Chức năng cho Quản trị viên}
 \begin{itemize}
-    \item \textbf{Dashboard quản trị:} Hiển thị tổng quan số lượng người dùng, công ty và tin tuyển dụng, hỗ trợ quản trị viên giám sát hoạt động hệ thống.
+    \item \textbf{Dashboard quản trị:} Bản phác thảo giao diện dashboard hiển thị tổng quan số lượng người dùng, công ty và các chỉ số vận hành hệ thống cùng bảng chờ phê duyệt doanh nghiệp.
     \begin{figure}[H]
         \centering
-        \includegraphics[width=0.9\textwidth]{"so-do-chuong-3/màn hình dashboard dành cho admin.png"}
-        \caption{Giao diện dashboard dành cho quản trị viên.}
+        \includegraphics[width=0.9\textwidth]{"so-do-chuong-3/ui_wireframe_admin_dashboard.png"}
+        \caption{Bản phác thảo giao diện (Wireframe) dashboard dành cho quản trị viên (Admin).}
         \label{fig:ui-admin-dashboard}
     \end{figure}
 \end{itemize}

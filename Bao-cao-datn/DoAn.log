@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.5.14)  16 MAY 2026 21:40
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.5.14)  18 MAY 2026 00:00
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -981,12 +981,7 @@ Package biblatex Info: ... and expl3
 Package: xparse 2025-10-09 L3 Experimental document command parser
 )
 Package: blx-case-expl3 2025/07/10 v3.21 expl3 case changing code for biblatex
-))
-
-LaTeX Warning: \include should only be used after \begin{document} on input line 62.
-
-No file lstlisting.
-(Tu_viet_tat.tex) (C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hyperref.sty
+)) (Tu_viet_tat.tex) (C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hyperref.sty
 Package: hyperref 2025-07-12 v7.01o Hypertext links for LaTeX
  (C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex/generic/kvdefinekeys\kvdefinekeys.sty
 Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
@@ -1071,7 +1066,7 @@ Package: letltxmacro 2019/12/03 v1.6 Let assignment for LaTeX macros (HO)
 \c@example=\count515
 \@quotelevel=\count516
 \@quotereset=\count517
-LaTeX Font Info:    Trying to load font information for T5+ptm on input line 166.
+LaTeX Font Info:    Trying to load font information for T5+ptm on input line 167.
  (C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex/latex/vntex\t5ptm.fd
 File: t5utm.fd 2005/08/24 Fontinst v1.929 font definitions for T5/ptm.
 )
@@ -1082,26 +1077,26 @@ LaTeX Warning: Unused global option(s):
 (DoAn.aux)
 \openout1 = `DoAn.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 166.
-LaTeX Font Info:    ... okay on input line 166.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 166.
-LaTeX Font Info:    ... okay on input line 166.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 166.
-LaTeX Font Info:    ... okay on input line 166.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 166.
-LaTeX Font Info:    ... okay on input line 166.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 166.
-LaTeX Font Info:    ... okay on input line 166.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 166.
-LaTeX Font Info:    ... okay on input line 166.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 166.
-LaTeX Font Info:    ... okay on input line 166.
-LaTeX Font Info:    Checking defaults for T5/cmr/m/n on input line 166.
-LaTeX Font Info:    ... okay on input line 166.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 166.
-LaTeX Font Info:    ... okay on input line 166.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 166.
-LaTeX Font Info:    ... okay on input line 166.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 167.
+LaTeX Font Info:    ... okay on input line 167.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 167.
+LaTeX Font Info:    ... okay on input line 167.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 167.
+LaTeX Font Info:    ... okay on input line 167.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 167.
+LaTeX Font Info:    ... okay on input line 167.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 167.
+LaTeX Font Info:    ... okay on input line 167.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 167.
+LaTeX Font Info:    ... okay on input line 167.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 167.
+LaTeX Font Info:    ... okay on input line 167.
+LaTeX Font Info:    Checking defaults for T5/cmr/m/n on input line 167.
+LaTeX Font Info:    ... okay on input line 167.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 167.
+LaTeX Font Info:    ... okay on input line 167.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 167.
+LaTeX Font Info:    ... okay on input line 167.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -1119,8 +1114,8 @@ LaTeX Font Info:    ... okay on input line 166.
 * \textheight=731.23584pt
 * \oddsidemargin=27.31465pt
 * \evensidemargin=-1.1381pt
-* \topmargin=-52.36449pt
-* \headheight=10.0pt
+* \topmargin=-60.36449pt
+* \headheight=18.0pt
 * \headsep=25.0pt
 * \topskip=10.0pt
 * \footskip=30.0pt
@@ -1175,7 +1170,7 @@ Package caption Info: supertabular package is loaded.
 Package caption Info: End \AtBeginDocument code.
 \c@lstlisting=\count524
 Package tocbasic Info: omitting babel extension for `lol'
-(tocbasic)             because of missing \bbl@set@language on input line 166.
+(tocbasic)             because of missing \bbl@set@language on input line 167.
 Package biblatex Info: Trying to load language 'english'...
 Package biblatex Info: ... file 'english.lbx' found.
  (C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex/latex/biblatex/lbx\english.lbx
@@ -1192,9 +1187,10 @@ Package biblatex Info: Data encoding 'utf8' specified.
 Package biblatex Info: Trying to load bibliographic data...
 Package biblatex Info: ... file 'DoAn.bbl' found.
  (DoAn.bbl)
-Package biblatex Info: Reference section=0 on input line 166.
-Package biblatex Info: Reference segment=0 on input line 166.
-Package hyperref Info: Link coloring OFF on input line 166.
+Package biblatex Info: Reference section=0 on input line 167.
+Package biblatex Info: Reference segment=0 on input line 167.
+Package hyperref Info: Link coloring OFF on input line 167.
+ (DoAn.out) (DoAn.out)
 \@outlinefile=\write5
 \openout5 = `DoAn.out'.
 
@@ -1240,14 +1236,25 @@ File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 LaTeX Font Info:    Trying to load font information for U+msb on input line 42.
  (C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-) [1
+)
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
-{C:/Users/Admin/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/vntex/t5.enc}]) (Bia_lot.tex
+ [1
+
+{C:/Users/Admin/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/vntex/t5.enc}] [2]) (Bia_lot.tex
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
 pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
+l.40 \end{center}
+                  [1]
+pdfTeX warning (ext4): destination with the same identifier (name{page.2}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
 l.44 \end{titlepage}
-                     [1]) (Chuong/0_2_Loi_cam_on.tex) [1
+                     [2]) (Chuong/0_2_Loi_cam_on.tex) [1
 
 ] (Chuong/0_1_Loi_cam_ket.tex
 Underfull \hbox (badness 10000) in paragraph at lines 7--14
@@ -1258,7 +1265,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 7--14
 pdfTeX warning (ext4): destination with the same identifier (name{page.}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.186 \newpage
+l.187 \newpage
                [1
 
 ] (Chuong/0_3_Tom_tat_noi_dung.tex
@@ -1268,8 +1275,33 @@ pdfTeX warning (ext4): destination with the same identifier (name{page.}) has be
 l.15 \tableofcontents
                       [1
 
+] (DoAn.toc
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.43 ...�u phi chức năng}{17}{subsection.3.2.2}
+                                                  % [2
+
 ]
-No file DoAn.toc.
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.88 ...�ờng triển khai}{47}{subsection.4.5.3}
+                                                  % [3]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.113 ... giá và So sánh}{59}{subsection.6.1.2}
+                                                  % [4])
 \tf@toc=\write6
 \openout6 = `DoAn.toc'.
 
@@ -1278,10 +1310,14 @@ pdfTeX warning (ext4): destination with the same identifier (name{page.}) has be
 <to be read again> 
                    \relax 
 l.16 \listoffigures
-                    [2
+                    [5] (DoAn.lof
+pdfTeX warning (ext4): destination with the same identifier (name{page.}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.37 ...� tuyển dụng.}}{41}{figure.caption.46}
+                                                  % [6
 
-]
-No file DoAn.lof.
+])
 \tf@lof=\write7
 \openout7 = `DoAn.lof'.
 
@@ -1290,10 +1326,7 @@ pdfTeX warning (ext4): destination with the same identifier (name{page.}) has be
 <to be read again> 
                    \relax 
 l.17 \listoftables
-                   [3
-
-]
-No file DoAn.lot.
+                   [7] (DoAn.lot)
 \tf@lot=\write8
 \openout8 = `DoAn.lot'.
 
@@ -1302,13 +1335,13 @@ pdfTeX warning (ext4): destination with the same identifier (name{page.}) has be
 <to be read again> 
                    \relax 
 l.18 \clearpage
-                [4
+                [8
 
 ]) (Chuong/0_4_Tom_tat_noi_dung_English.tex)
 pdfTeX warning (ext4): destination with the same identifier (name{page.}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.196 \newpage
+l.197 \newpage
                [1
 
 ] (DoAn.toc)
@@ -1332,10 +1365,7 @@ l.196 \newpage
 
 
 
-Package glossaries Warning: Empty glossary for \printnoidxglossary[type={main}]. Rerun may be required (or you may have forgotten to use commands like \gls) on input line 252.
-
-
-Package glossaries Warning: Empty glossary for \printnoidxglossary[type={acronym}]. Rerun may be required (or you may have forgotten to use commands like \gls) on input line 252.
+Package glossaries Warning: Empty glossary for \printnoidxglossary[type={acronym}]. Rerun may be required (or you may have forgotten to use commands like \gls) on input line 248.
 
 [4
 
@@ -1359,926 +1389,551 @@ l.24         \item C
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[2]
+pdfTeX warning (ext4): destination with the same identifier (name{page.2}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.51     \end{itemize}
+                       [2]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[3])
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[4]
+ [3]) [4]
 Ch\uhorn \ohorn ng 2.
-(Chuong/2_Co_so_ly_thuyet.tex [5
-
-]
-Ch\uhorn \ohorn ng 3.
-
+(Chuong/2_Co_so_ly_thuyet.tex
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [6
+ [5
 
 ]
-
-LaTeX Warning: Reference `fig:microservices-architecture' on page 7 undefined on input line 30.
-
-<Chuong/so-do-chuong-2/microservices_architecture.png, id=101, 1541.76pt x 1027.84pt>
+<Chuong/so-do-chuong-2/microservices_architecture.png, id=707, 1541.76pt x 1027.84pt>
 File: Chuong/so-do-chuong-2/microservices_architecture.png Graphic file (type png)
 <use Chuong/so-do-chuong-2/microservices_architecture.png>
-Package pdftex.def Info: Chuong/so-do-chuong-2/microservices_architecture.png  used on input line 34.
+Package pdftex.def Info: Chuong/so-do-chuong-2/microservices_architecture.png  used on input line 33.
 (pdftex.def)             Requested size: 426.79135pt x 284.51537pt.
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[7 <./Chuong/so-do-chuong-2/microservices_architecture.png (PNG copy)>]
-
-LaTeX Warning: Reference `fig:tech-stack' on page 8 undefined on input line 59.
-
-<Chuong/so-do-chuong-2/4_technology_stack.png, id=107, 1541.76pt x 1027.84pt>
+ [6 <./Chuong/so-do-chuong-2/microservices_architecture.png (PNG copy)>]
+<Chuong/so-do-chuong-2/4_technology_stack.png, id=714, 1541.76pt x 1027.84pt>
 File: Chuong/so-do-chuong-2/4_technology_stack.png Graphic file (type png)
 <use Chuong/so-do-chuong-2/4_technology_stack.png>
-Package pdftex.def Info: Chuong/so-do-chuong-2/4_technology_stack.png  used on input line 63.
+Package pdftex.def Info: Chuong/so-do-chuong-2/4_technology_stack.png  used on input line 62.
 (pdftex.def)             Requested size: 384.1096pt x 256.0654pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[8]
+ [7]
 Underfull \vbox (badness 1571) has occurred while \output is active []
 
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[9 <./Chuong/so-do-chuong-2/4_technology_stack.png (PNG copy)>]
-Overfull \hbox (3.58759pt too wide) in paragraph at lines 98--99
+ [8 <./Chuong/so-do-chuong-2/4_technology_stack.png (PNG copy)>]
+Overfull \hbox (3.58759pt too wide) in paragraph at lines 97--98
 []\T5/ptm/b/n/13 TypeScript: \T5/ptm/m/n/13 L� m�t ng�n ng� l�p tr�nh ^^_��c x�y d�ng tr�n n�n t�ng JavaScript,
  []
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[10]
+ [9]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[11]
-
-LaTeX Warning: Reference `fig:kubernetes-deployment' on page 12 undefined on input line 128.
-
-<Chuong/so-do-chuong-2/kubernetes_deploymeny.png, id=135, 1541.76pt x 1027.84pt>
+ [10]
+<Chuong/so-do-chuong-2/kubernetes_deploymeny.png, id=737, 1541.76pt x 1027.84pt>
 File: Chuong/so-do-chuong-2/kubernetes_deploymeny.png Graphic file (type png)
 <use Chuong/so-do-chuong-2/kubernetes_deploymeny.png>
-Package pdftex.def Info: Chuong/so-do-chuong-2/kubernetes_deploymeny.png  used on input line 132.
+Package pdftex.def Info: Chuong/so-do-chuong-2/kubernetes_deploymeny.png  used on input line 131.
 (pdftex.def)             Requested size: 426.79135pt x 284.51537pt.
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[12 <./Chuong/so-do-chuong-2/kubernetes_deploymeny.png (PNG copy)>]
-
-LaTeX Warning: Reference `fig:ci-cd-flow' on page 13 undefined on input line 146.
-
-<Chuong/so-do-chuong-2/ci_cd_flow.png, id=143, 1541.76pt x 1027.84pt>
+ [11 <./Chuong/so-do-chuong-2/kubernetes_deploymeny.png (PNG copy)>]
+<Chuong/so-do-chuong-2/ci_cd_flow.png, id=743, 1541.76pt x 1027.84pt>
 File: Chuong/so-do-chuong-2/ci_cd_flow.png Graphic file (type png)
 <use Chuong/so-do-chuong-2/ci_cd_flow.png>
-Package pdftex.def Info: Chuong/so-do-chuong-2/ci_cd_flow.png  used on input line 150.
+Package pdftex.def Info: Chuong/so-do-chuong-2/ci_cd_flow.png  used on input line 149.
 (pdftex.def)             Requested size: 426.79135pt x 284.51537pt.
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[13 <./Chuong/so-do-chuong-2/ci_cd_flow.png (PNG copy)>]
+ [12 <./Chuong/so-do-chuong-2/ci_cd_flow.png (PNG copy)>]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[14])
+ [13])
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[15]
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[16]
-Ch\uhorn \ohorn ng 4.
-(Chuong/3_Phan_tich_thiet_ke.tex [17
-
-]
-Ch\uhorn \ohorn ng 5.
-
+ [14] [15]
+Ch\uhorn \ohorn ng 3.
+(Chuong/3_Phan_tich_thiet_ke.tex
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [18
+ [16
 
 ]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[19]
-<Chuong/so-do-chuong-3/1_use-case-tong-quat.png, id=195, 1541.76pt x 1027.84pt>
+ [17]
+<Chuong/so-do-chuong-3/1_use-case-tong-quat.png, id=781, 1541.76pt x 1027.84pt>
 File: Chuong/so-do-chuong-3/1_use-case-tong-quat.png Graphic file (type png)
 <use Chuong/so-do-chuong-3/1_use-case-tong-quat.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/1_use-case-tong-quat.png  used on input line 88.
+Package pdftex.def Info: Chuong/so-do-chuong-3/1_use-case-tong-quat.png  used on input line 87.
 (pdftex.def)             Requested size: 384.09811pt x 256.0654pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[20]
-<Chuong/so-do-chuong-3/Đăng ký.png, id=204, 378.213pt x 419.166pt>
+ [18]
+<Chuong/so-do-chuong-3/Đăng ký.png, id=789, 378.213pt x 419.166pt>
 File: Chuong/so-do-chuong-3/Đăng ký.png Graphic file (type png)
 <use Chuong/so-do-chuong-3/Đăng ký.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/Đăng ký.png  used on input line 102.
+Package pdftex.def Info: Chuong/so-do-chuong-3/Đăng ký.png  used on input line 101.
 (pdftex.def)             Requested size: 277.4263pt x 307.4661pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[21 <./Chuong/so-do-chuong-3/1_use-case-tong-quat.png (PNG copy)>]
-<Chuong/so-do-chuong-3/Đăng nhập.png, id=212, 406.51875pt x 415.5525pt>
+ [19 <./Chuong/so-do-chuong-3/1_use-case-tong-quat.png (PNG copy)>]
+<Chuong/so-do-chuong-3/Đăng nhập.png, id=796, 406.51875pt x 415.5525pt>
 File: Chuong/so-do-chuong-3/Đăng nhập.png Graphic file (type png)
 <use Chuong/so-do-chuong-3/Đăng nhập.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/Đăng nhập.png  used on input line 110.
+Package pdftex.def Info: Chuong/so-do-chuong-3/Đăng nhập.png  used on input line 109.
 (pdftex.def)             Requested size: 277.42155pt x 283.58649pt.
-<Chuong/so-do-chuong-3/Đăng xuất.png, id=213, 517.935pt x 266.1945pt>
+<Chuong/so-do-chuong-3/Đăng xuất.png, id=797, 517.935pt x 266.1945pt>
 File: Chuong/so-do-chuong-3/Đăng xuất.png Graphic file (type png)
 <use Chuong/so-do-chuong-3/Đăng xuất.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/Đăng xuất.png  used on input line 118.
+Package pdftex.def Info: Chuong/so-do-chuong-3/Đăng xuất.png  used on input line 117.
 (pdftex.def)             Requested size: 277.42046pt x 142.5812pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[22 <./Chuong/so-do-chuong-3/Đăng ký.png> <./Chuong/so-do-chuong-3/Đăng nhập.png>]
-<Chuong/so-do-chuong-3/Onboard chọn vai trò.png, id=222, 358.33875pt x 367.97475pt>
+ [20 <./Chuong/so-do-chuong-3/Đăng ký.png> <./Chuong/so-do-chuong-3/Đăng nhập.png>]
+<Chuong/so-do-chuong-3/Onboard chọn vai trò.png, id=804, 358.33875pt x 367.97475pt>
 File: Chuong/so-do-chuong-3/Onboard chọn vai trò.png Graphic file (type png)
 <use Chuong/so-do-chuong-3/Onboard chọn vai trò.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/Onboard chọn vai trò.png  used on input line 126.
+Package pdftex.def Info: Chuong/so-do-chuong-3/Onboard chọn vai trò.png  used on input line 125.
 (pdftex.def)             Requested size: 277.4308pt x 284.89111pt.
-<Chuong/so-do-chuong-3/Cập nhật hồ sơ cá nhân.png, id=223, 395.076pt x 378.81525pt>
+<Chuong/so-do-chuong-3/Cập nhật hồ sơ cá nhân.png, id=805, 395.076pt x 378.81525pt>
 File: Chuong/so-do-chuong-3/Cập nhật hồ sơ cá nhân.png Graphic file (type png)
 <use Chuong/so-do-chuong-3/Cập nhật hồ sơ cá nhân.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/Cập nhật hồ sơ cá nhân.png  used on input line 134.
+Package pdftex.def Info: Chuong/so-do-chuong-3/Cập nhật hồ sơ cá nhân.png  used on input line 133.
 (pdftex.def)             Requested size: 277.41939pt x 266.0012pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[23 <./Chuong/so-do-chuong-3/Đăng xuất.png> <./Chuong/so-do-chuong-3/Onboard chọn vai trò.png>]
-<Chuong/so-do-chuong-3/danh sách công việc.png, id=232, 386.04225pt x 382.42876pt>
+ [21 <./Chuong/so-do-chuong-3/Đăng xuất.png> <./Chuong/so-do-chuong-3/Onboard chọn vai trò.png>]
+<Chuong/so-do-chuong-3/danh sách công việc.png, id=812, 386.04225pt x 382.42876pt>
 File: Chuong/so-do-chuong-3/danh sách công việc.png Graphic file (type png)
 <use Chuong/so-do-chuong-3/danh sách công việc.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/danh sách công việc.png  used on input line 142.
+Package pdftex.def Info: Chuong/so-do-chuong-3/danh sách công việc.png  used on input line 141.
 (pdftex.def)             Requested size: 277.41417pt x 274.81746pt.
-<Chuong/so-do-chuong-3/xem chi tiết công việc.png, id=233, 400.49625pt x 393.26926pt>
+<Chuong/so-do-chuong-3/xem chi tiết công việc.png, id=813, 400.49625pt x 393.26926pt>
 File: Chuong/so-do-chuong-3/xem chi tiết công việc.png Graphic file (type png)
 <use Chuong/so-do-chuong-3/xem chi tiết công việc.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/xem chi tiết công việc.png  used on input line 150.
+Package pdftex.def Info: Chuong/so-do-chuong-3/xem chi tiết công việc.png  used on input line 149.
 (pdftex.def)             Requested size: 277.42436pt x 272.41821pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[24 <./Chuong/so-do-chuong-3/Cập nhật hồ sơ cá nhân.png> <./Chuong/so-do-chuong-3/danh sách công việc.png>]
-<Chuong/so-do-chuong-3/ứng tuyển công việc.png, id=243, 418.56375pt x 397.485pt>
+ [22 <./Chuong/so-do-chuong-3/Cập nhật hồ sơ cá nhân.png> <./Chuong/so-do-chuong-3/danh sách công việc.png>]
+<Chuong/so-do-chuong-3/ứng tuyển công việc.png, id=820, 418.56375pt x 397.485pt>
 File: Chuong/so-do-chuong-3/ứng tuyển công việc.png Graphic file (type png)
 <use Chuong/so-do-chuong-3/ứng tuyển công việc.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/ứng tuyển công việc.png  used on input line 158.
+Package pdftex.def Info: Chuong/so-do-chuong-3/ứng tuyển công việc.png  used on input line 157.
 (pdftex.def)             Requested size: 277.40892pt x 263.43869pt.
-<Chuong/so-do-chuong-3/lưu công việc yêu thích.png, id=244, 466.74374pt x 375.804pt>
+<Chuong/so-do-chuong-3/lưu công việc yêu thích.png, id=821, 466.74374pt x 375.804pt>
 File: Chuong/so-do-chuong-3/lưu công việc yêu thích.png Graphic file (type png)
 <use Chuong/so-do-chuong-3/lưu công việc yêu thích.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/lưu công việc yêu thích.png  used on input line 166.
+Package pdftex.def Info: Chuong/so-do-chuong-3/lưu công việc yêu thích.png  used on input line 165.
 (pdftex.def)             Requested size: 277.42041pt x 223.36818pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[25 <./Chuong/so-do-chuong-3/xem chi tiết công việc.png> <./Chuong/so-do-chuong-3/ứng tuyển công việc.png>]
-<Chuong/so-do-chuong-3/AI Interview Coach.png, id=253, 375.20175pt x 402.303pt>
+ [23 <./Chuong/so-do-chuong-3/xem chi tiết công việc.png> <./Chuong/so-do-chuong-3/ứng tuyển công việc.png>]
+<Chuong/so-do-chuong-3/AI Interview Coach.png, id=828, 375.20175pt x 402.303pt>
 File: Chuong/so-do-chuong-3/AI Interview Coach.png Graphic file (type png)
 <use Chuong/so-do-chuong-3/AI Interview Coach.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/AI Interview Coach.png  used on input line 174.
+Package pdftex.def Info: Chuong/so-do-chuong-3/AI Interview Coach.png  used on input line 173.
 (pdftex.def)             Requested size: 277.41592pt x 297.454pt.
-<Chuong/so-do-chuong-3/AI Interview Quiz.png, id=254, 393.26926pt x 407.121pt>
+<Chuong/so-do-chuong-3/AI Interview Quiz.png, id=829, 393.26926pt x 407.121pt>
 File: Chuong/so-do-chuong-3/AI Interview Quiz.png Graphic file (type png)
 <use Chuong/so-do-chuong-3/AI Interview Quiz.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/AI Interview Quiz.png  used on input line 182.
+Package pdftex.def Info: Chuong/so-do-chuong-3/AI Interview Quiz.png  used on input line 181.
 (pdftex.def)             Requested size: 277.42288pt x 287.19429pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[26 <./Chuong/so-do-chuong-3/lưu công việc yêu thích.png> <./Chuong/so-do-chuong-3/AI Interview Coach.png>]
-<Chuong/so-do-chuong-3/quản lý tin tuyển dụng.png, id=263, 446.8695pt x 400.49625pt>
+ [24 <./Chuong/so-do-chuong-3/lưu công việc yêu thích.png> <./Chuong/so-do-chuong-3/AI Interview Coach.png>]
+<Chuong/so-do-chuong-3/quản lý tin tuyển dụng.png, id=837, 446.8695pt x 400.49625pt>
 File: Chuong/so-do-chuong-3/quản lý tin tuyển dụng.png Graphic file (type png)
 <use Chuong/so-do-chuong-3/quản lý tin tuyển dụng.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/quản lý tin tuyển dụng.png  used on input line 190.
+Package pdftex.def Info: Chuong/so-do-chuong-3/quản lý tin tuyển dụng.png  used on input line 189.
 (pdftex.def)             Requested size: 277.42444pt x 248.6351pt.
-<Chuong/so-do-chuong-3/danh sách ứng viên theo job.png, id=264, 454.0965pt x 393.8715pt>
+<Chuong/so-do-chuong-3/danh sách ứng viên theo job.png, id=838, 454.0965pt x 393.8715pt>
 File: Chuong/so-do-chuong-3/danh sách ứng viên theo job.png Graphic file (type png)
 <use Chuong/so-do-chuong-3/danh sách ứng viên theo job.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/danh sách ứng viên theo job.png  used on input line 198.
+Package pdftex.def Info: Chuong/so-do-chuong-3/danh sách ứng viên theo job.png  used on input line 197.
 (pdftex.def)             Requested size: 277.40726pt x 240.61584pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[27 <./Chuong/so-do-chuong-3/AI Interview Quiz.png> <./Chuong/so-do-chuong-3/quản lý tin tuyển dụng.png>]
-<Chuong/so-do-chuong-3/xem danh sách công ty.png, id=273, 477.58424pt x 369.7815pt>
+ [25 <./Chuong/so-do-chuong-3/AI Interview Quiz.png> <./Chuong/so-do-chuong-3/quản lý tin tuyển dụng.png>]
+<Chuong/so-do-chuong-3/xem danh sách công ty.png, id=845, 477.58424pt x 369.7815pt>
 File: Chuong/so-do-chuong-3/xem danh sách công ty.png Graphic file (type png)
 <use Chuong/so-do-chuong-3/xem danh sách công ty.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/xem danh sách công ty.png  used on input line 206.
+Package pdftex.def Info: Chuong/so-do-chuong-3/xem danh sách công ty.png  used on input line 205.
 (pdftex.def)             Requested size: 277.4217pt x 214.80066pt.
-<Chuong/so-do-chuong-3/duyệt công ty public profile.png, id=274, 419.166pt x 407.121pt>
+<Chuong/so-do-chuong-3/duyệt công ty public profile.png, id=846, 419.166pt x 407.121pt>
 File: Chuong/so-do-chuong-3/duyệt công ty public profile.png Graphic file (type png)
 <use Chuong/so-do-chuong-3/duyệt công ty public profile.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/duyệt công ty public profile.png  used on input line 214.
+Package pdftex.def Info: Chuong/so-do-chuong-3/duyệt công ty public profile.png  used on input line 213.
 (pdftex.def)             Requested size: 277.41153pt x 269.43994pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[28 <./Chuong/so-do-chuong-3/danh sách ứng viên theo job.png> <./Chuong/so-do-chuong-3/xem danh sách công ty.png>]
+ [26 <./Chuong/so-do-chuong-3/danh sách ứng viên theo job.png> <./Chuong/so-do-chuong-3/xem danh sách công ty.png>]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[29 <./Chuong/so-do-chuong-3/duyệt công ty public profile.png>]
-Overfull \hbox (6.1448pt too wide) in paragraph at lines 249--251
+ [27 <./Chuong/so-do-chuong-3/duyệt công ty public profile.png>]
+Overfull \hbox (6.1448pt too wide) in paragraph at lines 248--250
 []\T5/ptm/m/n/13 H� th�ng s� d�ng Mon-goDB, m�t c� s� d� li�u NoSQL h��ng t�i li�u (document-
  []
 
-<Chuong/so-do-chuong-3/erd_database.png, id=294, 645.00975pt x 646.21425pt>
+<Chuong/so-do-chuong-3/erd_database.png, id=863, 645.00975pt x 646.21425pt>
 File: Chuong/so-do-chuong-3/erd_database.png Graphic file (type png)
 <use Chuong/so-do-chuong-3/erd_database.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/erd_database.png  used on input line 260.
+Package pdftex.def Info: Chuong/so-do-chuong-3/erd_database.png  used on input line 259.
 (pdftex.def)             Requested size: 426.79135pt x 427.58736pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[30]
+ [28]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[31 <./Chuong/so-do-chuong-3/erd_database.png>]
-<Chuong/so-do-chuong-3/màn hình đăng ký.png, id=312, 696.80325pt x 492.03825pt>
-File: Chuong/so-do-chuong-3/màn hình đăng ký.png Graphic file (type png)
-<use Chuong/so-do-chuong-3/màn hình đăng ký.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/màn hình đăng ký.png  used on input line 285.
-(pdftex.def)             Requested size: 204.85802pt x 144.6545pt.
-<Chuong/so-do-chuong-3/man_hinh_dang_nhap.png, id=313, 707.0415pt x 476.982pt>
-File: Chuong/so-do-chuong-3/man_hinh_dang_nhap.png Graphic file (type png)
-<use Chuong/so-do-chuong-3/man_hinh_dang_nhap.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/man_hinh_dang_nhap.png  used on input line 292.
-(pdftex.def)             Requested size: 204.85802pt x 138.1975pt.
-<Chuong/so-do-chuong-3/màn hình danh sách việc làm.png, id=314, 828.696pt x 525.162pt>
-File: Chuong/so-do-chuong-3/màn hình danh sách việc làm.png Graphic file (type png)
-<use Chuong/so-do-chuong-3/màn hình danh sách việc làm.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/màn hình danh sách việc làm.png  used on input line 305.
-(pdftex.def)             Requested size: 341.43437pt x 216.37556pt.
-<Chuong/so-do-chuong-3/màn hình ai-coach.png, id=315, 974.4405pt x 529.98pt>
-File: Chuong/so-do-chuong-3/màn hình ai-coach.png Graphic file (type png)
-<use Chuong/so-do-chuong-3/màn hình ai-coach.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/màn hình ai-coach.png  used on input line 313.
-(pdftex.def)             Requested size: 341.43437pt x 185.69794pt.
+ [29 <./Chuong/so-do-chuong-3/erd_database.png>]
+<Chuong/so-do-chuong-3/ui_wireframe_dang_ky.png, id=878, 1453.43pt x 1090.0725pt>
+File: Chuong/so-do-chuong-3/ui_wireframe_dang_ky.png Graphic file (type png)
+<use Chuong/so-do-chuong-3/ui_wireframe_dang_ky.png>
+Package pdftex.def Info: Chuong/so-do-chuong-3/ui_wireframe_dang_ky.png  used on input line 284.
+(pdftex.def)             Requested size: 204.85802pt x 153.64037pt.
+<Chuong/so-do-chuong-3/ui_wireframe_dang_nhap.png, id=879, 1453.43pt x 1090.0725pt>
+File: Chuong/so-do-chuong-3/ui_wireframe_dang_nhap.png Graphic file (type png)
+<use Chuong/so-do-chuong-3/ui_wireframe_dang_nhap.png>
+Package pdftex.def Info: Chuong/so-do-chuong-3/ui_wireframe_dang_nhap.png  used on input line 291.
+(pdftex.def)             Requested size: 204.85802pt x 153.64037pt.
+<Chuong/so-do-chuong-3/ui_wireframe_danh_sach_viec_lam.png, id=880, 1453.43pt x 1090.0725pt>
+File: Chuong/so-do-chuong-3/ui_wireframe_danh_sach_viec_lam.png Graphic file (type png)
+<use Chuong/so-do-chuong-3/ui_wireframe_danh_sach_viec_lam.png>
+Package pdftex.def Info: Chuong/so-do-chuong-3/ui_wireframe_danh_sach_viec_lam.png  used on input line 304.
+(pdftex.def)             Requested size: 341.43437pt x 256.06728pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[32 <./Chuong/so-do-chuong-3/màn hình đăng ký.png> <./Chuong/so-do-chuong-3/man_hinh_dang_nhap.png> <./Chuong/so-do-chuong-3/màn hình danh sách việc làm.png>]
-File: Chuong/so-do-chuong-3/quản lý tin tuyển dụng.png Graphic file (type png)
-<use Chuong/so-do-chuong-3/quản lý tin tuyển dụng.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/quản lý tin tuyển dụng.png  used on input line 324.
-(pdftex.def)             Requested size: 341.43437pt x 306.01808pt.
-<Chuong/so-do-chuong-3/màn hình AI đánh giá cv ứng viên.png, id=328, 983.47424pt x 522.753pt>
-File: Chuong/so-do-chuong-3/màn hình AI đánh giá cv ứng viên.png Graphic file (type png)
-<use Chuong/so-do-chuong-3/màn hình AI đánh giá cv ứng viên.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/màn hình AI đánh giá cv ứng viên.png  used on input line 332.
-(pdftex.def)             Requested size: 426.79135pt x 226.85332pt.
+ [30 <./Chuong/so-do-chuong-3/ui_wireframe_dang_ky.png (PNG copy)> <./Chuong/so-do-chuong-3/ui_wireframe_dang_nhap.png (PNG copy)>]
+<Chuong/so-do-chuong-3/ui_wireframe_ai_coach.png, id=888, 1453.43pt x 1090.0725pt>
+File: Chuong/so-do-chuong-3/ui_wireframe_ai_coach.png Graphic file (type png)
+<use Chuong/so-do-chuong-3/ui_wireframe_ai_coach.png>
+Package pdftex.def Info: Chuong/so-do-chuong-3/ui_wireframe_ai_coach.png  used on input line 312.
+(pdftex.def)             Requested size: 341.43437pt x 256.06728pt.
+<Chuong/so-do-chuong-3/ui_wireframe_quan_ly_tin_tuyen_dung.png, id=889, 1541.76pt x 1027.84pt>
+File: Chuong/so-do-chuong-3/ui_wireframe_quan_ly_tin_tuyen_dung.png Graphic file (type png)
+<use Chuong/so-do-chuong-3/ui_wireframe_quan_ly_tin_tuyen_dung.png>
+Package pdftex.def Info: Chuong/so-do-chuong-3/ui_wireframe_quan_ly_tin_tuyen_dung.png  used on input line 323.
+(pdftex.def)             Requested size: 341.43437pt x 227.61543pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[33 <./Chuong/so-do-chuong-3/màn hình ai-coach.png>]
-<Chuong/so-do-chuong-3/màn hình dashboard dành cho admin.png, id=337, 1133.4345pt x 511.31026pt>
-File: Chuong/so-do-chuong-3/màn hình dashboard dành cho admin.png Graphic file (type png)
-<use Chuong/so-do-chuong-3/màn hình dashboard dành cho admin.png>
-Package pdftex.def Info: Chuong/so-do-chuong-3/màn hình dashboard dành cho admin.png  used on input line 343.
-(pdftex.def)             Requested size: 384.1096pt x 173.28143pt.
+ [31 <./Chuong/so-do-chuong-3/ui_wireframe_danh_sach_viec_lam.png (PNG copy)> <./Chuong/so-do-chuong-3/ui_wireframe_ai_coach.png (PNG copy)>]
+<Chuong/so-do-chuong-3/ui_wireframe_ai_danh_gia_cv.png, id=895, 1541.76pt x 1027.84pt>
+File: Chuong/so-do-chuong-3/ui_wireframe_ai_danh_gia_cv.png Graphic file (type png)
+<use Chuong/so-do-chuong-3/ui_wireframe_ai_danh_gia_cv.png>
+Package pdftex.def Info: Chuong/so-do-chuong-3/ui_wireframe_ai_danh_gia_cv.png  used on input line 331.
+(pdftex.def)             Requested size: 426.79135pt x 284.51537pt.
+<Chuong/so-do-chuong-3/ui_wireframe_admin_dashboard.png, id=896, 1541.76pt x 1027.84pt>
+File: Chuong/so-do-chuong-3/ui_wireframe_admin_dashboard.png Graphic file (type png)
+<use Chuong/so-do-chuong-3/ui_wireframe_admin_dashboard.png>
+Package pdftex.def Info: Chuong/so-do-chuong-3/ui_wireframe_admin_dashboard.png  used on input line 342.
+(pdftex.def)             Requested size: 384.1096pt x 256.0654pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
+ [32 <./Chuong/so-do-chuong-3/ui_wireframe_quan_ly_tin_tuyen_dung.png (PNG copy)> <./Chuong/so-do-chuong-3/ui_wireframe_ai_danh_gia_cv.png (PNG copy)>]
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[34 <./Chuong/so-do-chuong-3/màn hình AI đánh giá cv ứng viên.png> <./Chuong/so-do-chuong-3/màn hình dashboard dành cho admin.png>])
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[35]
-Ch\uhorn \ohorn ng 6.
+ [33 <./Chuong/so-do-chuong-3/ui_wireframe_admin_dashboard.png (PNG copy)>]) [34]
+Ch\uhorn \ohorn ng 4.
 (Chuong/4_Ket_qua_thuc_nghiem.tex
+<Chuong/so-do-chuong-4/package_diagram.png, id=914, 1157.32375pt x 1369.115pt>
+File: Chuong/so-do-chuong-4/package_diagram.png Graphic file (type png)
+<use Chuong/so-do-chuong-4/package_diagram.png>
+Package pdftex.def Info: Chuong/so-do-chuong-4/package_diagram.png  used on input line 35.
+(pdftex.def)             Requested size: 362.77525pt x 429.16351pt.
 
-LaTeX Warning: Reference `fig:Fig1' on page 36 undefined on input line 10.
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
+ [35
 
-LaTeX Warning: File `Hinhve/Picture1.png' not found on input line 13.
-
-
-Chuong/4_Ket_qua_thuc_nghiem.tex:13: Package pdftex.def Error: File `Hinhve/Picture1.png' not found: using draft setting.
-
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.13     \includegraphics{Hinhve/Picture1.png}
-                                              
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-LaTeX Font Info:    Trying to load font information for T5+pcr on input line 13.
-(C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex/latex/vntex\t5pcr.fd
+]
+LaTeX Font Info:    Trying to load font information for T5+pcr on input line 40.
+ (C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex/latex/vntex\t5pcr.fd
 File: t5ucr.fd 2005/08/24 Fontinst v1.929 font definitions for T5/pcr.
+) [36 <./Chuong/so-do-chuong-4/package_diagram.png (PNG copy)>]
+<Chuong/so-do-chuong-4/class_diagram.png, id=926, 1541.76pt x 1027.84pt>
+File: Chuong/so-do-chuong-4/class_diagram.png Graphic file (type png)
+<use Chuong/so-do-chuong-4/class_diagram.png>
+Package pdftex.def Info: Chuong/so-do-chuong-4/class_diagram.png  used on input line 54.
+(pdftex.def)             Requested size: 405.45047pt x 270.29039pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [37 <./Chuong/so-do-chuong-4/class_diagram.png (PNG copy)>] [38]
+<Chuong/so-do-chuong-4/screens/màn hình đăng ký.png, id=938, 696.80325pt x 492.03825pt>
+File: Chuong/so-do-chuong-4/screens/màn hình đăng ký.png Graphic file (type png)
+<use Chuong/so-do-chuong-4/screens/màn hình đăng ký.png>
+Package pdftex.def Info: Chuong/so-do-chuong-4/screens/màn hình đăng ký.png  used on input line 133.
+(pdftex.def)             Requested size: 204.85802pt x 144.6545pt.
+<Chuong/so-do-chuong-4/screens/man_hinh_dang_nhap.png, id=939, 707.0415pt x 476.982pt>
+File: Chuong/so-do-chuong-4/screens/man_hinh_dang_nhap.png Graphic file (type png)
+<use Chuong/so-do-chuong-4/screens/man_hinh_dang_nhap.png>
+Package pdftex.def Info: Chuong/so-do-chuong-4/screens/man_hinh_dang_nhap.png  used on input line 139.
+(pdftex.def)             Requested size: 204.85802pt x 138.1975pt.
+<Chuong/so-do-chuong-4/screens/màn hình danh sách việc làm.png, id=940, 828.696pt x 525.162pt>
+File: Chuong/so-do-chuong-4/screens/màn hình danh sách việc làm.png Graphic file (type png)
+<use Chuong/so-do-chuong-4/screens/màn hình danh sách việc làm.png>
+Package pdftex.def Info: Chuong/so-do-chuong-4/screens/màn hình danh sách việc làm.png  used on input line 151.
+(pdftex.def)             Requested size: 384.1096pt x 243.4125pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [39 <./Chuong/so-do-chuong-4/screens/màn hình đăng ký.png> <./Chuong/so-do-chuong-4/screens/man_hinh_dang_nhap.png>]
+<Chuong/so-do-chuong-4/screens/màn hình ai-coach.png, id=949, 974.4405pt x 529.98pt>
+File: Chuong/so-do-chuong-4/screens/màn hình ai-coach.png Graphic file (type png)
+<use Chuong/so-do-chuong-4/screens/màn hình ai-coach.png>
+Package pdftex.def Info: Chuong/so-do-chuong-4/screens/màn hình ai-coach.png  used on input line 161.
+(pdftex.def)             Requested size: 384.1096pt x 208.90715pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [40 <./Chuong/so-do-chuong-4/screens/màn hình danh sách việc làm.png> <./Chuong/so-do-chuong-4/screens/màn hình ai-coach.png>]
+<Chuong/so-do-chuong-4/screens/quản lý tin tuyển dụng.png, id=957, 446.8695pt x 400.49625pt>
+File: Chuong/so-do-chuong-4/screens/quản lý tin tuyển dụng.png Graphic file (type png)
+<use Chuong/so-do-chuong-4/screens/quản lý tin tuyển dụng.png>
+Package pdftex.def Info: Chuong/so-do-chuong-4/screens/quản lý tin tuyển dụng.png  used on input line 173.
+(pdftex.def)             Requested size: 204.85802pt x 183.60106pt.
+<Chuong/so-do-chuong-4/screens/màn hình AI đánh giá cv ứng viên.png, id=958, 983.47424pt x 522.753pt>
+File: Chuong/so-do-chuong-4/screens/màn hình AI đánh giá cv ứng viên.png Graphic file (type png)
+<use Chuong/so-do-chuong-4/screens/màn hình AI đánh giá cv ứng viên.png>
+Package pdftex.def Info: Chuong/so-do-chuong-4/screens/màn hình AI đánh giá cv ứng viên.png  used on input line 179.
+(pdftex.def)             Requested size: 204.85802pt x 108.88799pt.
+LaTeX Info: Symbol \textrightarrow not provided by
+            font family pcr in TS1 encoding.
+            Default family used instead on input line 187.
+LaTeX Font Info:    Trying to load font information for T5+cmtt on input line 187.
+ (C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex/latex/vntex\t5cmtt.fd
+File: t5cmtt.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 
-LaTeX Warning: Reference `fig:Fig2' on page 36 undefined on input line 18.
+LaTeX Font Warning: Font shape `TS1/cmtt/m/n' in size <13> not available
+(Font)              size <12> substituted on input line 187.
 
+<Chuong/so-do-chuong-4/screens/màn hình dashboard dành cho admin.png, id=959, 1133.4345pt x 511.31026pt>
+File: Chuong/so-do-chuong-4/screens/màn hình dashboard dành cho admin.png Graphic file (type png)
+<use Chuong/so-do-chuong-4/screens/màn hình dashboard dành cho admin.png>
+Package pdftex.def Info: Chuong/so-do-chuong-4/screens/màn hình dashboard dành cho admin.png  used on input line 191.
+(pdftex.def)             Requested size: 384.1096pt x 173.28143pt.
 
-LaTeX Warning: Reference `fig:Fig2' on page 36 undefined on input line 20.
+Underfull \vbox (badness 6758) has occurred while \output is active []
 
+ [41 <./Chuong/so-do-chuong-4/screens/quản lý tin tuyển dụng.png> <./Chuong/so-do-chuong-4/screens/màn hình AI đánh giá cv ứng viên.png> <./Chuong/so-do-chuong-4/screens/màn hình dashboard dành cho admin.png>]
+<Chuong/so-do-chuong-4/sequence_diagram.png, id=971, 1541.76pt x 1027.84pt>
+File: Chuong/so-do-chuong-4/sequence_diagram.png Graphic file (type png)
+<use Chuong/so-do-chuong-4/sequence_diagram.png>
+Package pdftex.def Info: Chuong/so-do-chuong-4/sequence_diagram.png  used on input line 207.
+(pdftex.def)             Requested size: 405.45047pt x 270.29039pt.
 
-LaTeX Warning: File `Hinhve/Picture2.png' not found on input line 26.
-
-
-Chuong/4_Ket_qua_thuc_nghiem.tex:26: Package pdftex.def Error: File `Hinhve/Picture2.png' not found: using draft setting.
-
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.26     \includegraphics{Hinhve/Picture2.png}
-                                              
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-[36
-
-]
-
-LaTeX Warning: Reference `table:my_label' on page 37 undefined on input line 43.
-
-
-Underfull \vbox (badness 4024) has occurred while \output is active []
-
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[37])
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[38]
-Ch\uhorn \ohorn ng 7.
-(Chuong/5_Giai_phap_dong_gop.tex
-LaTeX Font Info:    Calculating math sizes for size <10.83347> on input line 4.
-
-
-LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <7.58339> not available
-(Font)              size <8> substituted on input line 4.
-
-
-LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <5.41673> not available
-(Font)              size <5> substituted on input line 4.
-
-
-LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <7.58339> not available
-(Font)              size <8> substituted on input line 4.
-
-
-LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <5.41673> not available
-(Font)              size <5> substituted on input line 4.
-
-
-LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <7.58339> not available
-(Font)              size <8> substituted on input line 4.
-
-
-LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <5.41673> not available
-(Font)              size <5> substituted on input line 4.
-
-
-LaTeX Font Warning: Font shape `U/lasy/m/n' in size <7.58339> not available
-(Font)              size <8> substituted on input line 4.
-
-
-LaTeX Font Warning: Font shape `U/lasy/m/n' in size <5.41673> not available
-(Font)              size <5> substituted on input line 4.
-
-) [39
-
-]
-Ch\uhorn \ohorn ng 8.
-(Chuong/6_Ket_luan.tex) [40
-
-] (Chuong/7_Luu_y_tai_lieu_tham_khao.tex
-
-LaTeX Warning: Citation 'hovy1993automated' on page 41 undefined on input line 13.
-
-
-LaTeX Warning: Citation 'peterson2007computer' on page 41 undefined on input line 18.
-
-
-LaTeX Warning: Citation 'NguyenThucHai' on page 41 undefined on input line 20.
-
-
-LaTeX Warning: Citation 'poesio2001discourse' on page 41 undefined on input line 24.
-
-
-LaTeX Warning: Citation 'knott1996data' on page 41 undefined on input line 30.
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [41
-
-]
-
-LaTeX Warning: Citation 'BernersTim' on page 42 undefined on input line 34.
-
-
-Overfull \hbox (10.64345pt too wide) in paragraph at lines 34--36
-[][] \T5/ptm/m/n/13 T. Berners-Lee, \T5/ptm/m/it/13 Hy-per-text trans-fer pro-to-col (HTTP)\T5/ptm/m/n/13 . [On-line]. Avail-
+Underfull \hbox (badness 4859) in paragraph at lines 222--222
+[]|\T5/ptm/m/n/13 Email h�p l�, m�t
  []
 
 
-LaTeX Warning: Citation 'LectureA' on page 42 undefined on input line 37.
+Underfull \hbox (badness 5787) in paragraph at lines 223--223
+[]|\T5/ptm/m/n/13 HTTP 409 Con-
+ []
 
-)
 
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
+Underfull \hbox (badness 10000) in paragraph at lines 225--225
+[]|\T5/ptm/m/n/13 ^^^�ng nh�p ^^_�ng
+ []
 
-[42]
 
-LaTeX Warning: Empty bibliography on input line 316.
+Underfull \hbox (badness 2318) in paragraph at lines 226--226
+[]|\T5/ptm/m/n/13 ^^^�ng nh�p sai m�t
+ []
 
-[43
+
+Underfull \hbox (badness 1226) in paragraph at lines 226--226
+[]|\T5/ptm/m/n/13 HTTP 401 Unau-
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [42 <./Chuong/so-do-chuong-4/sequence_diagram.png (PNG copy)>]
+Underfull \hbox (badness 4048) in paragraph at lines 239--239
+[]|\T5/ptm/m/n/13 Seeker c� CV, job
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 239--239
+[]|\T5/ptm/m/n/13 T�o ap-pli-ca-tion
+ []
+
+
+Underfull \hbox (badness 5787) in paragraph at lines 240--240
+[]|\T5/ptm/m/n/13 HTTP 409 Con-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 242--242
+[]|\T5/ptm/m/n/13 Recruiter c� �ng
+ []
+
+
+Underfull \hbox (badness 6396) in paragraph at lines 254--254
+[]|\T5/ptm/m/n/13 AI tr� l�i b�ng
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 256--256
+[]|\T5/ptm/m/n/13 Recruiter g�i end-
+ []
+
+
+Underfull \hbox (badness 3138) in paragraph at lines 257--257
+[]|\T5/ptm/m/n/13 AI d�ng cv_text,
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [43]
+<Chuong/so-do-chuong-4/deployment_architecture.png, id=984, 1541.76pt x 1027.84pt>
+File: Chuong/so-do-chuong-4/deployment_architecture.png Graphic file (type png)
+<use Chuong/so-do-chuong-4/deployment_architecture.png>
+Package pdftex.def Info: Chuong/so-do-chuong-4/deployment_architecture.png  used on input line 272.
+(pdftex.def)             Requested size: 405.45047pt x 270.29039pt.
+ [44 <./Chuong/so-do-chuong-4/deployment_architecture.png (PNG copy)>]
+<Chuong/so-do-chuong-4/screens/argocd_live.png, id=991, 1145.4795pt x 527.571pt>
+File: Chuong/so-do-chuong-4/screens/argocd_live.png Graphic file (type png)
+<use Chuong/so-do-chuong-4/screens/argocd_live.png>
+Package pdftex.def Info: Chuong/so-do-chuong-4/screens/argocd_live.png  used on input line 289.
+(pdftex.def)             Requested size: 405.45047pt x 186.73758pt.
+ [45 <./Chuong/so-do-chuong-4/screens/argocd_live.png>]
+<Chuong/so-do-chuong-4/screens/grafana_live.png, id=1002, 1144.87724pt x 525.162pt>
+File: Chuong/so-do-chuong-4/screens/grafana_live.png Graphic file (type png)
+<use Chuong/so-do-chuong-4/screens/grafana_live.png>
+Package pdftex.def Info: Chuong/so-do-chuong-4/screens/grafana_live.png  used on input line 303.
+(pdftex.def)             Requested size: 405.45047pt x 185.98106pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [46 <./Chuong/so-do-chuong-4/screens/grafana_live.png>]) [47]
+Ch\uhorn \ohorn ng 5.
+(Chuong/5_Giai_phap_dong_gop.tex
+<Chuong/so-do-chuong-5/flow_cv_extraction_caching.png, id=1014, 1541.76pt x 1027.84pt>
+File: Chuong/so-do-chuong-5/flow_cv_extraction_caching.png Graphic file (type png)
+<use Chuong/so-do-chuong-5/flow_cv_extraction_caching.png>
+Package pdftex.def Info: Chuong/so-do-chuong-5/flow_cv_extraction_caching.png  used on input line 22.
+(pdftex.def)             Requested size: 384.1096pt x 256.0654pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [48
+
+] [49 <./Chuong/so-do-chuong-5/flow_cv_extraction_caching.png (PNG copy)>]
+Overfull \hbox (17.74388pt too wide) in paragraph at lines 41--42
+[]\T5/ptm/b/n/13 Pha 2 (^^^�nh d�ng nh� ph�n): \T5/ptm/m/n/13 Kh�i t�o th�c th� ^^_�c PDF nh� ph�n \T5/pcr/m/n/13 pdf.Reader
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [50]
+<Chuong/so-do-chuong-5/prompt_layered_structure.png, id=1037, 1541.76pt x 1027.84pt>
+File: Chuong/so-do-chuong-5/prompt_layered_structure.png Graphic file (type png)
+<use Chuong/so-do-chuong-5/prompt_layered_structure.png>
+Package pdftex.def Info: Chuong/so-do-chuong-5/prompt_layered_structure.png  used on input line 73.
+(pdftex.def)             Requested size: 384.1096pt x 256.0654pt.
+ [51 <./Chuong/so-do-chuong-5/prompt_layered_structure.png (PNG copy)>]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [52]
+<Chuong/so-do-chuong-5/layered_security_architecture.png, id=1055, 1699.34875pt x 932.48375pt>
+File: Chuong/so-do-chuong-5/layered_security_architecture.png Graphic file (type png)
+<use Chuong/so-do-chuong-5/layered_security_architecture.png>
+Package pdftex.def Info: Chuong/so-do-chuong-5/layered_security_architecture.png  used on input line 128.
+(pdftex.def)             Requested size: 405.45047pt x 222.47742pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [53]
+Overfull \hbox (4.76088pt too wide) in paragraph at lines 138--139
+[]\T5/ptm/m/n/13 Endpoint ph�ng v�n AI (\T5/pcr/m/n/13 /ai/interview-coach\T5/ptm/m/n/13 ): Ch� cho ph�p ng��i
+ []
+
+[54 <./Chuong/so-do-chuong-5/layered_security_architecture.png (PNG copy)>]
+Overfull \hbox (119.61855pt too wide) in paragraph at lines 154--162
+ [][] 
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [55]
+File: Chuong/so-do-chuong-4/screens/argocd_live.png Graphic file (type png)
+<use Chuong/so-do-chuong-4/screens/argocd_live.png>
+Package pdftex.def Info: Chuong/so-do-chuong-4/screens/argocd_live.png  used on input line 195.
+(pdftex.def)             Requested size: 405.45047pt x 186.73758pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [56]
+File: Chuong/so-do-chuong-4/screens/grafana_live.png Graphic file (type png)
+<use Chuong/so-do-chuong-4/screens/grafana_live.png>
+Package pdftex.def Info: Chuong/so-do-chuong-4/screens/grafana_live.png  used on input line 209.
+(pdftex.def)             Requested size: 405.45047pt x 185.98106pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [57]) [58]
+Ch\uhorn \ohorn ng 6.
+(Chuong/6_Ket_luan.tex
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [59
+
+]
+Overfull \hbox (2.0146pt too wide) in paragraph at lines 28--29
+[]\T5/ptm/m/n/13 N�m v�ng ph��ng ph�p thi�t k� K� ngh� Prompt (Prompt En-gi-neer-ing) chuy�n
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [60]) [61]
+Overfull \hbox (26.65419pt too wide) in paragraph at lines 307--307
+\T5/ptm/m/n/13 tra-tion,'' Ac-cessed: May 17, 2026. [On-line]. Avail-able: []$\T5/pcr/m/n/13 https : / / kubernetes .
+ []
+
+
+Overfull \hbox (6.69691pt too wide) in paragraph at lines 307--307
+\T5/ptm/m/n/13 cessed: May 17, 2026. [On-line]. Avail-able: []$\T5/pcr/m/n/13 https : / / learn . microsoft .
+ []
+
+
+Overfull \hbox (26.77121pt too wide) in paragraph at lines 307--307
+\T5/ptm/m/n/13 toolkit,'' Ac-cessed: May 17, 2026. [On-line]. Avail-able: []$\T5/pcr/m/n/13 https : / / prometheus .
+ []
+
+
+Overfull \hbox (21.24391pt too wide) in paragraph at lines 307--307
+\T5/ptm/m/n/13 Ac-cessed: May 17, 2026. [On-line]. Avail-able: []$\T5/pcr/m/n/13 https : / / argoproj . github .
+ []
+
+[62
+
+] [63
 
 ]
 Ph\d {u} l\d {u}c A.
-(Chuong/Phu_luc_A.tex
-Underfull \vbox (badness 10000) has occurred while \output is active []
+(Chuong/Phu_luc_B.tex) [64
 
- [44
-
-]
-
-Chuong/Phu_luc_A.tex:28: LaTeX Error: Environment outline undefined.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.28 \begin{outline}
-                    
-Your command was ignored.
-Type  I <command> <return>  to replace it with another command,
-or  <return>  to continue without it.
-
-Chuong/Phu_luc_A.tex:29: Undefined control sequence.
-l.29  \1
-         Đối với kỹ sư chính quy:
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-Chuong/Phu_luc_A.tex:30: Undefined control sequence.
-l.30    \2
-           Từ K61 trở về trước: Ngành Kỹ thuật phần mềm
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-Chuong/Phu_luc_A.tex:31: Undefined control sequence.
-l.31    \2
-           Từ K62 trở về sau: Ngành Khoa học máy tính
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-Chuong/Phu_luc_A.tex:32: Undefined control sequence.
-l.32  \1
-         Đối với cử nhân:
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-Chuong/Phu_luc_A.tex:33: Undefined control sequence.
-l.33    \2
-           Ngành Công nghệ thông tin
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-Chuong/Phu_luc_A.tex:34: Undefined control sequence.
-l.34  \1
-         Đối với chương trình EliteTech:
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-Chuong/Phu_luc_A.tex:35: Undefined control sequence.
-l.35    \2
-           Chương trình Việt Nhật/KSTN: Ngành Công nghệ thông tin
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-Chuong/Phu_luc_A.tex:36: Undefined control sequence.
-l.36    \2
-           Chương trình ICT Global: Ngành Information Technology
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-Chuong/Phu_luc_A.tex:37: Undefined control sequence.
-l.37    \2
-           Chương trình DS\&AI: Ngành Khoa học dữ liệu
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-Chuong/Phu_luc_A.tex:38: LaTeX Error: \begin{document} ended by \end{outline}.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.38 \end{outline}
-                  
-Your command was ignored.
-Type  I <command> <return>  to replace it with another command,
-or  <return>  to continue without it.
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-
-LaTeX Warning: Reference `table:1' on page 45 undefined on input line 74.
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[45]
-
-LaTeX Warning: File `Hinhve/IoT.png' not found on input line 80.
-
-
-Chuong/Phu_luc_A.tex:80: Package pdftex.def Error: File `Hinhve/IoT.png' not found: using draft setting.
-
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.80 ...hics[width=0.75\linewidth]{Hinhve/IoT.png}
-                                                  
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-LaTeX Warning: Reference `fig:iot' on page 46 undefined on input line 85.
-
-
-Underfull \vbox (badness 1888) has occurred while \output is active []
-
-
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[46]
-
-LaTeX Warning: Citation 'scott2013sdn' on page 47 undefined on input line 92.
-
-
-LaTeX Warning: Citation 'ashton2009internet' on page 47 undefined on input line 92.
-
-
-Overfull \hbox (14.86223pt too wide) in paragraph at lines 92--93
-[]\T5/ptm/m/n/13 . C� th�, sinh vi�n s� d�ng l�nh [][]\T5/pcr/m/n/13 \cite{} []\T5/ptm/m/n/13 nh� sau [].
- []
-
-
-LaTeX Warning: Reference `pt31' on page 47 undefined on input line 98.
-
-
-LaTeX Warning: Reference `pt31' on page 47 undefined on input line 102.
-
-
-LaTeX Warning: Reference `fig:Bia' on page 47 undefined on input line 108.
-
-
-LaTeX Warning: File `Hinhve/Bia.PNG' not found on input line 111.
-
-
-Chuong/Phu_luc_A.tex:111: Package pdftex.def Error: File `Hinhve/Bia.PNG' not found: using draft setting.
-
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.111 ...hics[width=0.5\linewidth]{Hinhve/Bia.PNG}
-                                                  
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-LaTeX Warning: File `Hinhve/GayBia.PNG' not found on input line 123.
-
-
-Chuong/Phu_luc_A.tex:123: Package pdftex.def Error: File `Hinhve/GayBia.PNG' not found: using draft setting.
-
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.123 ...s[width=0.5\linewidth]{Hinhve/GayBia.PNG}
-                                                  
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-)
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[47]
-
-Package fancyhdr Warning: \headheight is too small (10.0pt): 
-(fancyhdr)                Make it at least 17.97902pt, for example:
-(fancyhdr)                \setlength{\headheight}{17.97902pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-7.97902pt}.
-
-[48]
-Ph\d {u} l\d {u}c B.
-(Chuong/Phu_luc_B.tex)
-
-Package glossaries Warning: entry `iaas' indexing changed since previous run (or no previous run) on input line 340.
-
-
-Package glossaries Warning: entry `API' indexing changed since previous run (or no previous run) on input line 340.
-
-
-Package glossaries Warning: entry `EUD' indexing changed since previous run (or no previous run) on input line 340.
-
-
-Package glossaries Warning: entry `GWT' indexing changed since previous run (or no previous run) on input line 340.
-
-
-Package glossaries Warning: entry `HTML' indexing changed since previous run (or no previous run) on input line 340.
-
-
-Package glossaries Warning: Rerun required to get \printnoidxglossary up to date on input line 340.
-
-[49
-
-] (DoAn.aux
-\g__glossaries_gls_ref_acronym_int=\count525
-)
+] (DoAn.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
@@ -2288,41 +1943,24 @@ L3 programming layer <2025-12-24>
 LaTeX Font Warning: Size substitutions with differences
 (Font)              up to 1.0pt have occurred.
 
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
-
-Package rerunfilecheck Warning: File `DoAn.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `DoAn.out':
-(rerunfilecheck)             Before: <no file>
-(rerunfilecheck)             After:  9E323DB5B8C3853B095FFC8838E7FFA2;11920.
-
-Package biblatex Warning: Please (re)run BibTeX on the file(s):
-(biblatex)                DoAn
-(biblatex)                and rerun LaTeX afterwards.
-
+Package rerunfilecheck Info: File `DoAn.out' has not changed.
+(rerunfilecheck)             Checksum: 89F296902F67348307231725ABA05836;17687.
 Package logreq Info: Writing requests to 'DoAn.run.xml'.
 \openout1 = `DoAn.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 33897 strings out of 467871
- 649617 string characters out of 5418376
- 1519124 words of memory out of 5000000
- 62004 multiletter control sequences out of 15000+600000
- 676494 words of font info for 99 fonts, out of 8000000 for 9000
+ 34132 strings out of 467871
+ 659296 string characters out of 5418376
+ 1534230 words of memory out of 5000000
+ 62150 multiletter control sequences out of 15000+600000
+ 671778 words of font info for 82 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 108i,12n,107p,2551b,1023s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi9.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr9.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy9.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/vntex/urwvn/ucrr8v.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/vntex/urwvn/utmb8v.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/vntex/urwvn/utmr8v.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/vntex/urwvn/utmri8v.pfb>
-Output written on DoAn.pdf (62 pages, 8858861 bytes).
+ 108i,12n,107p,2551b,1332s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\Admin\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tctt1200.pk><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi9.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/vntex/urwvn/ucrr8v.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/vntex/urwvn/utmb8v.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/vntex/urwvn/utmr8v.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/vntex/urwvn/utmri8v.pfb>
+Output written on DoAn.pdf (83 pages, 23535794 bytes).
 PDF statistics:
- 575 PDF objects out of 1000 (max. 8388607)
- 206 named destinations out of 1000 (max. 500000)
- 136 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1253 PDF objects out of 1440 (max. 8388607)
+ 296 named destinations out of 1000 (max. 500000)
+ 877 words of extra memory for PDF output out of 10000 (max. 10000000)
 

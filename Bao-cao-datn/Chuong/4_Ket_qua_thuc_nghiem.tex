@@ -1,71 +1,342 @@
 \documentclass[../DoAn.tex]{subfiles}
 \begin{document}
 
+\section{Tổng quan}
+Chương 3 đã trình bày chi tiết về phân tích yêu cầu, thiết kế Use Case, cơ sở dữ liệu và giao diện của hệ thống. Dựa trên bản thiết kế đó, chương này trình bày toàn bộ quá trình xây dựng, hiện thực hóa và kiểm thử hệ thống ``JobBridge AI''. Nội dung bao gồm kiến trúc phần mềm được áp dụng, các công nghệ và công cụ sử dụng, kết quả xây dựng, minh họa các chức năng chính, kịch bản kiểm thử, và quy trình triển khai lên môi trường thực tế.
+
 \section{Thiết kế kiến trúc}
+\label{sec:thiet-ke-kien-truc}
+
 \subsection{Lựa chọn kiến trúc phần mềm}
-Mục này có độ dài từ một đến ba trang. Sinh viên cần lựa chọn kiến trúc phần mềm cho ứng dụng của mình như: kiến trúc ba lớp MVC, MVP, SOA, Microservice, v.v. rồi giải thích sơ bộ về kiến trúc đó (không giải thích chi tiết/dài dòng).
-Sử dụng kiến trúc phần mềm đã chọn ở trên, sinh viên mô tả kiến trúc cụ thể cho ứng dụng của mình. Gợi ý: sinh viên áp dụng lý thuyết chung vào hệ thống/sản phẩm của mình như thế nào, có thay đổi, bổ sung hoặc cải tiến gì không. Ví dụ, thành phần M trong kiến trúc lý thuyết MVC sẽ là những thành phần cụ thể nào (ví dụ: là interface I + class C1 + class C2, v.v.) trong kiến trúc phần mềm của sinh viên.
+\label{ssec:lua-chon-kien-truc}
+Hệ thống ``JobBridge AI'' được xây dựng theo kiến trúc \textbf{Microservices} kết hợp với mô hình \textbf{Clean Architecture} (Handler -- Repository -- Model) bên trong mỗi service. Đây là sự lựa chọn phù hợp vì:
 
-\subsection{Thiết kế tổng quan}
-Sinh viên vẽ biểu đồ gói UML (UML package diagram), nêu rõ sự phụ thuộc giữa các gói (package). SV cần vẽ các gói sao cho chúng được phân theo các tầng rõ ràng, không được sắp đặt package lộn xộn trong hình vẽ. Sinh viên chú ý các quy tắc thiết kế (Các gói không phụ thuộc lẫn nhau, gói tầng dưới không phụ thuộc gói tầng trên, không phụ thuộc bỏ qua tầng, v.v.) và cần giải thích sơ lược về mục đích/nhiệm vụ của từng package. SV tham khảo ví dụ minh họa trong Hình \ref{fig:Fig1}
+\begin{itemize}
+    \item \textbf{Tách biệt trách nhiệm:} Mỗi service chỉ đảm nhận một miền nghiệp vụ duy nhất (xác thực, việc làm, AI), giúp mã nguồn dễ hiểu và bảo trì.
+    \item \textbf{Triển khai độc lập:} Mỗi service được đóng gói thành Docker image riêng, có thể cập nhật mà không ảnh hưởng service khác.
+    \item \textbf{Mở rộng linh hoạt:} Khi tải tăng, chỉ cần scale riêng service bị quá tải (ví dụ AI Service) mà không cần scale toàn hệ thống.
+\end{itemize}
+
+Hệ thống bao gồm 4 service backend viết bằng Go, một ứng dụng Frontend React, và một cơ sở dữ liệu MongoDB dùng chung.
+
+\begin{itemize}
+    \item \textbf{API Gateway (Port 8080):} Điểm vào duy nhất, chịu trách nhiệm xác thực JWT và định tuyến request đến đúng service.
+    \item \textbf{Auth Service (Port 8081):} Quản lý người dùng, xác thực, phân quyền, upload avatar/CV lên Cloudinary, trích xuất text từ PDF.
+    \item \textbf{Jobs Service (Port 8082):} CRUD tin tuyển dụng, tìm kiếm với bộ lọc đa tiêu chí, quản lý hồ sơ ứng tuyển.
+    \item \textbf{AI Service (Port 8085):} Tích hợp OpenAI API để cung cấp chức năng Interview Coach, Interview Quiz và đánh giá CV.
+\end{itemize}
+
+\subsection{Thiết kế tổng quan (UML Package Diagram)}
+\label{ssec:thiet-ke-tong-quan}
+Hình \ref{fig:package-diagram} thể hiện sơ đồ gói UML mô tả sự phân tầng và phụ thuộc giữa các module trong hệ thống. Các gói được tổ chức theo nguyên tắc một chiều: tầng trên phụ thuộc tầng dưới, không có phụ thuộc ngược.
+
 \begin{figure}[H]
     \centering
-    \includegraphics{Hinhve/Picture1.png}
-    \caption{Ví dụ biểu đồ phụ thuộc gói}
-    \label{fig:Fig1}
+    \includegraphics[width=0.85\textwidth]{so-do-chuong-4/package_diagram.png}
+    \caption{Sơ đồ gói UML (Package Diagram) của hệ thống JobBridge AI.}
+    \label{fig:package-diagram}
 \end{figure}
-\subsection{Thiết kế chi tiết gói}
-Sinh viên thiết kế và lần lượt vẽ biểu đồ thiết kế cho từng package, hoặc một nhóm các package liên quan để giải quyết một vấn đề gì đó. Khi vẽ thiết kế gói, sinh viên chỉ cần đưa tên lớp, không cần chỉ ra các thành viên phương thức và thuộc tính. SV tham khảo ví dụ minh họa trong Hình \ref{fig:Fig2}.
 
-Sinh viên cần vẽ rõ ràng quan hệ giữa các lớp trong biểu đồ. Các quan hệ bao gồm: phụ thuộc (dependency), kết hợp (association), kết tập (aggregation), hợp thành (composition), kế thừa (inheritance), và thực thi (implementation). Các quan hệ này đều đã được minh họa trong \ref{fig:Fig2}.
+Tầng \texttt{Frontend} (React SPA) phụ thuộc vào \texttt{API Gateway}. Gateway định tuyến đến ba service: \texttt{Auth}, \texttt{Jobs}, \texttt{AI}. Các service này phụ thuộc vào tầng \texttt{Data} (MongoDB). Riêng AI Service tương tác thêm với \texttt{OpenAI API} bên ngoài.
 
-Sau khi vẽ hình minh họa, sinh viên cần giải thích ngắn gọn về thiết kế của mình. 
+\subsection{Thiết kế chi tiết gói (UML Class Diagram)}
+\label{ssec:thiet-ke-class}
+Hình \ref{fig:class-diagram} mô tả thiết kế lớp chi tiết cho các package chính. Mỗi service áp dụng mô hình Handler -- Repository -- Model:
+
+\begin{itemize}
+    \item \textbf{Handler:} Tiếp nhận HTTP request, validate dữ liệu đầu vào, gọi Repository, trả về response.
+    \item \textbf{Repository:} Thực hiện các thao tác với MongoDB (CRUD), trừu tượng hóa tầng dữ liệu.
+    \item \textbf{Model:} Định nghĩa cấu trúc dữ liệu (struct Go) ánh xạ với document MongoDB.
+\end{itemize}
 
 \begin{figure}[H]
     \centering
-    \includegraphics{Hinhve/Picture2.png}
-    \caption{Ví dụ thiết kế gói}
-    \label{fig:Fig2}
+    \includegraphics[width=0.95\textwidth]{so-do-chuong-4/class_diagram.png}
+    \caption{Sơ đồ lớp UML (Class Diagram) của các package Auth, Jobs và AI.}
+    \label{fig:class-diagram}
 \end{figure}
 
-\section{Thiết kế chi tiết}
-\subsection{Thiết kế giao diện}
-Phần này có độ dài từ hai đến ba trang. Sinh viên đặc tả thông tin về màn hình mà ứng dụng của mình hướng tới, bao gồm độ phân giải màn hình, kích thước màn hình, số lượng màu sắc hỗ trợ, v.v. Tiếp đến, sinh viên đưa ra các thống nhất/chuẩn hóa của mình khi thiết kế giao diện như thiết kế nút, điều khiển, vị trí hiển thị thông điệp phản hồi, phối màu, v.v. Sau cùng sinh viên đưa ra một số hình ảnh minh họa thiết kế giao diện cho các chức năng quan trọng nhất. Lưu ý, sinh viên không nhầm lẫn giao diện thiết kế với giao diện của sản phẩm sau cùng.
-\subsection{Thiết kế lớp}
-Phần này có độ dài từ ba đến bốn trang. Sinh viên trình bày thiết kế chi tiết các thuộc tính và phương thức cho một số lớp chủ đạo/quan trọng nhất của ứng dụng (từ 2-4 lớp). Thiết kế chi tiết cho các lớp khác, nếu muốn trình bày, sinh viên đưa vào phần phụ lục.
-
-Để minh họa thiết kế lớp, sinh viên thiết kế luồng truyền thông điệp giữa các đối tượng tham gia cho 2 đến 3 use case quan trọng nào đó bằng biểu đồ trình tự (hoặc biểu đồ giao tiếp).
-\subsection{Thiết kế cơ sở dữ liệu}
-Phần này có độ dài từ hai đến bốn trang. Sinh viên thiết kế, vẽ và giải thích biểu đồ thực thể liên kết (E-R diagram). Từ đó, sinh viên thiết kế cơ sở dữ liệu tùy theo hệ quản trị cơ sở dữ liệu mà mình sử dụng (SQL, NoSQL, Firebase, v.v.)
+Các mối quan hệ chính: \texttt{AIHandler} phụ thuộc \texttt{ApplicationRepository}, \texttt{UserRepository} và \texttt{JobRepository} để thu thập đầy đủ ngữ cảnh trước khi gọi OpenAI. \texttt{AuthHandler} sở hữu cả \texttt{UserRepository} và \texttt{CompanyRepository}.
 
 \section{Xây dựng ứng dụng}
+\label{sec:xay-dung-ung-dung}
+
 \subsection{Thư viện và công cụ sử dụng}
-Sinh viên liệt kê các công cụ, ngôn ngữ lập trình, API, thư viện, IDE, công cụ kiểm thử, v.v. mà mình sử dụng để phát triển ứng dụng. Mỗi công cụ phải được chỉ rõ phiên bản sử dụng. SV nên kẻ bảng mô tả tương tự như Bảng \ref{table:my_label}. Nếu có nhiều nội dung trình bày, sinh viên cần xoay ngang bảng.
+\label{ssec:thu-vien-cong-cu}
+Bảng \ref{tab:tools} liệt kê các công cụ, ngôn ngữ và thư viện chính được sử dụng trong quá trình phát triển hệ thống.
 
 \begin{table}[H]
-\centering{}
-    \begin{tabular}{lll}
-        \hline
-        \textbf{Mục đích} & \textbf{Công cụ}       & \textbf{Địa chỉ URL}    \\ \hline
-        IDE lập trình     & Eclipse Oxygen a64 bit & http://www.eclipse.org/ \\ \hline
-        v.v.              & v.v.                   & v.v.                    \\ \hline
-        \end{tabular}
-    \caption{Danh sách thư viện và công cụ sử dụng}
-    \label{fig:my_label}
+\centering
+\caption{Danh sách công cụ và thư viện sử dụng.}
+\label{tab:tools}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Mục đích} & \textbf{Công cụ / Thư viện} & \textbf{Phiên bản} \\ \hline
+Ngôn ngữ Backend & Go (Golang) & 1.24.1 \\ \hline
+Web Framework & Gin Gonic & v1.10.0 \\ \hline
+Database Driver & MongoDB Driver Go & v2.5.0 \\ \hline
+Xác thực & golang-jwt & v5.3.1 \\ \hline
+Mã hóa mật khẩu & bcrypt (x/crypto) & v0.48.0 \\ \hline
+Trích xuất PDF & ledongthuc/pdf & latest \\ \hline
+Upload file & Cloudinary SDK & -- \\ \hline
+Ngôn ngữ Frontend & TypeScript & $\sim$5.9.3 \\ \hline
+UI Framework & React & v19.2.4 \\ \hline
+Build Tool & Vite & v8.0.0 \\ \hline
+CSS Framework & Tailwind CSS & v4.2.1 \\ \hline
+Icon Library & lucide-react & v0.577.0 \\ \hline
+Unit Test FE & Vitest & v3.2.4 \\ \hline
+Container & Docker (multi-stage) & 27.x \\ \hline
+Orchestration & Kubernetes (AKS) & 1.29.x \\ \hline
+Package Manager & Helm & v3.x \\ \hline
+GitOps & ArgoCD & v2.x \\ \hline
+CI Pipeline & GitHub Actions & -- \\ \hline
+IaC & Terraform & v1.7.x \\ \hline
+Giám sát & Prometheus + Grafana & -- \\ \hline
+IDE & Visual Studio Code & latest \\ \hline
+\end{tabular}
 \end{table}
 
 \subsection{Kết quả đạt được}
-Sinh viên trước tiên mô tả kết quả đạt được của mình là gì, ví dụ như các sản phẩm được đóng gói là gì, bao gồm những thành phần nào, ý nghĩa, vai trò?
+\label{ssec:ket-qua-dat-duoc}
+Sau quá trình xây dựng, hệ thống ``JobBridge AI'' đã được hoàn thiện với các thành phần được thống kê trong Bảng \ref{tab:stats}.
 
-Sinh viên cần thống kê các thông tin về ứng dụng của mình như: số dòng code, số lớp, số gói, dung lượng toàn bộ mã nguồn, dung lượng của từng sản phẩm đóng gói, v.v. Tương tự như phần liệt kê về công cụ sử dụng, sinh viên cũng nên dùng bảng để mô tả phần thông tin thống kê này.
+\begin{table}[H]
+\centering
+\caption{Thống kê mã nguồn và thành phần hệ thống.}
+\label{tab:stats}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Chỉ số} & \textbf{Giá trị} \\ \hline
+Số microservice backend & 4 (Gateway, Auth, Jobs, AI) \\ \hline
+Số collection MongoDB & 4 (users, companies, jobs, applications) \\ \hline
+Số API endpoint & $\sim$30 endpoint \\ \hline
+Số trang giao diện & $\sim$20 trang (Admin, HR, Seeker, Public) \\ \hline
+Số Dockerfile & 7 file \\ \hline
+Số Terraform layer & 3 (Foundation, Cluster, Security) \\ \hline
+Số Helm template & 8 file \\ \hline
+Số GitHub Actions workflow & 4 workflow \\ \hline
+\end{tabular}
+\end{table}
+
+Sản phẩm đầu ra gồm hai thành phần chính: (1) Bộ mã nguồn backend Go và frontend TypeScript/React được tổ chức theo monorepo; (2) Bộ cấu hình hạ tầng triển khai trên Azure (Terraform + Helm + ArgoCD). Toàn bộ hệ thống được vận hành tại địa chỉ \texttt{jobbridge.duckdns.org}.
 
 \subsection{Minh họa các chức năng chính}
-Sinh viên lựa chọn và đưa ra màn hình cho các chức năng chính, quan trọng, và thú vị nhất. Mỗi giao diện cần phải có lời giải thích ngắn gọn. Khi giải thích, sinh viên có thể kết hợp với các chú thích ở trong hình ảnh giao diện.
+\label{ssec:minh-hoa-chuc-nang}
+
+\subsubsection{Luồng xác thực và khởi tạo tài khoản}
+Người dùng mới thực hiện đăng ký bằng email, sau đó được chuyển hướng đến trang onboarding để chọn vai trò (ứng viên hoặc nhà tuyển dụng) và điền thông tin cơ bản. Sau bước này, hệ thống cấp phát JWT và cho phép truy cập các chức năng tương ứng với vai trò đã chọn.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{so-do-chuong-4/screens/màn hình đăng ký.png}
+        \caption{Màn hình đăng ký tài khoản}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{so-do-chuong-4/screens/man_hinh_dang_nhap.png}
+        \caption{Màn hình đăng nhập}
+    \end{subfigure}
+    \caption{Giao diện xác thực người dùng.}
+    \label{fig:ui-auth}
+\end{figure}
+
+\subsubsection{Tìm kiếm và ứng tuyển việc làm}
+Ứng viên có thể tìm kiếm việc làm theo từ khóa, lọc theo địa điểm, mức lương, loại hình công việc và cấp độ kinh nghiệm. Giao diện hiển thị danh sách kết quả với thông tin tóm tắt; nhấp vào từng thẻ sẽ hiển thị chi tiết mô tả công việc, yêu cầu và quyền lợi. Ứng viên nộp hồ sơ chỉ với một thao tác, hệ thống tự động liên kết CV đã upload trên hồ sơ cá nhân.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{so-do-chuong-4/screens/màn hình danh sách việc làm.png}
+    \caption{Giao diện trang tìm kiếm và danh sách việc làm.}
+    \label{fig:ui-job-list}
+\end{figure}
+
+\subsubsection{AI Interview Coach}
+Đây là tính năng nổi bật dành cho ứng viên. Sau khi đã ứng tuyển một vị trí, ứng viên có thể chọn job đó trong giao diện AI Coach và bắt đầu phiên luyện tập phỏng vấn. Hệ thống AI đóng vai một nhà tuyển dụng senior, đặt câu hỏi dựa trên JD và CV của ứng viên, đánh giá câu trả lời và đưa ra phản hồi chi tiết. Toàn bộ lịch sử hội thoại được gửi kèm trong mỗi request để duy trì ngữ cảnh liên tục.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{so-do-chuong-4/screens/màn hình ai-coach.png}
+    \caption{Giao diện tính năng AI Interview Coach.}
+    \label{fig:ui-ai-coach}
+\end{figure}
+
+\subsubsection{Quản lý tuyển dụng và đánh giá CV bằng AI}
+Nhà tuyển dụng có thể tạo, chỉnh sửa và đóng/mở các tin tuyển dụng. Khi xem danh sách ứng viên của một vị trí, nhà tuyển dụng nhấn ``Phân tích CV'' để AI tự động đọc CV của ứng viên, đối chiếu với JD và trả về điểm phù hợp (0--100) cùng nhận xét ngắn gọn. Tính năng này giúp tiết kiệm đáng kể thời gian sàng lọc hồ sơ thủ công.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{so-do-chuong-4/screens/quản lý tin tuyển dụng.png}
+        \caption{Quản lý tin tuyển dụng}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{so-do-chuong-4/screens/màn hình AI đánh giá cv ứng viên.png}
+        \caption{AI đánh giá CV ứng viên}
+    \end{subfigure}
+    \caption{Giao diện chức năng dành cho Nhà tuyển dụng.}
+    \label{fig:ui-hr}
+\end{figure}
+
+\subsubsection{Dashboard Quản trị viên}
+Quản trị viên theo dõi tổng quan hệ thống qua dashboard hiển thị số lượng người dùng, công ty và tin tuyển dụng. Admin có thể duyệt/từ chối công ty mới đăng ký (thay đổi \texttt{status: pending → approved/rejected}) và khóa/mở tài khoản người dùng vi phạm (\texttt{is\_locked}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{so-do-chuong-4/screens/màn hình dashboard dành cho admin.png}
+    \caption{Giao diện Dashboard dành cho Quản trị viên.}
+    \label{fig:ui-admin}
+\end{figure}
 
 \section{Kiểm thử}
-Phần này có độ dài từ hai đến ba trang. Sinh viên thiết kế các trường hợp kiểm thử cho hai đến ba chức năng quan trọng nhất. Sinh viên cần chỉ rõ các kỹ thuật kiểm thử đã sử dụng. Chi tiết các trường hợp kiểm thử khác, nếu muốn trình bày, sinh viên đưa vào phần phụ lục.
-Sinh viên sau cùng tổng kết về số lượng các trường hợp kiểm thử và kết quả kiểm thử. Sinh viên cần phân tích lý do nếu kết quả kiểm thử không đạt.
-\section{Triển khai}
-Sinh viên trình bày mô hình và/hoặc cách thức triển khai thử nghiệm/thực tế. Ứng dụng của sinh viên được triển khai trên server/thiết bị gì, cấu hình như thế nào. Kết quả triển khai thử nghiệm nếu có (số lượng người dùng, số lượng truy cập, thời gian phản hồi, phản hồi người dùng, khả năng chịu tải, các thống kê, v.v.)
+\label{sec:kiem-thu}
+
+\subsection{Phương pháp kiểm thử}
+Hệ thống được kiểm thử theo hai hướng: kiểm thử tự động (unit test) ở cấp độ hàm/module và kiểm thử tích hợp thủ công ở cấp độ API và giao diện.
+
+\subsection{Biểu đồ trình tự các luồng nghiệp vụ chính}
+Hình \ref{fig:sequence-diagram} mô tả luồng truyền thông điệp giữa các thành phần hệ thống cho các use case quan trọng: ứng tuyển việc làm và luyện phỏng vấn với AI.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{so-do-chuong-4/sequence_diagram.png}
+    \caption{Biểu đồ trình tự (Sequence Diagram) cho luồng ứng tuyển và AI Interview.}
+    \label{fig:sequence-diagram}
+\end{figure}
+
+\subsection{Các trường hợp kiểm thử}
+
+\subsubsection{Kiểm thử chức năng Đăng ký / Đăng nhập}
+\begin{table}[H]
+\centering
+\caption{Test cases cho chức năng xác thực.}
+\label{tab:tc-auth}
+\begin{tabular}{|c|p{4cm}|p{3.5cm}|p{3.5cm}|}
+\hline
+\textbf{TC} & \textbf{Đầu vào} & \textbf{Kết quả mong đợi} & \textbf{Kết quả thực tế} \\ \hline
+TC01 & Email hợp lệ, mật khẩu $\geq$6 ký tự & Tạo tài khoản, trả JWT & Đạt \\ \hline
+TC02 & Email đã tồn tại & HTTP 409 Conflict & Đạt \\ \hline
+TC03 & Email sai định dạng & HTTP 400 Bad Request & Đạt \\ \hline
+TC04 & Đăng nhập đúng thông tin & Trả JWT hợp lệ & Đạt \\ \hline
+TC05 & Đăng nhập sai mật khẩu & HTTP 401 Unauthorized & Đạt \\ \hline
+TC06 & Tài khoản bị khóa & HTTP 403 Forbidden & Đạt \\ \hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Kiểm thử chức năng Ứng tuyển việc làm}
+\begin{table}[H]
+\centering
+\caption{Test cases cho chức năng ứng tuyển.}
+\label{tab:tc-apply}
+\begin{tabular}{|c|p{4cm}|p{3.5cm}|p{3.5cm}|}
+\hline
+\textbf{TC} & \textbf{Đầu vào} & \textbf{Kết quả mong đợi} & \textbf{Kết quả thực tế} \\ \hline
+TC07 & Seeker có CV, job đang mở & Tạo application thành công & Đạt \\ \hline
+TC08 & Ứng tuyển trùng job & HTTP 409 Conflict & Đạt \\ \hline
+TC09 & Job đã đóng & HTTP 400 Bad Request & Đạt \\ \hline
+TC10 & Recruiter cố ứng tuyển & HTTP 403 Forbidden & Đạt \\ \hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Kiểm thử chức năng AI Interview Coach}
+\begin{table}[H]
+\centering
+\caption{Test cases cho AI Interview Coach.}
+\label{tab:tc-ai}
+\begin{tabular}{|c|p{4cm}|p{3.5cm}|p{3.5cm}|}
+\hline
+\textbf{TC} & \textbf{Đầu vào} & \textbf{Kết quả mong đợi} & \textbf{Kết quả thực tế} \\ \hline
+TC11 & Seeker đã apply, gửi câu hỏi & AI trả lời bằng tiếng Việt & Đạt \\ \hline
+TC12 & Seeker chưa apply job đó & HTTP 403 Forbidden & Đạt \\ \hline
+TC13 & Recruiter gọi endpoint seeker & HTTP 403 Forbidden & Đạt \\ \hline
+TC14 & CV có sẵn trong DB & AI dùng cv\_text, không fetch lại & Đạt \\ \hline
+\end{tabular}
+\end{table}
+
+\subsection{Kết quả tổng hợp kiểm thử}
+Tổng cộng 14 trường hợp kiểm thử đã được thực hiện, tất cả đều đạt kết quả đúng với kỳ vọng. Ngoài ra, 12 unit test tự động được tích hợp trong pipeline CI (Go test) chạy tự động mỗi khi có commit mới, bao gồm kiểm thử các hàm xác thực token, truy vấn repository và xử lý lỗi.
+
+\section{Triển khai và Vận hành}
+\label{sec:trien-khai}
+
+\subsection{Quy trình CI/CD và Vận hành GitOps}
+Hệ thống áp dụng quy trình CI/CD hoàn toàn tự động theo mô hình GitOps, được minh họa tổng quan kiến trúc hạ tầng trong Hình \ref{fig:deployment}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{so-do-chuong-4/deployment_architecture.png}
+    \caption{Sơ đồ kiến trúc triển khai trên Azure Kubernetes Service.}
+    \label{fig:deployment}
+\end{figure}
+
+Luồng triển khai diễn ra theo các bước:
+\begin{enumerate}
+    \item \textbf{Developer push code} lên nhánh \texttt{main} của GitHub repository.
+    \item \textbf{GitHub Actions CI} tự động kích hoạt: chạy unit test, build Docker image theo multi-stage build, quét bảo mật bằng Trivy, đẩy image lên Azure Container Registry (ACR) với tag là SHA commit.
+    \item \textbf{CD workflow} cập nhật file \texttt{values-azure-argocd.yaml} với image tag mới và tạo commit tự động lên repository cấu hình GitOps.
+    \item \textbf{ArgoCD} (chạy trong AKS) phát hiện sự thay đổi giữa trạng thái mong muốn (Desired State) trên Git và trạng thái thực tế (Actual State) trong Cluster, tiến hành đồng bộ tự động.
+\end{enumerate}
+
+Để quản lý trạng thái đồng bộ này, giao diện quản trị ArgoCD hiển thị trực quan các tài nguyên Kubernetes được triển khai và mối quan hệ giữa chúng, được minh họa thực tế ở Hình \ref{fig:argocd-live}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{so-do-chuong-4/screens/argocd_live.png}
+    \caption{Trạng thái đồng bộ hóa GitOps của ứng dụng JobBridge trên giao diện ArgoCD.}
+    \label{fig:argocd-live}
+\end{figure}
+
+Giao diện ArgoCD xác nhận toàn bộ hệ thống gồm Ingress, Frontend, Gateway và các microservices (Auth, Jobs, AI, MongoDB) đều ở trạng thái \texttt{Healthy} và \texttt{Synced} thành công về phiên bản commit mới nhất mà không gây gián đoạn dịch vụ (Zero-downtime rolling update).
+
+\subsection{Giám sát hệ thống (Observability)}
+Để đảm bảo khả năng chịu tải và tính ổn định của hệ thống microservices vận hành trên AKS, một giải pháp giám sát tập trung sử dụng Prometheus và Grafana đã được tích hợp trong namespace \texttt{monitoring}. Prometheus chịu trách nhiệm thu thập các metric hệ thống (CPU, Memory, Network traffic, HTTP Request Rate, Error Rate), trong khi Grafana cung cấp giao diện hiển thị trực quan.
+
+Hình \ref{fig:grafana-live} mô tả thực tế dashboard giám sát sức khỏe của các Pod và API (\textit{API \& Pod Health Dashboard}) khi hệ thống hoạt động.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{so-do-chuong-4/screens/grafana_live.png}
+    \caption{Dashboard giám sát sức khỏe API và trạng thái Pod trên Grafana.}
+    \label{fig:grafana-live}
+\end{figure}
+
+Số liệu thực tế hiển thị trên Grafana chứng minh:
+\begin{itemize}
+    \item \textbf{Pod Ready (\%):} Đạt mức $100\%$, chứng tỏ tất cả các bản sao (replica) của các microservice đều đang hoạt động tốt và sẵn sàng nhận request.
+    \item \textbf{HTTP Error Rate 4xx/5xx (\%):} Giữ ở mức $0\%$, không ghi nhận các lỗi hệ thống nghiêm trọng hay lỗi crash server trong thời gian đo đạc.
+    \item \textbf{Incoming Traffic (req/s):} Biểu đồ lưu lượng truy cập thực tế theo thời gian thực giúp quản trị viên phát hiện bất thường về tải hoặc các cuộc tấn công DDoS.
+    \item \textbf{Traffic by Pod (Rx/Tx bytes/s):} Giám sát băng thông vào/ra chi tiết cho từng pod riêng biệt (Frontend, Gateway, AI, Auth), hỗ trợ đắc lực cho việc định lượng tài nguyên (Resource dimensioning) khi scale hệ thống.
+\end{itemize}
+
+\subsection{Cấu hình Môi trường triển khai}
+\begin{table}[H]
+\centering
+\caption{Cấu hình môi trường triển khai thực tế trên Azure.}
+\label{tab:deployment-config}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Thành phần} & \textbf{Cấu hình} \\ \hline
+Nền tảng & Azure Kubernetes Service (AKS) \\ \hline
+Số node & 1 node (tối ưu chi phí) \\ \hline
+Network plugin & kubenet \\ \hline
+Container Registry & Azure Container Registry (acrjobbridge) \\ \hline
+Secrets & Azure Key Vault (kv-jobbridge) \\ \hline
+DNS & DuckDNS (jobbridge.duckdns.org) \\ \hline
+TLS & Let's Encrypt (cert-manager) \\ \hline
+File storage & Cloudinary CDN (avatar, CV) \\ \hline
+Giám sát & Prometheus + Grafana (namespace: monitoring) \\ \hline
+\end{tabular}
+\end{table}
+
+\subsection{Kết quả vận hành thực nghiệm}
+Hệ thống đã được triển khai thành công lên Azure AKS và vận hành ổn định. Các Pod của 4 service backend và frontend đều ở trạng thái \texttt{Running} ổn định. Thời gian phản hồi trung bình của các API thông thường dưới 200ms; các API gọi OpenAI phụ thuộc vào thời gian inference của mô hình, trung bình từ 2--4 giây. Nhờ cơ chế cache CV text, thời gian chuẩn bị dữ liệu đầu vào cho AI được rút ngắn đáng kể, giúp tăng trải nghiệm người dùng.
+
+\section{Kết chương}
+Chương này đã trình bày toàn bộ quá trình hiện thực hóa hệ thống ``JobBridge AI'', từ kiến trúc phần mềm, danh sách công cụ, đến kết quả xây dựng, minh họa chức năng, kiểm thử và triển khai thực tế có tích hợp GitOps ArgoCD và giám sát Observability Prometheus/Grafana. Hệ thống đã đáp ứng đầy đủ các yêu cầu chức năng và phi chức năng đề ra ở Chương 3. Chương tiếp theo sẽ đi sâu phân tích các giải pháp kỹ thuật nổi bật và đóng góp khoa học cốt lõi của đồ án.
 
 \end{document}
