@@ -277,9 +277,15 @@ Hệ thống áp dụng quy trình CI/CD hoàn toàn tự động theo mô hình
 Luồng triển khai diễn ra theo các bước:
 \begin{enumerate}
     \item \textbf{Developer push code} lên nhánh \texttt{main} của GitHub repository.
-    \item \textbf{GitHub Actions CI} tự động kích hoạt: chạy unit test, build Docker image theo multi-stage build, quét bảo mật bằng Trivy, đẩy image lên Azure Container Registry (ACR) với tag là SHA commit.
-    \item \textbf{CD workflow} cập nhật file \texttt{values-azure-argocd.yaml} với image tag mới và tạo commit tự động lên repository cấu hình GitOps.
-    \item \textbf{ArgoCD} (chạy trong AKS) phát hiện sự thay đổi giữa trạng thái mong muốn (Desired State) trên Git và trạng thái thực tế (Actual State) trong Cluster, tiến hành đồng bộ tự động.
+    \item \textbf{GitHub Actions CI Pipeline} tự động kích hoạt theo thứ tự:
+    \begin{itemize}
+        \item \textbf{Kiểm tra chất lượng mã nguồn:} Chạy bộ unit test Go và tích hợp \textbf{SonarCloud} để phân tích tĩnh mã nguồn, phát hiện code smell, lỗ hổng bảo mật và độ bao phủ kiểm thử. Pipeline dừng lại nếu SonarCloud Quality Gate không đạt.
+        \item \textbf{Build image với Kaniko:} Thay vì dùng Docker daemon (yêu cầu quyền root), hệ thống sử dụng \textbf{Kaniko} để build Docker image trực tiếp trong container GitHub Actions mà không cần đặc quyền. Các service Go biên dịch binary trong \texttt{golang:1.24} rồi copy vào base image \textit{distroless} (không có shell, kích thước tối thiểu). Frontend build trong \texttt{node:22} rồi serve bằng \texttt{nginx:1.27}.
+        \item \textbf{Quét bảo mật image (Trivy):} Sau khi build, \textbf{Trivy} quét toàn bộ image tìm kiếm các lỗ hổng CVE ở mức độ \texttt{HIGH} và \texttt{CRITICAL}. Pipeline thất bại và không đẩy image nếu phát hiện lỗ hổng nghiêm trọng.
+        \item \textbf{Đẩy image lên ACR:} Image được tag bằng \textbf{7 ký tự đầu của SHA commit} (ví dụ: \texttt{gateway:3e3e215}) giúp truy vết chính xác phiên bản đang chạy trên production.
+    \end{itemize}
+    \item \textbf{CD workflow} tự động cập nhật trường \texttt{image.tag} trong file \texttt{values-azure-argocd.yaml} với SHA tag mới và tạo commit lên repository cấu hình GitOps.
+    \item \textbf{ArgoCD} (chạy trong AKS) phát hiện sự thay đổi giữa trạng thái mong muốn (Desired State) trên Git và trạng thái thực tế (Actual State) trong Cluster, tiến hành đồng bộ tự động theo chiến lược Rolling Update.
 \end{enumerate}
 
 Để quản lý trạng thái đồng bộ này, giao diện quản trị ArgoCD hiển thị trực quan các tài nguyên Kubernetes được triển khai và mối quan hệ giữa chúng, được minh họa thực tế ở Hình \ref{fig:argocd-live}.
@@ -293,24 +299,63 @@ Luồng triển khai diễn ra theo các bước:
 
 Giao diện ArgoCD xác nhận toàn bộ hệ thống gồm Ingress, Frontend, Gateway và các microservices (Auth, Jobs, AI, MongoDB) đều ở trạng thái \texttt{Healthy} và \texttt{Synced} thành công về phiên bản commit mới nhất mà không gây gián đoạn dịch vụ (Zero-downtime rolling update).
 
-\subsection{Giám sát hệ thống (Observability)}
-Để đảm bảo khả năng chịu tải và tính ổn định của hệ thống microservices vận hành trên AKS, một giải pháp giám sát tập trung sử dụng Prometheus và Grafana đã được tích hợp trong namespace \texttt{monitoring}. Prometheus chịu trách nhiệm thu thập các metric hệ thống (CPU, Memory, Network traffic, HTTP Request Rate, Error Rate), trong khi Grafana cung cấp giao diện hiển thị trực quan.
+\subsection{Cấu hình tài nguyên Kubernetes}
+\label{ssec:k8s-resource-config}
+Ngoài các tài nguyên Deployment và Service cơ bản, hệ thống còn cấu hình hai tài nguyên quan trọng để đảm bảo tính sẵn sàng và khả năng co giãn tự động: Horizontal Pod Autoscaler (HPA) và Pod Disruption Budget (PDB). Bảng \ref{tab:k8s-hpa} tổng hợp cấu hình thực tế được áp dụng.
 
-Hình \ref{fig:grafana-live} mô tả thực tế dashboard giám sát sức khỏe của các Pod và API (\textit{API \& Pod Health Dashboard}) khi hệ thống hoạt động.
+\begin{table}[H]
+\centering
+\caption{Cấu hình HPA và PDB của các dịch vụ trên AKS.}
+\label{tab:k8s-hpa}
+\small
+\begin{tabular}{|p{3cm}|p{2.2cm}|p{2.2cm}|p{2.2cm}|p{2.5cm}|}
+\hline
+\textbf{Dịch vụ} & \textbf{Min Replicas} & \textbf{Max Replicas} & \textbf{CPU Threshold} & \textbf{PDB minAvailable} \\ \hline
+API Gateway       & 1 & 5 & 70\% & 1 \\ \hline
+Auth Service      & 1 & 5 & 70\% & 1 \\ \hline
+Jobs Service      & 1 & 5 & 70\% & 1 \\ \hline
+AI Service        & 1 & 3 & 75\% & 1 \\ \hline
+Frontend (nginx)  & 1 & 3 & 75\% & 1 \\ \hline
+\end{tabular}
+\end{table}
+
+\subsection{Giám sát hệ thống (Observability)}
+Để đảm bảo khả năng chịu tải và tính ổn định của hệ thống microservices vận hành trên AKS, một giải pháp giám sát tập trung sử dụng Prometheus và Grafana đã được tích hợp trong namespace \texttt{monitoring}. Prometheus thu thập metric từ các endpoint \texttt{/metrics} của mỗi Pod theo chu kỳ 30 giây, lưu trữ dữ liệu time-series trong 10 ngày với dung lượng 20Gi.
+
+Hệ thống xây dựng hai Grafana dashboard phục vụ hai mục đích giám sát khác nhau:
+
+\textbf{Dashboard 1 -- JobBridge: API \& Pod Health:} Tập trung theo dõi sức khỏe tổng thể dịch vụ thông qua metric của ingress-nginx. Hình \ref{fig:grafana-live} minh họa dashboard này với các panel chính:
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth]{so-do-chuong-4/screens/grafana_live.png}
-    \caption{Dashboard giám sát sức khỏe API và trạng thái Pod trên Grafana.}
+    \caption{Dashboard \textit{API \& Pod Health} -- giám sát sức khỏe API và trạng thái Pod trên Grafana.}
     \label{fig:grafana-live}
 \end{figure}
 
-Số liệu thực tế hiển thị trên Grafana chứng minh:
 \begin{itemize}
-    \item \textbf{Pod Ready (\%):} Đạt mức $100\%$, chứng tỏ tất cả các bản sao (replica) của các microservice đều đang hoạt động tốt và sẵn sàng nhận request.
-    \item \textbf{HTTP Error Rate 4xx/5xx (\%):} Giữ ở mức $0\%$, không ghi nhận các lỗi hệ thống nghiêm trọng hay lỗi crash server trong thời gian đo đạc.
-    \item \textbf{Incoming Traffic (req/s):} Biểu đồ lưu lượng truy cập thực tế theo thời gian thực giúp quản trị viên phát hiện bất thường về tải hoặc các cuộc tấn công DDoS.
-    \item \textbf{Traffic by Pod (Rx/Tx bytes/s):} Giám sát băng thông vào/ra chi tiết cho từng pod riêng biệt (Frontend, Gateway, AI, Auth), hỗ trợ đắc lực cho việc định lượng tài nguyên (Resource dimensioning) khi scale hệ thống.
+    \item \textbf{Pod Ready (\%):} Đạt mức $100\%$, tất cả các replica của microservice đều hoạt động tốt và sẵn sàng nhận request.
+    \item \textbf{HTTP Error Rate 4xx/5xx (\%):} Giữ ở mức $0\%$, không ghi nhận lỗi hệ thống hay crash server trong thời gian đo đạc.
+    \item \textbf{Incoming Request Rate (req/s):} Biểu đồ lưu lượng thời gian thực qua ingress-nginx, hỗ trợ phát hiện bất thường về tải.
+    \item \textbf{P99 Request Latency:} Độ trễ phân vị 99 của request qua ingress, giúp phát hiện sớm các service bị chậm trước khi ảnh hưởng người dùng.
+    \item \textbf{Traffic by Pod (Rx/Tx bytes/s):} Băng thông vào/ra chi tiết theo từng Pod (Frontend, Gateway, AI, Auth), hỗ trợ định lượng tài nguyên khi cần scale.
+\end{itemize}
+
+\textbf{Dashboard 2 -- JobBridge: Pod Stress Test:} Được thiết kế để quan sát hành vi hệ thống dưới tải đột biến và xác minh cơ chế HPA hoạt động đúng. Hình \ref{fig:grafana-stress} minh họa dashboard này khi hệ thống chịu tải.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{so-do-chuong-4/screens/grafana_stress_test.png}
+    \caption{Dashboard \textit{Pod Stress Test} -- theo dõi CPU, Memory, Network và Pod restarts dưới tải.}
+    \label{fig:grafana-stress}
+\end{figure}
+
+Dashboard này hiển thị 4 panel chính:
+\begin{itemize}
+    \item \textbf{CPU Usage vs Limit (\%) theo Pod:} So sánh mức CPU hiện tại với CPU Limit được cấp phát, cho thấy dịch vụ nào đang tiệm cận ngưỡng HPA.
+    \item \textbf{Memory Usage vs Limit (Mi) theo Pod:} Theo dõi xu hướng tăng bộ nhớ theo thời gian, phát hiện memory leak tiềm ẩn.
+    \item \textbf{Network Receive/Transmit (bytes/s):} Lưu lượng mạng vào/ra theo thời gian thực cho từng Pod.
+    \item \textbf{Pod Restart Count:} Đếm số lần Pod bị khởi động lại do OOMKilled hay liveness probe thất bại, giúp phát hiện sự cố âm thầm.
 \end{itemize}
 
 \subsection{Cấu hình Môi trường triển khai}
@@ -337,6 +382,6 @@ Giám sát & Prometheus + Grafana (namespace: monitoring) \\ \hline
 Hệ thống đã được triển khai thành công lên Azure AKS và vận hành ổn định. Các Pod của 4 service backend và frontend đều ở trạng thái \texttt{Running} ổn định. Thời gian phản hồi trung bình của các API thông thường dưới 200ms; các API gọi OpenAI phụ thuộc vào thời gian inference của mô hình, trung bình từ 2--4 giây. Nhờ cơ chế cache CV text, thời gian chuẩn bị dữ liệu đầu vào cho AI được rút ngắn đáng kể, giúp tăng trải nghiệm người dùng.
 
 \section{Kết chương}
-Chương này đã trình bày toàn bộ quá trình hiện thực hóa hệ thống ``JobBridge AI'', từ kiến trúc phần mềm, danh sách công cụ, đến kết quả xây dựng, minh họa chức năng, kiểm thử và triển khai thực tế có tích hợp GitOps ArgoCD và giám sát Observability Prometheus/Grafana. Hệ thống đã đáp ứng đầy đủ các yêu cầu chức năng và phi chức năng đề ra ở Chương 3. Chương tiếp theo sẽ đi sâu phân tích các giải pháp kỹ thuật nổi bật và đóng góp khoa học cốt lõi của đồ án.
+Chương này đã trình bày toàn bộ quá trình hiện thực hóa hệ thống ``JobBridge AI'': kiến trúc phần mềm microservices, danh sách công cụ, kết quả xây dựng, minh họa chức năng chính, kịch bản kiểm thử, và quy trình triển khai thực tế trên Azure AKS với pipeline CI/CD tích hợp SonarCloud, Trivy và Kaniko; cấu hình HPA/PDB đảm bảo tính sẵn sàng; hệ thống giám sát tập trung Prometheus/Grafana với hai dashboard chuyên dụng cho sức khỏe API và stress test. Hệ thống đã đáp ứng đầy đủ các yêu cầu chức năng và phi chức năng đề ra ở Chương 3. Chương tiếp theo sẽ đi sâu phân tích các giải pháp kỹ thuật nổi bật và đóng góp cốt lõi của đồ án.
 
 \end{document}

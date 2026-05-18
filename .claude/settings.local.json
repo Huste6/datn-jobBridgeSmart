@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pdflatex --version)",
+      "Bash(xelatex --version)",
+      "Bash(latexmk --version)",
+      "Bash(choco --version)",
+      "Bash(scoop --version)",
+      "Bash(winget --version)",
+      "Bash(perl --version)",
+      "Bash(winget install *)",
+      "Bash(\"C:\\\\Users\\\\nguyen.quan\\\\AppData\\\\Local\\\\Programs\\\\MiKTeX\\\\miktex\\\\bin\\\\x64\\\\pdflatex.exe\" -interaction=nonstopmode DoAn.tex)"
+    ]
+  }
+}

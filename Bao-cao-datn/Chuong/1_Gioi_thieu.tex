@@ -52,8 +52,8 @@ Ngoài ra, đề tài cũng bao gồm việc xây dựng các chức năng phụ
     
     \item \textbf{Giải pháp cho các tính năng AI:}
     \begin{itemize}
-        \item \textbf{Luyện tập phỏng vấn:} Tận dụng sức mạnh của các mô hình ngôn ngữ lớn (LLMs) thông qua API của OpenAI (ví dụ: GPT-3.5, GPT-4). Hệ thống sẽ gửi câu trả lời của người dùng cùng với ngữ cảnh (câu hỏi phỏng vấn, mô tả công việc) đến API để nhận về các phân tích và gợi ý cải thiện. Để duy trì lịch sử và ngữ cảnh hội thoại, một cơ sở dữ liệu vector (ví dụ: ChromaDB) sẽ được sử dụng để lưu trữ và truy xuất các đoạn hội thoại trước đó.
-        \item \textbf{Chấm điểm hồ sơ:} Giải pháp bao gồm hai bước chính. Đầu tiên, hệ thống trích xuất nội dung văn bản từ các file CV (PDF, DOCX). Sau đó, nội dung này cùng với mô tả công việc (JD) sẽ được đưa vào một mô hình AI. Mô hình này, cũng dựa trên LLM, sẽ thực hiện vai trò của một chuyên gia nhân sự để đánh giá, cho điểm và cung cấp một bản tóm tắt về mức độ phù hợp của ứng viên.
+        \item \textbf{Luyện tập phỏng vấn:} Tận dụng sức mạnh của mô hình ngôn ngữ lớn (LLM) GPT-4o-mini thông qua OpenAI API. Hệ thống gửi câu trả lời của người dùng cùng với toàn bộ lịch sử hội thoại, thông tin công việc (JD) và nội dung CV đến API để nhận về phân tích và gợi ý cải thiện. Ngữ cảnh hội thoại được duy trì bằng cách gửi kèm tối đa 20 tin nhắn gần nhất trong mỗi request.
+        \item \textbf{Chấm điểm hồ sơ:} Giải pháp gồm hai bước chính. Đầu tiên, hệ thống trích xuất nội dung văn bản từ file CV định dạng PDF và cache vào cơ sở dữ liệu. Sau đó, nội dung CV cùng mô tả công việc (JD) được đưa vào mô hình LLM để đánh giá, cho điểm và cung cấp nhận xét về mức độ phù hợp của ứng viên.
     \end{itemize}
 \end{itemize}
 
@@ -67,10 +67,10 @@ Chương 2 trình bày tổng quan về các công nghệ và lý thuyết nền
 
 Chương 3 đi sâu vào phân tích và thiết kế hệ thống. Chương này mô tả chi tiết về kiến trúc hệ thống, thiết kế cơ sở dữ liệu, và thiết kế giao diện người dùng (UI/UX) cho các luồng chức năng chính.
 
-Chương 4 trình bày về quá trình triển khai và hiện thực hóa hệ thống. Nội dung chương bao gồm việc mô tả chi tiết cách xây dựng các microservice, phát triển giao diện người dùng, và đặc biệt là cách tích hợp các mô hình AI để hiện thực hóa các tính năng thông minh của sản phẩm.
+Chương 4 trình bày kết quả xây dựng và thực nghiệm hệ thống. Nội dung bao gồm kiến trúc phần mềm được áp dụng, danh sách công cụ và thư viện, minh họa các chức năng chính qua ảnh chụp màn hình thực tế, các kịch bản kiểm thử và kết quả đạt được, cùng với quy trình triển khai tự động (CI/CD GitOps) lên môi trường đám mây Azure AKS có tích hợp giám sát Prometheus và Grafana.
 
-Chương 5 tập trung vào việc đánh giá, kiểm thử và triển khai hệ thống. Chương này trình bày các kịch bản kiểm thử đã thực hiện, kết quả đạt được, và mô tả quy trình triển khai tự động (CI/CD) của ứng dụng lên môi trường đám mây.
+Chương 5 phân tích chuyên sâu các giải pháp kỹ thuật và đóng góp nổi bật của đồ án, bao gồm cơ chế trích xuất và cache văn bản CV từ PDF, kiến trúc prompt phân tầng thích ứng ngữ cảnh cho AI, và giải pháp bảo mật phân lớp kết hợp GitOps với Observability.
 
-Cuối cùng, Chương 6 tổng kết lại các kết quả đã đạt được của đồ án, nêu lên những hạn chế còn tồn tại và đề xuất các hướng phát triển, cải tiến trong tương lai.
+Cuối cùng, Chương 6 tổng kết các kết quả đã đạt được, nêu lên những hạn chế còn tồn tại và đề xuất các hướng phát triển trong tương lai.
 
 \end{document}

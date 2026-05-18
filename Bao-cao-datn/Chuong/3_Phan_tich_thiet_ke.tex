@@ -29,8 +29,8 @@ Yêu cầu chức năng (Functional Requirements) là những gì hệ thống p
     \item \textbf{F3 - Xem chi tiết việc làm:} Hiển thị đầy đủ thông tin về một tin tuyển dụng, bao gồm mô tả công việc, yêu cầu, và thông tin công ty.
     \item \textbf{F4 - Quản lý CV:} Ứng viên có thể tải lên và lưu trữ nhiều phiên bản CV.
     \item \textbf{F5 - Nộp hồ sơ ứng tuyển:} Cho phép ứng viên nộp hồ sơ (apply) vào các vị trí mong muốn chỉ với vài cú nhấp chuột.
-    \item \textbf{F6 - Sử dụng tính năng AI tư vấn phỏng vấn:} Ứng viên có thể tham gia một buổi phỏng vấn giả lập với AI, nhận câu hỏi và được đánh giá câu trả lời.
-    \item \textbf{F7 - Nhận gợi ý việc làm từ AI:} Dựa trên nội dung CV và lịch sử tìm kiếm, AI sẽ tự động gợi ý các công việc phù hợp.
+    \item \textbf{F6 - Sử dụng tính năng AI Interview Coach:} Ứng viên đã ứng tuyển một vị trí có thể bắt đầu phiên luyện tập phỏng vấn giả lập với AI, nhận câu hỏi bám sát JD và CV, đồng thời được đánh giá và phản hồi sau mỗi câu trả lời.
+    \item \textbf{F7 - Sử dụng tính năng AI Interview Quiz:} Ứng viên có thể yêu cầu hệ thống sinh bộ câu hỏi trắc nghiệm (1--30 câu) theo nội dung JD của vị trí quan tâm để tự kiểm tra kiến thức.
 \end{itemize}
 
 \subsubsection{Đối với Nhà tuyển dụng}
@@ -73,10 +73,11 @@ Yêu cầu phi chức năng (Non-functional Requirements) định nghĩa các ti
 Sơ đồ Use Case được sử dụng để mô hình hóa các yêu cầu chức năng của hệ thống, xác định các tương tác giữa người dùng (actors) và hệ thống.
 
 \subsubsection{Xác định các tác nhân (Actors)}
-Hệ thống có hai tác nhân chính:
+Hệ thống có ba tác nhân chính:
 \begin{itemize}
-    \item \textbf{Ứng viên (Candidate):} Người tìm việc, sử dụng hệ thống để tìm kiếm công việc, tạo và quản lý hồ sơ, và tận dụng các công cụ AI.
-    \item \textbf{Nhà tuyển dụng (Recruiter):} Người đại diện cho công ty, sử dụng hệ thống để đăng tin tuyển dụng và tìm kiếm ứng viên tiềm năng.
+    \item \textbf{Ứng viên (Seeker):} Người tìm việc, sử dụng hệ thống để tìm kiếm công việc, tạo và quản lý hồ sơ, ứng tuyển và luyện tập phỏng vấn với AI.
+    \item \textbf{Nhà tuyển dụng (Recruiter):} Người đại diện cho công ty, sử dụng hệ thống để đăng tin tuyển dụng, xem hồ sơ ứng viên và sử dụng AI để đánh giá CV.
+    \item \textbf{Quản trị viên (Admin):} Quản lý toàn bộ nền tảng, duyệt/từ chối công ty đăng ký, khóa/mở tài khoản người dùng vi phạm và theo dõi tổng quan hệ thống qua dashboard.
 \end{itemize}
 
 \subsubsection{Sơ đồ Use Case tổng quát}
@@ -263,12 +264,10 @@ Sơ đồ quan hệ thực thể (ERD) dưới đây mô tả các collection ch
 
 \subsubsection{Mô tả các collection}
 \begin{itemize}
-    \item \textbf{users:} Lưu trữ thông tin tài khoản của cả ứng viên và nhà tuyển dụng.
-    \item \textbf{companies:} Lưu trữ thông tin chi tiết về các công ty tuyển dụng. Mỗi công ty được quản lý bởi một người dùng có vai trò là `recruiter`.
-    \item \textbf{jobs:} Chứa thông tin về các tin tuyển dụng do các công ty đăng tải.
-    \item \textbf{resumes:} Lưu trữ đường dẫn và nội dung text đã được trích xuất từ file CV của ứng viên.
-    \item \textbf{applications:} Là collection trung gian, ghi lại lịch sử ứng tuyển của ứng viên vào các công việc.
-    \item \textbf{ai\_history:} Lưu lại lịch sử các cuộc hội thoại giữa người dùng và các tính năng AI.
+    \item \textbf{users:} Lưu trữ thông tin tài khoản của cả ứng viên, nhà tuyển dụng và quản trị viên. Bao gồm các trường \texttt{avatar\_url}, \texttt{cv\_url} và \texttt{cv\_text} (nội dung văn bản đã trích xuất từ CV PDF, dùng làm cache cho AI).
+    \item \textbf{companies:} Lưu trữ thông tin chi tiết về các công ty tuyển dụng. Mỗi công ty liên kết với một người dùng có vai trò \texttt{recruiter} qua trường \texttt{owner\_id}. Trường \texttt{status} ghi nhận trạng thái duyệt (\texttt{pending}/\texttt{approved}/\texttt{rejected}).
+    \item \textbf{jobs:} Chứa thông tin các tin tuyển dụng, bao gồm tiêu đề, mô tả, yêu cầu, quyền lợi, mức lương, trạng thái (\texttt{open}/\texttt{closed}) và liên kết đến người đăng qua \texttt{owner\_id}.
+    \item \textbf{applications:} Collection trung gian ghi lại lịch sử ứng tuyển. Liên kết \texttt{job\_id} và \texttt{user\_id}, lưu trạng thái xét duyệt, điểm AI (\texttt{manual\_score}) và ghi chú của nhà tuyển dụng.
 \end{itemize}
 
 \subsection{Thiết kế giao diện (UI/UX)}
