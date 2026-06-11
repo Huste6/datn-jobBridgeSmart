@@ -790,15 +790,18 @@ func parseHRScoreAndNotes(raw string) (int, string) {
 			candidateJSON := trimmed[start : end+1]
 			var p parsedFull
 			if err := json.Unmarshal([]byte(candidateJSON), &p); err == nil {
-				notesMap := map[string]interface{}{
-					"summary":         p.Summary,
-					"matching_skills": p.MatchingSkills,
-					"strengths":       p.Strengths,
-					"weaknesses":      p.Weaknesses,
-					"recommendations": p.Recommendations,
-				}
-				if notesBytes, err := json.Marshal(notesMap); err == nil {
-					return clampScore(p.Score), string(notesBytes)
+				// Only treat as rich JSON if at least one of the rich fields is present/non-empty
+				if p.Summary != "" || len(p.MatchingSkills) > 0 || len(p.Strengths) > 0 || len(p.Weaknesses) > 0 || len(p.Recommendations) > 0 {
+					notesMap := map[string]interface{}{
+						"summary":         p.Summary,
+						"matching_skills": p.MatchingSkills,
+						"strengths":       p.Strengths,
+						"weaknesses":      p.Weaknesses,
+						"recommendations": p.Recommendations,
+					}
+					if notesBytes, err := json.Marshal(notesMap); err == nil {
+						return clampScore(p.Score), string(notesBytes)
+					}
 				}
 			}
 		}
