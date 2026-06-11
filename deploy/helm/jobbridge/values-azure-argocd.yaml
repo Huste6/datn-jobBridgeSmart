@@ -1,5 +1,5 @@
 global:
-  imageTag: a6d57419949d
+  imageTag: 6a997c689589
 keyvault:
   enabled: true
   name: "kv-jobbridge"
@@ -9,20 +9,20 @@ services:
   auth:
     image:
       repository: "acrjobbridge.azurecr.io/jobbridge-auth"
-      tag: "a6d57419949d"
+      tag: "6a997c689589"
   gateway:
     image:
       repository: "acrjobbridge.azurecr.io/jobbridge-gateway"
-      tag: "a6d57419949d"
+      tag: "6a997c689589"
   jobs:
     image:
       repository: "acrjobbridge.azurecr.io/jobbridge-jobs"
-      tag: "a6d57419949d"
+      tag: "6a997c689589"
   ai:
     image:
       repository: "acrjobbridge.azurecr.io/jobbridge-ai"
-      tag: "a6d57419949d"
+      tag: "6a997c689589"
   frontend:
     image:
       repository: "acrjobbridge.azurecr.io/jobbridge-frontend"
-      tag: "3e3e215bf94c"
+      tag: "6a997c689589"
