@@ -381,6 +381,29 @@ Giám sát & Prometheus + Grafana (namespace: monitoring) \\ \hline
 \subsection{Kết quả vận hành thực nghiệm}
 Hệ thống đã được triển khai thành công lên Azure AKS và vận hành ổn định. Các Pod của 4 service backend và frontend đều ở trạng thái \texttt{Running} ổn định. Thời gian phản hồi trung bình của các API thông thường dưới 200ms; các API gọi OpenAI phụ thuộc vào thời gian inference của mô hình, trung bình từ 2--4 giây. Nhờ cơ chế cache CV text, thời gian chuẩn bị dữ liệu đầu vào cho AI được rút ngắn đáng kể, giúp tăng trải nghiệm người dùng.
 
+Để kiểm chứng tính năng tự động co giãn (Auto-scaling) đã cấu hình, một kịch bản kiểm thử tải (stress test) đã được thực hiện bằng công cụ \texttt{k6} chạy trực tiếp bên trong cluster. Kịch bản giả lập tải tăng dần từ 0 lên 150 VUs trong 30 giây đầu, đạt đỉnh 300 VUs và duy trì liên tục trong 2 phút, sau đó giảm dần về 0. Endpoint được thử nghiệm là \texttt{/api/jobs} đi qua API Gateway để truy vấn cơ sở dữ liệu MongoDB nhằm tạo tải thực tế lên tài nguyên CPU và I/O của hệ thống.
+
+Kết quả kiểm thử tải cho thấy cơ chế Horizontal Pod Autoscaler (HPA) phản ứng rất chính xác và kịp thời:
+\begin{itemize}
+    \item Khi số lượng request đồng thời tăng cao, mức độ sử dụng CPU của dịch vụ \texttt{jobbridge-jobs} nhanh chóng vượt ngưỡng cấu hình (đạt đỉnh ở mức $222\% / 70\%$) và dịch vụ \texttt{jobbridge-gateway} đạt $130\% / 70\%$.
+    \item Ngay lập tức, bộ điều khiển HPA nhận diện sự tăng tải này và thực hiện scale-up: số lượng bản sao (replicas) của dịch vụ \texttt{jobbridge-jobs} được tự động nâng từ 1 lên 4 Pods, và \texttt{jobbridge-gateway} nâng từ 1 lên 2 Pods để chia sẻ tải lượng xử lý (Hình \ref{fig:hpa-watch}).
+    \item Các Pod mới của các dịch vụ được khởi tạo và chuyển trạng thái từ \texttt{Pending} sang \texttt{ContainerCreating} và chuyển sang \texttt{Running} ổn định trong vòng vài giây (Hình \ref{fig:pods-watch}), giúp hệ thống duy trì tỷ lệ thành công của các request ở mức $100\%$ không xảy ra lỗi kết nối hay timeout.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{so-do-chuong-4/screens/hpa-watch.png}
+    \caption{Trạng thái HPA tự động co giãn (scale-up) số lượng Replicas khi phát hiện quá tải CPU.}
+    \label{fig:hpa-watch}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{so-do-chuong-4/screens/pods-watch.png}
+    \caption{Danh sách các Pods tự động khởi chạy thành công dưới sự điều khiển của HPA.}
+    \label{fig:pods-watch}
+\end{figure}
+
 \section{Kết chương}
 Chương này đã trình bày toàn bộ quá trình hiện thực hóa hệ thống ``JobBridge AI'': kiến trúc phần mềm microservices, danh sách công cụ, kết quả xây dựng, minh họa chức năng chính, kịch bản kiểm thử, và quy trình triển khai thực tế trên Azure AKS với pipeline CI/CD tích hợp SonarCloud, Trivy và Kaniko; cấu hình HPA/PDB đảm bảo tính sẵn sàng; hệ thống giám sát tập trung Prometheus/Grafana với hai dashboard chuyên dụng cho sức khỏe API và stress test. Hệ thống đã đáp ứng đầy đủ các yêu cầu chức năng và phi chức năng đề ra ở Chương 3. Chương tiếp theo sẽ đi sâu phân tích các giải pháp kỹ thuật nổi bật và đóng góp cốt lõi của đồ án.
 

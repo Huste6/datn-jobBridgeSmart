@@ -726,7 +726,14 @@ Yêu cầu bắt buộc:
 - Trả kết quả ở dạng JSON hợp lệ duy nhất, không kèm markdown, không kèm giải thích ngoài JSON.
 
 Schema JSON bắt buộc:
-{"score": <0-100>, "notes": "Nhận xét ngắn gọn, thực tế, bám JD"}`
+{
+  "score": <0-100 (điểm tương thích tổng thể)>,
+  "summary": "<nhận xét/đánh giá chung của AI về hồ sơ ứng viên>",
+  "matching_skills": ["<kỹ năng phù hợp 1>", "<kỹ năng phù hợp 2>", ...],
+  "strengths": ["<điểm mạnh 1>", "<điểm mạnh 2>", ...],
+  "weaknesses": ["<điểm cần cải thiện 1>", "<điểm cần cải thiện 2>", ...],
+  "recommendations": ["<đề xuất cho nhà tuyển dụng 1>", "<đề xuất cho nhà tuyển dụng 2>", ...]
+}`
 
 	candidateContext := strings.TrimSpace(fmt.Sprintf(
 		"Ứng viên: %s\nEmail: %s\nHeadline: %s\nSĐT: %s\nThành phố: %s\nCV_URL: %s",
@@ -753,7 +760,7 @@ Schema JSON bắt buộc:
 		joinOrFallback(jobDoc.Tags, "(không có)"),
 	))
 
-	cvContext := "CV chưa đọc được tự động. Dựa trên profile + JD để đánh giá và nêu rõ giới hạn dữ liệu trong notes."
+	cvContext := "CV chưa đọc được tự động. Dựa trên profile + JD để đánh giá và nêu rõ giới hạn dữ liệu."
 	if strings.TrimSpace(cvText) != "" {
 		cvContext = "Trích đoạn CV (đã rút gọn): " + cvText
 	}
@@ -768,17 +775,45 @@ Schema JSON bắt buộc:
 }
 
 func parseHRScoreAndNotes(raw string) (int, string) {
-	type parsed struct {
-		Score int    `json:"score"`
-		Notes string `json:"notes"`
+	type parsedFull struct {
+		Score           int      `json:"score"`
+		Summary         string   `json:"summary"`
+		MatchingSkills  []string `json:"matching_skills"`
+		Strengths       []string `json:"strengths"`
+		Weaknesses      []string `json:"weaknesses"`
+		Recommendations []string `json:"recommendations"`
 	}
 
 	trimmed := strings.TrimSpace(raw)
 	if start := strings.Index(trimmed, "{"); start >= 0 {
 		if end := strings.LastIndex(trimmed, "}"); end > start {
-			candidate := trimmed[start : end+1]
-			var p parsed
-			if err := json.Unmarshal([]byte(candidate), &p); err == nil {
+			candidateJSON := trimmed[start : end+1]
+			var p parsedFull
+			if err := json.Unmarshal([]byte(candidateJSON), &p); err == nil {
+				notesMap := map[string]interface{}{
+					"summary":         p.Summary,
+					"matching_skills": p.MatchingSkills,
+					"strengths":       p.Strengths,
+					"weaknesses":      p.Weaknesses,
+					"recommendations": p.Recommendations,
+				}
+				if notesBytes, err := json.Marshal(notesMap); err == nil {
+					return clampScore(p.Score), string(notesBytes)
+				}
+			}
+		}
+	}
+
+	// Legacy parsing fallback
+	type parsedLegacy struct {
+		Score int    `json:"score"`
+		Notes string `json:"notes"`
+	}
+	if start := strings.Index(trimmed, "{"); start >= 0 {
+		if end := strings.LastIndex(trimmed, "}"); end > start {
+			candidateJSON := trimmed[start : end+1]
+			var p parsedLegacy
+			if err := json.Unmarshal([]byte(candidateJSON), &p); err == nil {
 				return clampScore(p.Score), strings.TrimSpace(p.Notes)
 			}
 		}
