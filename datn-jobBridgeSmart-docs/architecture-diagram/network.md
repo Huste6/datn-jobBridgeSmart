@@ -7,10 +7,9 @@
 ## Azure Virtual Network
 
 ```
-Azure VNet
-Name:    vnet-jobbridge
-CIDR:    10.0.0.0/16
-Region:  Southeast Asia (Singapore)
+Azure VNet (AKS Managed)
+Name:    aks-vnet-xxx (auto-created in node Resource Group)
+Region:  Malaysia West
 ```
 
 ---
@@ -19,39 +18,17 @@ Region:  Southeast Asia (Singapore)
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│  Azure VNet: 10.0.0.0/16                                               │
+│  Azure Managed VNet (aks-vnet-xxx)                                     │
 │                                                                        │
-│  ┌─────────────────────────────┐                                       │
-│  │  Public Subnet              │                                       │
-│  │  10.0.1.0/24 – AZ-1        │                                       │
-│  │                             │                                       │
-│  │  ┌──────────────┐           │                                       │
-│  │  │ NAT Gateway  │           │  ← Outbound internet cho private      │
-│  │  └──────────────┘           │                                       │
-│  │  ┌──────────────┐           │                                       │
-│  │  │Azure Bastion │           │  ← SSH/RDP an toàn, không expose 22  │
-│  │  └──────────────┘           │                                       │
-│  │  ┌──────────────────────┐   │                                       │
-│  │  │ Application Gateway  │   │  ← Entry point HTTPS:443 + WAF       │
-│  │  │ (WAF v2)             │   │                                       │
-│  │  └──────────────────────┘   │                                       │
-│  └─────────────────────────────┘                                       │
-│                                                                        │
-│  ┌─────────────────────────────┐  ┌─────────────────────────────┐     │
-│  │  Private Subnet – AZ-1      │  │  Private Subnet – AZ-2      │     │
-│  │  10.0.2.0/24                │  │  10.0.3.0/24                │     │
-│  │                             │  │                             │     │
-│  │  AKS Node Pool              │  │  AKS Node Pool              │     │
-│  │  (System nodes)             │  │  (User nodes – scale out)   │     │
-│  └─────────────────────────────┘  └─────────────────────────────┘     │
-│                                                                        │
-│  ┌─────────────────────────────┐                                       │
-│  │  Database Subnet (private)  │                                       │
-│  │  10.0.4.0/24                │                                       │
-│  │                             │                                       │
-│  │  MongoDB StatefulSet        │  ← Chỉ AKS services mới reach được   │
-│  │  (in-cluster, PVC: 5Gi)     │                                       │
-│  └─────────────────────────────┘                                       │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │  AKS Flat Node Subnet                                            │  │
+│  │                                                                  │  │
+│  │  • System Nodes & User Node Pool (Standard_B2s VMSS)              │  │
+│  │  • NGINX Ingress Controller Pods (with Standard Load Balancer)    │  │
+│  │  • Frontend & Backend Application Pods (namespaced)               │  │
+│  │  • MongoDB StatefulSet Pod (namespace: data, PVC: Azure Disk)     │  │
+│  │                                                                  │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -64,18 +41,16 @@ Internet
    │
    ▼ DNS lookup: jobbridge.duckdns.org
 DuckDNS (Free Dynamic DNS)
-   │ Resolve → Azure Public IP
+   │ Resolve → Azure Load Balancer Public IP
    ▼
-Azure Application Gateway
-  ┌─────────────────────────────────────┐
-  │  WAF v2 (OWASP rules)               │
-  │  Listener: HTTPS :443               │
-  │  SSL Certificate (cert-manager /    │
-  │  Let's Encrypt hoặc Azure cert)     │
-  └─────────────────────────────────────┘
+Azure Load Balancer (AKS Standard Load Balancer)
    │
-   ▼ Route to backend pool
-AKS Ingress (NGINX Ingress Controller)
+   ▼ Exposes port :80 & :443
+AKS NGINX Ingress Controller
+  ┌─────────────────────────────────────┐
+  │  SSL Termination (cert-manager /    │
+  │  Let's Encrypt SSL certificate)     │
+  └─────────────────────────────────────┘
    │
    ├── /          → frontend-svc:80   (React App)
    └── /api/*     → gateway-svc:8080  (API Gateway)
@@ -110,7 +85,7 @@ Services → MongoDB
 ```
 AKS Pods
    │
-   ▼ via NAT Gateway (10.0.1.x)
+   ▼ via Standard Load Balancer Outbound Routing
 Internet
    ├──► OpenAI API (api.openai.com:443)
    │    AI Service → gpt-4o-mini
@@ -126,32 +101,15 @@ Internet
 
 ## Network Security Groups (NSG)
 
-### Public Subnet NSG
+The cluster network is secured using a single flat Azure Network Security Group (`aks-agentpool-xxx-nsg`) generated automatically by AKS on the node pool subnet:
 
-| Direction | Protocol | Port | Source | Destination | Action |
-|-----------|----------|------|--------|-------------|--------|
-| Inbound | TCP | 443 | Any | App Gateway | Allow |
-| Inbound | TCP | 80 | Any | App Gateway | Allow (redirect → 443) |
-| Inbound | TCP | 22 | Any | Any | Deny |
-| Outbound | Any | Any | Any | VNet | Allow |
+| Direction | Protocol | Port | Source | Destination | Action | Description |
+|-----------|----------|------|--------|-------------|--------|-------------|
+| Inbound | TCP | 80, 443 | Any | Ingress controller | Allow | Exposes NGINX Ingress |
+| Inbound | Any | Any | Internet | AKS nodes | Deny | Blocks direct access from internet |
+| Outbound | Any | Any | AKS | Internet | Allow | Allowed outbound traffic |
 
-### Private Subnet NSG (AKS)
-
-| Direction | Protocol | Port | Source | Destination | Action |
-|-----------|----------|------|--------|-------------|--------|
-| Inbound | TCP | 8080-8085 | App Gateway | AKS pods | Allow |
-| Inbound | TCP | 443 | AKS | AKS | Allow (internal) |
-| Outbound | TCP | 443 | AKS | Internet | Allow (via NAT) |
-| Outbound | TCP | 27017 | AKS services | MongoDB | Allow |
-| Inbound | Any | Any | Internet | AKS | Deny |
-
-### Database Subnet NSG
-
-| Direction | Protocol | Port | Source | Destination | Action |
-|-----------|----------|------|--------|-------------|--------|
-| Inbound | TCP | 27017 | Private Subnet | MongoDB | Allow |
-| Inbound | Any | Any | Any other | MongoDB | Deny |
-| Outbound | Any | Any | MongoDB | Private Subnet | Allow |
+Internal security and microservice isolation (blocking direct access to the database or private services) is enforced at the Kubernetes layer using **Network Policies** instead of subnet-level NSGs.
 
 ---
 
@@ -159,9 +117,9 @@ Internet
 
 ```
 DuckDNS records:
-  jobbridge.duckdns.org        → Azure App Gateway Public IP
-  grafana.jobbridge.duckdns.org → Azure App Gateway Public IP (path-based)
-  argocd.jobbridge.duckdns.org  → Azure App Gateway Public IP (path-based)
+  jobbridge.duckdns.org        → Azure AKS Load Balancer Public IP
+  grafana.jobbridge.duckdns.org → Azure AKS Load Balancer Public IP (path-routing)
+  argocd.jobbridge.duckdns.org  → Azure AKS Load Balancer Public IP (path-routing)
 
 Kubernetes Internal DNS (CoreDNS):
   auth-svc.services.svc.cluster.local      → 10.x.x.x (ClusterIP)
@@ -213,14 +171,13 @@ NetworkPolicy:
 [Internet / Users]
         │ HTTPS
         ▼
-[DuckDNS] ──resolve──► [Azure Public IP]
+[DuckDNS] ──resolve──► [Azure Load Balancer Public IP]
         │
         ▼
-[Azure Application Gateway]  ← đặt ở Public Subnet box
-  WAF v2 | SSL Termination
+[Azure Load Balancer (Standard)]
         │
-        ▼ (qua Internet Gateway)
-[NGINX Ingress Controller]   ← đặt trong AKS Cluster box
+        ▼ (Port 80/443 inbound)
+[NGINX Ingress Controller]   ← đặt trong AKS Cluster box (SSL termination)
         │
    ┌────┴────┐
    ▼         ▼
@@ -232,7 +189,7 @@ NetworkPolicy:
     │         │         │
     └─────────┼─────────┘
               ▼
-          [MongoDB]          ← data namespace, database subnet
+          [MongoDB]          ← data namespace (AKS Persistent Volume)
 ```
 
 **Đường mạng cần vẽ:**

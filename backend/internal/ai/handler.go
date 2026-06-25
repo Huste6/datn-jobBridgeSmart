@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"path/filepath"
 	"regexp"
@@ -862,10 +863,12 @@ func parseInterviewQuizQuestions(raw string, requestedCount int) ([]interviewQui
 	}
 
 	if jsonCandidate == "" {
+		log.Printf("ERROR: Failed to parse interview quiz. Payload is not valid JSON. Raw Reply:\n%s", raw)
 		return nil, fmt.Errorf("quiz payload is not valid json")
 	}
 
 	_, parseErr := parseInterviewQuizQuestionsFromJSON(jsonCandidate, requestedCount)
+	log.Printf("ERROR: Failed to parse interview quiz. Error: %v. Raw Reply:\n%s", parseErr, raw)
 	return nil, fmt.Errorf("cannot parse quiz json: %w", parseErr)
 }
 
@@ -969,18 +972,33 @@ func repairQuizJSON(raw string) string {
 		repaired = strings.ReplaceAll(repaired, "'"+key+"'", `"`+key+`"`)
 	}
 
+	// 1. Fix missing comma between "correct_answer" and "explanation"
+	correctAnswerComma := regexp.MustCompile(`(?s)("correct_answer"\s*:\s*("[ABCD]"|[ABCD]))\s*("explanation"\s*:)`)
+	repaired = correctAnswerComma.ReplaceAllString(repaired, `$1, $3`)
+
+	// 2. Fix unquoted correct_answer
 	unquotedAnswer := regexp.MustCompile(`("correct_answer"\s*:\s*)([ABCD])(\s*[,}])`)
 	repaired = unquotedAnswer.ReplaceAllString(repaired, `${1}"${2}"${3}`)
 
 	quotedAnswerSingle := regexp.MustCompile(`("correct_answer"\s*:\s*)'([ABCD])'`)
 	repaired = quotedAnswerSingle.ReplaceAllString(repaired, `${1}"${2}"`)
 
+	// 3. Fix unquoted label
 	unquotedLabel := regexp.MustCompile(`("label"\s*:\s*)([ABCD])(\s*[,}])`)
 	repaired = unquotedLabel.ReplaceAllString(repaired, `${1}"${2}"${3}`)
 
 	quotedLabelSingle := regexp.MustCompile(`("label"\s*:\s*)'([ABCD])'`)
 	repaired = quotedLabelSingle.ReplaceAllString(repaired, `${1}"${2}"`)
 
+	// 4. Fix missing comma between "label" and "text" inside options
+	labelComma := regexp.MustCompile(`(?s)("label"\s*:\s*("[ABCD]"|[ABCD]))\s*("text"\s*:)`)
+	repaired = labelComma.ReplaceAllString(repaired, `$1, $3`)
+
+	// 5. Fix missing comma between adjacent objects (e.g. } { or } \n { )
+	optionsComma := regexp.MustCompile(`(?s)\}\s*\{`)
+	repaired = optionsComma.ReplaceAllString(repaired, `}, {`)
+
+	// 6. Fix trailing commas before closing braces/brackets
 	trailingComma := regexp.MustCompile(`,\s*([}\]])`)
 	repaired = trailingComma.ReplaceAllString(repaired, `$1`)
 

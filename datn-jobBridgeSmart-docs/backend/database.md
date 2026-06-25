@@ -189,7 +189,7 @@ Jobs service build MongoDB filter từ `JobQuery`:
   "cv_url": "https://res.cloudinary.com/.../cv.pdf",
   "status": "pending",
   "manual_score": 85,
-  "notes": "Ứng viên tiềm năng, cần phỏng vấn thêm về distributed systems",
+  "notes": "{\"summary\":\"Ứng viên có 3+ năm kinh nghiệm DevOps...\",\"matching_skills\":[\"Docker\",\"Kubernetes\"],\"strengths\":[\"CI/CD (GitHub Actions)\"],\"weaknesses\":[\"Thiếu kinh nghiệm Azure IaC sâu\"],\"recommendations\":[\"Phỏng vấn trực tiếp tại Đà Nẵng\"]}",
   "applied_at": ISODate("2024-01-16T09:00:00Z"),
   "updated_at": ISODate("2024-01-17T14:30:00Z")
 }
@@ -203,8 +203,8 @@ Jobs service build MongoDB filter từ `JobQuery`:
 | `user_id` | ObjectId | Ref → `users._id` (seeker nộp đơn) |
 | `cv_url` | string | URL PDF tại thời điểm nộp đơn |
 | `status` | string | `"pending"`, `"reviewed"`, `"shortlisted"`, `"rejected"` |
-| `manual_score` | int | 0–100, recruiter hoặc AI chấm điểm |
-| `notes` | string | Ghi chú của recruiter hoặc AI |
+| `manual_score` | int | 0–100, recruiter hoặc AI chấm điểm tương thích |
+| `notes` | string | Ghi chú văn bản thường (HR tự ghi) hoặc chuỗi JSON chứa kết quả phân tích có cấu trúc của AI (gồm các key: `summary`, `matching_skills`, `strengths`, `weaknesses`, `recommendations`) |
 
 ### Unique constraint
 

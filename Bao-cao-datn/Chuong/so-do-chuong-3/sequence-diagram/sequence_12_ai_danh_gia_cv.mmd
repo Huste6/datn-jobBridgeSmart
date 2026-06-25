@@ -1,0 +1,16 @@
+sequenceDiagram
+    title UC12 - Đánh giá CV bằng AI
+    participant U as Nhà tuyển dụng
+    participant FE as Frontend
+    participant GW as API Gateway
+    participant AI as AI Service
+    participant DB as MongoDB
+    participant LLM as LLM API
+    U->>FE: Chọn đánh giá một application
+    FE->>GW: POST /api/ai/hr/evaluate-cv
+    GW->>AI: Chuyển request kèm JWT
+    AI->>DB: Kiểm tra recruiter sở hữu job
+    DB-->>AI: Trả JD, CV text, application
+    AI->>LLM: Gọi LLM đánh giá độ phù hợp
+    LLM-->>AI: Trả nhận xét và gợi ý
+    AI-->>FE: Hiển thị kết quả đánh giá

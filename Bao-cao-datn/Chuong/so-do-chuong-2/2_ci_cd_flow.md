@@ -1,28 +1,9 @@
-### Sơ đồ luồng CI/CD với GitHub Actions và Argo CD
+### Sơ đồ luồng CI và CD của hệ thống JobBridge AI
 
-**Mô tả:**
+Phần này sử dụng hai sơ đồ riêng để mô tả đầy đủ quy trình phát hành phần mềm của hệ thống JobBridge AI. Sơ đồ thứ nhất là `ci_flow.png`, tập trung vào giai đoạn tích hợp liên tục do GitHub Actions thực hiện. Sơ đồ thứ hai là `cd_flow.png`, tập trung vào giai đoạn triển khai liên tục theo mô hình GitOps với Argo CD trên Azure Kubernetes Service.
 
-Sơ đồ này mô tả quy trình Tích hợp liên tục (CI) và Triển khai liên tục (CD) hoàn toàn tự động của dự án JobBridge AI, áp dụng thực hành GitOps.
+Ở giai đoạn CI, khi lập trình viên đẩy mã nguồn lên GitHub, workflow `ci-build-scan-push.yml` được kích hoạt tự động. Workflow này kiểm tra chất lượng mã nguồn, thực hiện build và test cho frontend và backend, phân tích chất lượng bằng SonarCloud, xây dựng Docker image cho các thành phần `auth`, `jobs`, `ai`, `gateway` và `frontend`, sau đó đẩy image lên Azure Container Registry. Mỗi image được gắn tag theo commit SHA, nhờ đó phiên bản triển khai có thể được truy vết ngược về đúng trạng thái mã nguồn tương ứng.
 
-**Giai đoạn 1: Continuous Integration (CI) - Thực thi bởi GitHub Actions**
+Ở giai đoạn CD, workflow `deploy-aks.yml` cập nhật file Helm values `deploy/helm/jobbridge/values-azure-argocd.yaml` với repository và tag image mới. Thay đổi cấu hình này được commit lại vào Git để thể hiện trạng thái mong muốn của hệ thống. Argo CD theo dõi Helm chart tại `deploy/helm/jobbridge`, phát hiện thay đổi trong Git, so sánh trạng thái mong muốn với trạng thái thực tế trên cụm AKS và thực hiện đồng bộ. Khi đồng bộ, Kubernetes kéo image mới từ Azure Container Registry và cập nhật các Deployment theo cơ chế rolling update, giúp ứng dụng được phát hành tự động và hạn chế gián đoạn dịch vụ.
 
-Luồng này được kích hoạt mỗi khi có code mới được đẩy lên (git push) các nhánh chính (ví dụ: `main` hoặc `develop`) của repository mã nguồn.
-
-1.  **Code Push:** Lập trình viên đẩy code thay đổi lên GitHub.
-2.  **GitHub Actions Triggered:** Workflow của GitHub Actions được tự động kích hoạt.
-3.  **Build & Test:**
-    *   Hệ thống thực hiện build mã nguồn.
-    *   Chạy các bài kiểm thử tự động (unit tests, integration tests) để đảm bảo chất lượng code.
-4.  **Build Docker Image:** Nếu các bài test thành công, GitHub Actions sẽ build các Docker image cho từng microservice (`auth`, `jobs`, `ai`, `gateway`, `frontend`).
-5.  **Push to ACR (Azure Container Registry):** Các image vừa được build sẽ được đẩy lên và lưu trữ tại Azure Container Registry, được gắn thẻ (tag) với một phiên bản duy nhất (ví dụ: mã hash của commit).
-
-**Giai đoạn 2: Continuous Deployment (CD) - Thực thi bởi Argo CD (GitOps)**
-
-Luồng này tập trung vào việc đồng bộ hóa trạng thái của ứng dụng trên Kubernetes với trạng thái được định nghĩa trong một repository cấu hình (GitOps repository).
-
-1.  **Update GitOps Repository:** Sau khi đẩy image thành công lên ACR, một bước trong GitHub Actions (hoặc một quy trình riêng) sẽ tự động cập nhật file cấu hình (ví dụ: `values.yaml` của Helm) trong một **repository Git khác** (GitOps Repo). Thay đổi này chủ yếu là cập nhật `image.tag` sang phiên bản mới nhất.
-2.  **Argo CD Detects Change:** Argo CD liên tục theo dõi GitOps Repo. Khi phát hiện có sự thay đổi (commit mới), nó sẽ so sánh trạng thái "mong muốn" (desired state) trong Git với trạng thái "hiện tại" (current state) trên cluster Kubernetes.
-3.  **Sync & Pull Image:** Nhận thấy sự khác biệt về phiên bản image, Argo CD bắt đầu quá trình đồng bộ hóa (Sync).
-4.  **Deploy to AKS (Azure Kubernetes Service):** Argo CD ra lệnh cho Kubernetes cluster (AKS) kéo (pull) Docker image phiên bản mới từ ACR và triển khai nó, thường bằng cách thực hiện một bản cập nhật cuốn chiếu (rolling update) để đảm bảo không có thời gian chết (zero downtime).
-
-**Kết quả:** Mọi thay đổi về code, sau khi được kiểm duyệt và hợp nhất, sẽ được tự động triển khai lên môi trường production một cách an toàn và có thể dự đoán được.
+Việc tách quy trình thành hai sơ đồ giúp báo cáo trình bày rõ hơn trách nhiệm của từng giai đoạn: CI đảm bảo mã nguồn đủ chất lượng và tạo ra artefact triển khai, trong khi CD đảm bảo artefact đó được đưa lên môi trường Kubernetes theo cách có kiểm soát, có thể truy vết và phù hợp với nguyên tắc GitOps.

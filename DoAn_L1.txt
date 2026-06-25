@@ -1,0 +1,2969 @@
+            ĐẠI HỌC BÁCH KHOA HÀ NỘI
+
+
+
+
+          ĐỒ ÁN TỐT NGHIỆP
+ Thiết kế và triển khai hệ thống Gia sư AI chuẩn
+doanh nghiệp theo quy trình DevOps trên nền tảng
+                      Cloud
+
+                 Nguyễn Đức Tấn Sang
+             sang.ndt225664@sis.hust.edu.vn
+
+   Chương trình đào tạo: Công nghệ thông tin Việt-Nhật
+
+
+
+
+Giảng viên hướng dẫn: TS. Nguyễn Đức Toàn
+
+Khoa:                  Kỹ thuật máy tính
+
+Trường:                Công nghệ thông tin và Truyền thông
+
+
+
+                    HÀ NỘI, 06/2026
+             ĐẠI HỌC BÁCH KHOA HÀ NỘI
+
+
+
+
+           ĐỒ ÁN TỐT NGHIỆP
+ Thiết kế và triển khai hệ thống Gia sư AI chuẩn
+doanh nghiệp theo quy trình DevOps trên nền tảng
+                      Cloud
+
+                  Nguyễn Đức Tấn Sang
+              sang.ndt225664@sis.hust.edu.vn
+
+   Chương trình đào tạo: Công nghệ thông tin Việt-Nhật
+
+
+Giảng viên hướng dẫn: TS. Nguyễn Đức Toàn
+
+                                               Chữ kí GVHD
+
+Khoa:                 Kỹ thuật máy tính
+
+Trường:               Công nghệ Thông tin và Truyền thông
+
+
+
+                     HÀ NỘI, 06/2026
+LỜI CẢM ƠN
+  Đầu tiên, em xin gửi lời tri ân chân thành và sâu sắc nhất đến thầy TS. Nguyễn
+Đức Toàn vì đã đưa ra những lời khuyên, những lời hướng dẫn tận tình và đúng
+đắn cho đến khi em hoàn thành xong đồ án tốt nghiệp của mình.
+   Em cũng xin gửi lời biết ơn sâu sắc tới mái nhà chung Đại học Bách Khoa Hà
+Nội, đặc biệt là các thầy cô trong chương trình Việt - Nhật. Cảm ơn các thầy cô đã
+tận tâm giảng dạy, truyền đạt kiến thức và rèn luyện tư duy kỹ thuật cho em trong
+suốt 4 năm qua. Bách Khoa không chỉ là nơi trao cho em tri thức, mà còn là nơi
+chắp cánh cho những khát vọng và đam mê tuổi trẻ.
+   Một lời cảm ơn vô cùng đặc biệt, em muốn dành cho những người bạn đồng
+hành tuyệt vời của mình. Cảm ơn mọi người vì đã cùng nhau sát cánh qua 4 năm
+thanh xuân, cùng thức đêm chạy deadline, chia sẻ những áp lực thi cử và tạo nên
+những kỷ niệm rực rỡ không thể nào quên dưới mái trường này.
+   Cuối cùng, em xin dành tình yêu thương và lòng biết ơn vô bờ bến đến gia đình,
+hậu phương vững chắc đã luôn thấu hiểu, hy sinh và ủng hộ em vô điều kiện trong
+suốt chặng đường học tập.
+  Mặc dù đã nỗ lực hết sức để hoàn thiện đồ án, nhưng do giới hạn về thời gian
+cũng như kinh nghiệm thực tiễn, đề tài chắc chắn vẫn còn những thiếu sót. Em rất
+mong nhận được những ý kiến đóng góp quý báu từ quý thầy cô trong Hội đồng
+đánh giá để em có cơ hội học hỏi và hoàn thiện bản thân hơn nữa.
+  Em xin chân thành cảm ơn!
+
+
+
+                                                      Hà Nội, tháng 06 năm 2026
+                                                                       Sinh viên
+
+                                                          Nguyễn Đức Tấn Sang
+                                  Lời cam kết
+
+
+Họ và tên sinh viên: Nguyễn Đức Tấn Sang
+MSSV: 20225664
+Email: sang.ndt225664@sis.hust.edu.vn
+Lớp: Việt Nhật 01 - K67
+Chương trình đào tạo: Công nghệ thông tin Việt - Nhật
+
+
+
+
+   Em – Nguyễn Đức Tấn Sang – cam kết Đồ án Tốt nghiệp là công trình nghiên
+cứu, thiết kế và triển khai của bản thân em dưới sự hướng dẫn của TS. Nguyễn
+Đức Toàn. Các kết quả trình bày trong đồ án là trung thực, được tổng hợp từ quá
+trình xây dựng hệ thống AI Tutor, triển khai hạ tầng cloud và kiểm thử quy trình
+DevOps. Những tài liệu, hình ảnh, số liệu và công nghệ tham khảo từ nguồn bên
+ngoài đều được ghi rõ trong danh mục tài liệu tham khảo hoặc chú thích tương ứng.
+  Em xin chịu trách nhiệm về tính trung thực của nội dung trong đồ án và cam kết
+không sao chép trái phép từ bất kỳ công trình nào khác.
+
+
+
+
+                                             Hà Nội, ngày . . . tháng 06 năm 2026
+
+                                                                 Tác giả ĐATN
+
+
+
+
+                                                          Nguyễn Đức Tấn Sang
+TÓM TẮT NỘI DUNG ĐỒ ÁN
+   Trong bối cảnh giáo dục hiện nay, việc tiếp cận với các phương pháp học tập
+cá nhân hóa và chất lượng cao vẫn còn nhiều hạn chế. Đặc biệt, đối với nhóm học
+sinh từ cấp tiểu học đến trung học phổ thông ở các vùng sâu, vùng xa, việc thiếu
+hụt điều kiện tham gia các lớp học thêm hay nhận được sự kèm cặp sát sao từ giáo
+viên đã tạo ra rào cản lớn trong quá trình tiếp thu kiến thức. Ở chiều ngược lại, giáo
+viên cũng gặp nhiều khó khăn trong việc theo dõi sát sao tiến độ và đánh giá điểm
+yếu của từng cá nhân do sĩ số lớp học đông. Bên cạnh đó, việc xây dựng một nền
+tảng học tập trực tuyến hiện đại để giải quyết các vấn đề này đòi hỏi hệ thống phải
+có tính sẵn sàng cao, dễ mở rộng và tự động hóa được quá trình triển khai để tránh
+các sai sót.
+   Nhằm giải quyết những bài toán trên, đồ án này tiến hành xây dựng và phát triển
+hệ thống Gia sư AI (AI Tutor) - một nền tảng ứng dụng học tập thông minh dựa
+trên kiến trúc Microservices. Bên cạnh các tính năng học tập cốt lõi như xem bài
+giảng và làm bài trắc nghiệm, hệ thống còn tích hợp Trí tuệ Nhân tạo thông qua
+Google Gemini API để cung cấp trợ lý ảo giúp học sinh giải đáp thắc mắc ngay
+lập tức. Đồng thời, hệ thống cũng hỗ trợ tạo các bài kiểm tra tự động, tạo flashcard
+và phân tích điểm yếu học tập, đóng vai trò như một gia sư cá nhân sẵn sàng đồng
+hành cùng các em ở bất cứ đâu.
+   Đóng góp nổi bật của đồ án nằm ở việc áp dụng hiệu quả quy trình DevOps và
+các tiêu chuẩn vận hành hệ thống phân tán. Toàn bộ các dịch vụ được container hóa
+và triển khai trên nền tảng đám mây Microsoft Azure (AKS). Quy trình tích hợp
+và triển khai liên tục (CI/CD) được thiết kế khép kín thông qua GitHub Actions và
+mô hình GitOps với Argo CD, cho phép cập nhật ứng dụng mượt mà qua kỹ thuật
+Canary Deployment mà không làm gián đoạn dịch vụ (zero-downtime). Cơ sở hạ
+tầng của hệ thống cũng được quản lý hoàn toàn bằng Terraform (Infrastructure as
+Code) và được giám sát, tự động mở rộng (autoscaling) liên tục thông qua KEDA,
+Prometheus cùng Grafana.
+   Kết quả đạt được của đồ án là nền tảng AI Tutor hoạt động ổn định trên môi
+trường thực tế, đáp ứng tốt yêu cầu về trải nghiệm người dùng. Đồ án đã minh
+chứng cho sự kết hợp hiệu quả giữa phát triển phần mềm giáo dục hiện đại, ứng
+dụng sức mạnh của AI và vận hành hệ thống đám mây, tạo tiền đề vững chắc để có
+thể tiếp tục mở rộng quy mô phục vụ hàng ngàn học sinh trong tương lai.
+   Từ khóa: DevOps, CI/CD, GitOps, Kubernetes, ArgoCD, Canary Deployment,
+Terraform, Microservices, Azure, EdTech
+ABSTRACT
+   In the current educational context, access to personalized and high-quality learn-
+ing methods remains limited. Particularly for students from primary to high school
+in remote areas, the lack of opportunities to attend extra classes or receive close tu-
+toring from teachers has created a significant barrier in their learning process. Con-
+versely, teachers also face difficulties in closely monitoring progress and identify-
+ing individual weaknesses due to large class sizes. Furthermore, building a modern
+online learning platform to address these issues requires a system with high avail-
+ability, scalability, and automated deployment processes to prevent errors.
+   To address the aforementioned challenges, this thesis develops AI Tutor - a smart
+educational application system for students of all levels based on Microservices ar-
+chitecture. In addition to traditional learning features such as viewing lectures and
+taking quizzes, the system integrates Artificial Intelligence through the Google
+Gemini API to provide a virtual assistant that helps students resolve questions in-
+stantly. Concurrently, the system supports automatic quiz generation, flashcards,
+and learning weakness analysis, acting as a personal tutor ready to accompany stu-
+dents anywhere.
+   The prominent contribution of this thesis lies in the effective application of
+DevOps processes and distributed system operation standards. All services are
+containerized and deployed on the Microsoft Azure cloud platform (AKS). The
+continuous integration and deployment (CI/CD) pipeline is designed as a closed-
+loop workflow through GitHub Actions and GitOps model with Argo CD, allow-
+ing smooth application updates via Canary Deployment without service disrup-
+tion (zero-downtime). The system’s infrastructure is also fully managed using Ter-
+raform (Infrastructure as Code) and is continuously monitored and automatically
+scaled (autoscaling) through KEDA, Prometheus, and Grafana.
+   The outcome of the thesis is the AI Tutor platform operating stably in a real-
+world environment, well-meeting user experience requirements. The thesis demon-
+strates the effective combination of modern educational software development, the
+application of artificial intelligence power, and advanced cloud system operations,
+laying a solid foundation to continue expanding the scale to serve thousands of
+students in the future.
+  Keywords: DevOps, CI/CD, GitOps, Kubernetes, ArgoCD, Canary Deploy-
+ment, Terraform, Microservices, Azure, EdTech
+                                               MỤC LỤC
+
+
+
+Lời cam kết
+
+CHƯƠNG 1. GIỚI THIỆU ĐỀ TÀI .........................................................                        1
+
+1.1 Đặt vấn đề............................................................................................   1
+
+1.2 Mục tiêu và phạm vi đề tài.....................................................................          1
+
+       1.2.1 Mục tiêu đề tài...........................................................................      1
+
+       1.2.2 Phạm vi đồ án............................................................................       2
+
+1.3 Định hướng giải pháp............................................................................         3
+
+1.4 Giới thiệu ứng dụng AI Tutor.................................................................            3
+
+1.5 Bố cục đồ án ........................................................................................    3
+
+CHƯƠNG 2. CƠ SỞ LÝ THUYẾT ..........................................................                         5
+
+2.1 Tổng quan ............................................................................................   5
+
+2.2 Kiến trúc Microservices ........................................................................         5
+
+       2.2.1 Khái niệm .................................................................................     5
+
+       2.2.2 Ưu điểm của Microservices.........................................................              5
+
+       2.2.3 So sánh Monolith và Microservices .............................................                 6
+
+       2.2.4 Strangler Fig Pattern...................................................................        6
+
+       2.2.5 Áp dụng Microservices trong hệ thống AI Tutor ...........................                       6
+
+2.3 Ngôn ngữ và Framework lập trình ..........................................................               7
+
+2.4 Container hóa và Điều phối Container ....................................................                7
+
+2.5 CI/CD và Mô hình GitOps.....................................................................             8
+
+2.6 Chiến lược triển khai và Quản lý sức khỏe .............................................. 10
+
+2.7 Tự động mở rộng theo sự kiện (KEDA)................................................... 10
+
+2.8 Quan sát hệ thống (Observability) .......................................................... 10
+
+2.9 Quản lý Hạ tầng và Bảo mật (DevSecOps) .............................................. 11
+2.10 Trí tuệ nhân tạo và Mô hình ngôn ngữ lớn (LLM) .................................. 12
+
+2.11 Kết chương......................................................................................... 12
+
+CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG .......................... 13
+
+3.1 Tổng quan ............................................................................................ 13
+
+3.2 Phân tích yêu cầu.................................................................................. 13
+
+       3.2.1 Yêu cầu chức năng (Use Cases) ................................................... 13
+
+       3.2.2 Đặc tả kịch bản một số Use Case cốt lõi ....................................... 21
+
+       3.2.3 Yêu cầu phi chức năng................................................................ 24
+
+3.3 Thiết kế hệ thống .................................................................................. 24
+
+       3.3.1 Lựa chọn kiến trúc phần mềm ..................................................... 24
+
+       3.3.2 Thiết kế tổng quan (Sơ đồ kiến trúc Microservices)....................... 25
+
+       3.3.3 Thiết kế chi tiết từng luồng nghiệp vụ (Sequence Diagram) ........... 26
+
+       3.3.4 Thiết kế dữ liệu và phân tách database ......................................... 28
+
+       3.3.5 Mô tả các Collection chính.......................................................... 30
+
+       3.3.6 Thiết kế giao diện ứng dụng (Flutter) ........................................... 31
+
+3.4 Công nghệ sử dụng ............................................................................... 36
+
+       3.4.1 Thiết kế công nghệ tầng ứng dụng ............................................... 36
+
+       3.4.2 Thiết kế hạ tầng và DevOps ........................................................ 36
+
+CHƯƠNG 4. QUY TRÌNH DEVOPS VÀ KIẾN TRÚC HẠ TẦNG ĐỀ
+XUẤT....................................................................................................... 40
+
+4.1 Tổng quan ............................................................................................ 40
+
+4.2 Giải pháp thiết kế kiến trúc tổng thể hệ thống.......................................... 40
+
+       4.2.1 Application Layer ...................................................................... 40
+
+       4.2.2 Infrastructure Layer.................................................................... 41
+
+       4.2.3 External Services ....................................................................... 41
+
+       4.2.4 Communication Matrix .............................................................. 41
+
+                                                      ii
+4.3 Giải pháp quy trình vận hành liên tục CI/CD theo mô hình GitOps............ 42
+
+       4.3.1 Dẫn dắt và bài toán..................................................................... 42
+
+       4.3.2 Giải pháp thiết kế chi tiết ............................................................ 42
+
+       4.3.3 Kết quả đạt được ........................................................................ 43
+
+4.4 Giải pháp triển khai phân cấp an toàn với Canary Deployment.................. 43
+
+       4.4.1 Dẫn dắt và bài toán..................................................................... 43
+
+       4.4.2 Giải pháp thiết kế chi tiết ............................................................ 43
+
+       4.4.3 Kết quả đạt được ........................................................................ 44
+
+4.5 Giải pháp Auto-scaling chủ động theo sự kiện với KEDA ......................... 44
+
+       4.5.1 Dẫn dắt và bài toán..................................................................... 44
+
+       4.5.2 Giải pháp thiết kế chi tiết ............................................................ 44
+
+       4.5.3 Kết quả đạt được ........................................................................ 45
+
+4.6 Giải pháp giám sát hệ thống tập trung (Observability Stack) ..................... 45
+
+       4.6.1 Dẫn dắt và bài toán..................................................................... 45
+
+       4.6.2 Giải pháp thiết kế chi tiết ............................................................ 45
+
+       4.6.3 Kết quả đạt được ........................................................................ 45
+
+4.7 Giải pháp bảo mật theo mô hình Zero-Trust và DevSecOps ...................... 45
+
+       4.7.1 Dẫn dắt và bài toán..................................................................... 45
+
+       4.7.2 Giải pháp thiết kế chi tiết ............................................................ 46
+
+       4.7.3 Kết quả đạt được ........................................................................ 48
+
+4.8 Giải pháp quản lý hạ tầng đám mây tự động bằng Infrastructure as Code
+(Terraform)................................................................................................ 48
+
+       4.8.1 Dẫn dắt và bài toán..................................................................... 48
+
+       4.8.2 Giải pháp thiết kế chi tiết ............................................................ 49
+
+       4.8.3 Kết quả đạt được ........................................................................ 49
+
+4.9 Kết chương........................................................................................... 49
+
+                                                     iii
+CHƯƠNG 5. TRIỂN KHAI VÀ ĐÁNH GIÁ THỰC NGHIỆM ................ 50
+
+5.1 Tổng quan ............................................................................................ 50
+
+5.2 Thiết kế kiến trúc.................................................................................. 50
+
+5.3 Môi trường triển khai ............................................................................ 50
+
+5.4 So sánh Cloud vs VPS........................................................................... 51
+
+5.5 Cân nhắc về chi phí............................................................................... 51
+
+5.6 Xây dựng ứng dụng............................................................................... 51
+
+       5.6.1 Minh họa các chức năng chính .................................................... 52
+
+5.7 Kiểm thử.............................................................................................. 55
+
+       5.7.1 Kiểm thử chức năng (Functional Testing) ..................................... 55
+
+       5.7.2 Kiểm thử vận hành (DevOps Verification).................................... 56
+
+       5.7.3 Kết quả tổng hợp kiểm thử .......................................................... 58
+
+5.8 Triển khai và Vận hành.......................................................................... 58
+
+       5.8.1 Trạng thái workload trên Kubernetes............................................ 58
+
+       5.8.2 Giao diện quản lý GitOps (ArgoCD) ............................................ 59
+
+       5.8.3 Quản lý phân phối với Canary Deployment (Argo Rollouts)........... 59
+
+       5.8.4 Giám sát hệ thống (Grafana & Prometheus).................................. 59
+
+       5.8.5 Theo dõi tự động co giãn (HPA & KEDA).................................... 60
+
+       5.8.6 Quy trình CI/CD tự động (GitHub Actions) .................................. 60
+
+       5.8.7 Quản lý hạ tầng bằng mã (Terraform)........................................... 61
+
+       5.8.8 Bảo mật và Zero-Trust (NetworkPolicy & HTTPS)........................ 61
+
+5.9 Kịch bản trình diễn vận hành (Live Demo).............................................. 62
+
+5.10 Kết chương......................................................................................... 63
+
+CHƯƠNG 6. KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN ............................. 64
+
+6.1 Tổng quan ............................................................................................ 64
+
+                                                     iv
+6.2 Kết luận ............................................................................................... 64
+
+       6.2.1 Những kết quả thực tiễn đạt được................................................. 64
+
+       6.2.2 Đánh giá và So sánh ................................................................... 65
+
+       6.2.3 Những bài học kinh nghiệm rút ra................................................ 65
+
+6.3 Hạn chế và Hướng phát triển.................................................................. 66
+
+       6.3.1 Hạn chế hiện tại ......................................................................... 66
+
+       6.3.2 Hướng phát triển tương lai .......................................................... 66
+
+6.4 Kết chương........................................................................................... 67
+
+TÀI LIỆU THAM KHẢO......................................................................... 68
+
+PHỤ LỤC................................................................................................. 70
+
+A. DANH SÁCH API ENDPOINTS ......................................................... 70
+
+A.1 API Gateway và endpoint hệ thống ........................................................ 70
+
+A.2 Auth Service ....................................................................................... 70
+
+A.3 Learning Service ................................................................................. 71
+
+A.4 Assessment Service.............................................................................. 72
+
+A.5 AI Chat Service ................................................................................... 72
+
+A.6 Endpoint nội bộ giữa các microservice................................................... 73
+                         DANH MỤC HÌNH VẼ
+
+
+Hình 2.1 Kiến trúc tham khảo Microservices trên Azure Kubernetes
+     Service theo Microsoft Learn . . . . . . . . . . . . . . . . . . . . . .   8
+Hình 2.2   Mô hình luồng CI/CD và GitOps tổng quát . . . . . . . . . . .        9
+
+Hình 3.1   Sơ đồ Use Case tổng quát của hệ thống AI Tutor . . . . . . . . 14
+Hình 3.2   Use Case 01 – Đăng ký tài khoản . . . . . . . . . . . . . . . . 16
+Hình 3.3   Use Case 02 – Đăng nhập / Đăng xuất . . . . . . . . . . . . . . 17
+Hình 3.4   Use Case 03 – Chọn khối lớp và xem hồ sơ . . . . . . . . . . . 17
+Hình 3.5   Use Case 04 – Xem danh sách môn học . . . . . . . . . . . . . 17
+Hình 3.6   Use Case 05 – Xem danh sách bài học . . . . . . . . . . . . . . 17
+Hình 3.7   Use Case 06 – Học nội dung lý thuyết . . . . . . . . . . . . . . 18
+Hình 3.8   Use Case 07 – Làm bài kiểm tra . . . . . . . . . . . . . . . . . 18
+Hình 3.9   Use Case 08 – Nộp bài và xem điểm . . . . . . . . . . . . . . . 18
+Hình 3.10 Use Case 09 – Xem tiến độ học tập . . . . . . . . . . . . . . . 18
+Hình 3.11 Use Case 10 – Xem lịch sử làm bài . . . . . . . . . . . . . . . 19
+Hình 3.12 Use Case 11 – Chat với AI Tutor . . . . . . . . . . . . . . . . . 19
+Hình 3.13 Use Case 12 – Xem / ghim / xóa lịch sử chat . . . . . . . . . . 19
+Hình 3.14 Use Case 13 – Tạo quiz bằng AI . . . . . . . . . . . . . . . . . 19
+Hình 3.15 Use Case 14 – Tạo adaptive quiz . . . . . . . . . . . . . . . . . 20
+Hình 3.16 Use Case 15 – Tạo flashcard . . . . . . . . . . . . . . . . . . . 20
+Hình 3.17 Use Case 16 – Tóm tắt bài học . . . . . . . . . . . . . . . . . . 20
+Hình 3.18 Use Case 17 – Nhận gợi ý bài học . . . . . . . . . . . . . . . . 20
+Hình 3.19 Use Case 18 – Tải và cài đặt Android APK . . . . . . . . . . . 21
+Hình 3.20 Use Case 19 – Cập nhật tiến độ bất đồng bộ . . . . . . . . . . 21
+Hình 3.21 Use Case 20 – Xử lý tác vụ AI nền . . . . . . . . . . . . . . . 21
+Hình 3.22 Use Case 21 – Vận hành hệ thống và theo dõi usage AI . . . . 21
+Hình 3.23 Ranh giới trách nhiệm giữa các microservices . . . . . . . . . 24
+Hình 3.24 Sơ đồ kiến trúc Microservices của hệ thống AI Tutor . . . . . 25
+Hình 3.25 Ranh giới trách nhiệm giữa các microservices . . . . . . . . . 26
+Hình 3.26 Luồng đăng nhập và phát hành JWT . . . . . . . . . . . . . . . 27
+Hình 3.27 Luồng xem bài học và cập nhật tiến độ học tập . . . . . . . . . 27
+Hình 3.28 Luồng nộp bài kiểm tra và cập nhật kết quả đánh giá . . . . . . 28
+Hình 3.29 Luồng xử lý AI Chat với Google Gemini API . . . . . . . . . . 28
+Hình 3.30 Phân tách logical database theo từng service . . . . . . . . . . 29
+Hình 3.31 Tổng quan mô hình dữ liệu mức logic . . . . . . . . . . . . . . 30
+
+                                                                                vi
+Hình 3.32 Wireframe màn hình đăng nhập và đăng ký tài khoản . . . . . 32
+Hình 3.33 Wireframe màn hình chọn khối lớp, trang chủ và hồ sơ cá nhân 32
+Hình 3.34 Wireframe màn hình môn học, chi tiết môn học và tìm kiếm
+     nội dung . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 33
+Hình 3.35 Wireframe màn hình chi tiết bài học và đọc nội dung lý thuyết           33
+Hình 3.36 Wireframe màn hình danh sách quiz, làm bài và xem kết quả .             34
+Hình 3.37 Wireframe màn hình chat với AI Tutor và lịch sử hội thoại . .           34
+Hình 3.38 Wireframe dashboard tiến độ học tập . . . . . . . . . . . . . .         35
+Hình 3.39 Wireframe trang tải Android APK qua GitHub Pages . . . . .              35
+Hình 3.40 Tổng quan các công nghệ được sử dụng trong dự án . . . . . .            36
+
+Hình 4.1 Kiến trúc tổng thể hệ thống AI Tutor trên Azure AKS . . . . . 40
+Hình 4.2 Luồng CI/CD GitOps end-to-end: từ git push đến pod
+     mới running trong 7–9 phút . . . . . . . . . . . . . . . . . . . . . . . 42
+Hình 4.3 Sơ đồ các lớp bảo mật (Defense in Depth / Zero-Trust Baseline) 47
+Hình 4.4 Luồng xác thực JWT cục bộ tại các microservices . . . . . . . 48
+
+Hình 5.1 Giao diện xác thực người dùng. . . . . . . . . . . . . . . . . .         52
+Hình 5.2 Giao diện khám phá môn học và bài học. . . . . . . . . . . . .           53
+Hình 5.3 Giao diện làm bài kiểm tra và phân tích điểm yếu. . . . . . . .          53
+Hình 5.4 Giao diện tương tác với Trợ lý AI Tutor. . . . . . . . . . . . . .       54
+Hình 5.5 Giao diện trang chủ Flutter Web của hệ thống AI Tutor. . . . .           55
+Hình 5.6 Trạng thái các Pod trong namespace prod sau khi triển khai. .            58
+Hình 5.7 Trạng thái đồng bộ hóa GitOps của ứng dụng trên giao diện
+     ArgoCD. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    59
+Hình 5.8 Dashboard Grafana hiển thị mức sử dụng tài nguyên của cụm
+     Kubernetes. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    60
+Hình 5.9 Pipeline CI/CD tự động trên GitHub Actions. . . . . . . . . . .          61
+Hình 5.10 Danh sách các tài nguyên của hệ thống được cấp phát tự động
+     trên Azure Portal. . . . . . . . . . . . . . . . . . . . . . . . . . . . .   61
+Hình 5.11 Minh chứng các NetworkPolicy theo mô hình default-deny
+     và allow-list trong namespace prod. . . . . . . . . . . . . . . . . .        62
+
+
+
+
+                                      vii
+                       DANH MỤC BẢNG BIỂU
+
+
+Bảng 2.1   So sánh kiến trúc Monolith và Microservices . . . . . . . . . .     6
+
+Bảng 3.1   Tác nhân và vai trò trong hệ thống . . . . . . . . . . . . . . . . 13
+Bảng 3.2   Danh sách các Use Case chính theo tác nhân . . . . . . . . . . 14
+Bảng 3.3   Đặc tả kịch bản Use Case: Đăng nhập . . . . . . . . . . . . . . 22
+Bảng 3.4   Đặc tả kịch bản Use Case: Làm bài kiểm tra . . . . . . . . . . 22
+Bảng 3.5   Đặc tả kịch bản Use Case: Chat với AI Tutor . . . . . . . . . . 23
+Bảng 3.6   Phân tách database theo service . . . . . . . . . . . . . . . . . 29
+Bảng 3.7   Mô tả chi tiết các Collection trong hệ thống . . . . . . . . . . 30
+Bảng 3.8   Công nghệ tầng ứng dụng . . . . . . . . . . . . . . . . . . . . 36
+Bảng 3.9   Hạ tầng và dịch vụ đám mây . . . . . . . . . . . . . . . . . . . 38
+Bảng 3.10 Công cụ DevOps . . . . . . . . . . . . . . . . . . . . . . . . . 38
+Bảng 3.11 So sánh các lựa chọn nền tảng . . . . . . . . . . . . . . . . . . 38
+
+Bảng 4.1   Ma trận giao tiếp giữa các microservices . . . . . . . . . . . . 41
+Bảng 4.2   Các lớp bảo mật được triển khai . . . . . . . . . . . . . . . . . 46
+
+Bảng 5.1   Cấu hình môi trường triển khai . . . . . . . . . . . . . . . . . 50
+Bảng 5.2   So sánh triển khai trên Cloud (AKS) và VPS truyền thống . . 51
+Bảng 5.3   Ước tính chi phí hàng tháng . . . . . . . . . . . . . . . . . . . 51
+Bảng 5.4   Test cases cho chức năng xác thực người dùng. . . . . . . . . . 55
+Bảng 5.5   Test cases cho chức năng học tập và làm quiz. . . . . . . . . . 56
+Bảng 5.6   Test cases cho chức năng tương tác AI. . . . . . . . . . . . . . 56
+Bảng 5.7   So sánh Recreate và RollingUpdate . . . . . . . . . . . . . . . 56
+Bảng 5.8   Thời gian các giai đoạn trong luồng GitOps . . . . . . . . . . 57
+Bảng 5.9   Kết quả Canary Deployment . . . . . . . . . . . . . . . . . . . 57
+Bảng 5.10 Kết quả KEDA autoscaling . . . . . . . . . . . . . . . . . . . . 57
+Bảng 5.11 Kết quả giám sát và cảnh báo . . . . . . . . . . . . . . . . . . 57
+Bảng 5.12 Tổng hợp mức độ đạt được các mục tiêu . . . . . . . . . . . . 58
+
+Bảng 6.1   Hạn chế hiện tại và nguyên nhân . . . . . . . . . . . . . . . . . 66
+
+Bảng A.1 Endpoint hệ thống tại Backend Gateway . . . . . . . . . . . . 70
+Bảng A.2 Endpoint xác thực và người dùng . . . . . . . . . . . . . . . . 70
+Bảng A.3 Endpoint học tập . . . . . . . . . . . . . . . . . . . . . . . . . 71
+Bảng A.4 Endpoint đánh giá và tiến độ học tập . . . . . . . . . . . . . . 72
+Bảng A.5 Endpoint AI Chat và cá nhân hóa học tập . . . . . . . . . . . . 72
+
+                                                                             viii
+Bảng A.6 Endpoint nội bộ giữa các microservice . . . . . . . . . . . . . 73
+
+
+
+
+                                  ix
+            DANH MỤC THUẬT NGỮ VÀ TỪ VIẾT TẮT
+
+
+Thuật ngữ      Ý nghĩa
+ACR            Dịch vụ Docker Registry trên Azure (Azure Container
+               Registry)
+AKS            Dịch vụ Kubernetes được quản lý trên Azure (Azure Ku-
+               bernetes Service)
+API            Giao diện lập trình ứng dụng (Application Programming
+               Interface)
+APK            Gói cài đặt ứng dụng Android (Android Package Kit)
+CI/CD          Tích hợp liên tục / Triển khai liên tục (Continuous Inte-
+               gration / Continuous Deployment)
+CSI            Giao diện lưu trữ container (Container Storage Interface)
+CVE            Lỗ hổng bảo mật đã được công bố (Common Vulnerabili-
+               ties and Exposures)
+DLQ            Hàng đợi chứa các tác vụ thất bại (Dead Letter Queue)
+GitOps         Mô hình triển khai sử dụng Git làm nguồn sự thật duy nhất
+               (Single Source of Truth)
+HPA            Bộ tự động mở rộng pod theo chiều ngang (Horizontal Pod
+               Autoscaler)
+IaC            Hạ tầng dưới dạng mã nguồn (Infrastructure as Code)
+KEDA           Bộ tự động mở rộng theo sự kiện cho Kubernetes (Kuber-
+               netes Event-Driven Autoscaling)
+OIDC           Giao thức xác thực mở (OpenID Connect)
+SARIF          Định dạng trao đổi kết quả phân tích tĩnh (Static Analysis
+               Results Interchange Format)
+SHA            Thuật toán băm an toàn (Secure Hash Algorithm)
+TLS            Bảo mật tầng truyền tải (Transport Layer Security)
+VPS            Máy chủ ảo riêng (Virtual Private Server)
+
+
+
+
+                                                                            x
+                      CHƯƠNG 1. GIỚI THIỆU ĐỀ TÀI
+
+
+1.1   Đặt vấn đề
+  Trong thời đại công nghệ 4.0, giáo dục trực tuyến đang ngày càng trở thành một
+nhu cầu thiết yếu, đặc biệt đối với học sinh từ bậc tiểu học đến trung học phổ thông
+tại Việt Nam. Tuy nhiên, khoảng cách về chất lượng giáo dục giữa các vùng miền
+vẫn còn rất lớn. Học sinh ở vùng sâu, vùng xa không chỉ thiếu giáo viên giỏi mà
+còn không có điều kiện tiếp cận các lớp học thêm hay nhận được sự kèm cặp sát
+sao. Trong khi đó, ở các đô thị lớn, học sinh lại bị áp lực học tập quá mức mà không
+nhận được sự hỗ trợ cá nhân hóa phù hợp. Đây là bài toán mà một ứng dụng học
+tập thông minh có thể góp phần giải quyết: cung cấp cho mỗi em học sinh một gia
+sư AI cá nhân, sẵn sàng giải đáp câu hỏi, tạo bài tập và phân tích điểm yếu bất cứ
+lúc nào, bất cứ nơi đâu.
+   Bên cạnh bài toán giáo dục, còn tồn tại một bài toán kỹ thuật nghiêm trọng hơn
+ở phía sau: làm thế nào để vận hành một hệ thống như vậy một cách bền vững, an
+toàn và có khả năng mở rộng trước hàng triệu lượt truy cập? Quy trình triển khai
+phần mềm truyền thống — SSH vào server, git pull, khởi động lại dịch vụ —
+tồn tại hàng loạt hạn chế nghiêm trọng khi áp dụng cho hệ thống microservices
+nhiều thành phần. Các thao tác thủ công dễ xảy ra sai sót, việc restart dịch vụ trực
+tiếp gây gián đoạn cho người dùng, và khi phát hiện lỗi sau khi triển khai, việc quay
+lại phiên bản cũ trở nên phức tạp và mất nhiều thời gian. Đặc biệt, khi số lượng
+service tăng lên, quy trình thủ công trở thành nút thắt cổ chai cho cả đội ngũ phát
+triển lẫn vận hành.
+   Đồ án này được sinh ra từ chính hai bài toán đó: xây dựng ứng dụng AI Tutor có
+giá trị nghiệp vụ thực sự cho người học, đồng thời nghiên cứu và triển khai toàn bộ
+quy trình vận hành theo chuẩn doanh nghiệp hiện đại trên nền tảng đám mây. Đây
+là một đồ án bao trùm toàn bộ vòng đời phần mềm — từ phân tích yêu cầu, thiết
+kế kiến trúc, phát triển ứng dụng, đến tự động hóa triển khai, giám sát vận hành và
+bảo mật hệ thống trên Kubernetes.
+1.2   Mục tiêu và phạm vi đề tài
+      1.2.1   Mục tiêu đề tài
+   Đồ án đặt ra hai nhóm mục tiêu song song nhằm giải quyết trọn vẹn bài toán
+ứng dụng học tập và bài toán vận hành hệ thống. Về phía nghiệp vụ ứng dụng, mục
+tiêu hàng đầu là xây dựng hoàn chỉnh nền tảng AI Tutor với các tính năng học tập
+cốt lõi như quản lý bài học, thực hiện bài kiểm tra và theo dõi tiến độ. Đặc biệt,
+
+
+                                                                                   1
+                                             CHƯƠNG 1. GIỚI THIỆU ĐỀ TÀI
+
+
+ứng dụng tích hợp các tính năng AI tiên tiến nhằm cá nhân hóa trải nghiệm học tập,
+bao gồm trợ lý học tập giải đáp thắc mắc theo ngữ cảnh, chức năng tạo bài kiểm tra
+tự động và gợi ý lộ trình học phù hợp với từng cá nhân. Hệ thống được phát triển
+bằng Flutter, đảm bảo trải nghiệm người dùng nhất quán và mượt mà trên cả nền
+tảng Web và thiết bị di động Android.
+  Về phía kỹ thuật và vận hành, đồ án hướng đến việc thiết kế và triển khai một
+quy trình DevOps chuẩn doanh nghiệp, bao trùm toàn bộ vòng đời phát triển phần
+mềm. Mục tiêu là xây dựng luồng CI/CD tự động từ kho lưu trữ GitHub đến cụm
+Azure Kubernetes Service (Azure Kubernetes Service (AKS)), giảm tối đa các
+thao tác thủ công dễ gây lỗi. Để đảm bảo quá trình phát hành an toàn, đồ án áp
+dụng mô hình GitOps kết hợp chiến lược Canary Deployment, cho phép nâng cấp
+phiên bản không gây gián đoạn (zero-downtime) trong kịch bản thử nghiệm và
+hỗ trợ rollback nhanh khi cần. Bên cạnh đó, đồ án hướng đến việc mở rộng hệ
+thống linh hoạt thông qua kiến trúc Auto-scaling theo sự kiện (Kubernetes Event-
+Driven Autoscaling (KEDA)), kết hợp với hệ thống quan sát tập trung (Prometheus,
+Grafana), đồng thời quản lý các hạ tầng chính bằng mã nguồn (Terraform) và thiết
+lập các lớp bảo mật vững chắc (Trivy, Key Vault Container Storage Interface (CSI),
+Zero-Trust NetworkPolicy).
+     1.2.2   Phạm vi đồ án
+    Về mặt ứng dụng, đồ án giới hạn phạm vi ở việc hoàn thiện các tính năng học
+tập cốt lõi và các tác vụ AI cơ bản phục vụ cá nhân hóa lộ trình học cho nền tảng
+Web và ứng dụng di động Android. Quá trình phát hành phiên bản di động được
+tự động hóa luồng build, đóng gói APK và phân phối qua GitHub Pages. Việc phát
+hành chính thức trên các kho ứng dụng thương mại như Google Play Store hay phát
+triển phiên bản dành riêng cho hệ điều hành iOS nằm ngoài phạm vi thực hiện do
+những giới hạn về mặt thời gian và tài nguyên môi trường.
+   Về mặt hạ tầng và DevOps, đồ án thực hiện triển khai trên nền tảng đám mây
+Azure với cụm Kubernetes ở cấu hình thử nghiệm thực tế (1 node), không đặt
+trọng tâm vào kiến trúc phân tán đa vùng (multi-region) ở quy mô production
+thương mại. Phạm vi tự động hóa phát hành bao phủ toàn bộ các thành phần cấu
+thành hệ thống: backend gateway, 4 microservices nghiệp vụ (Node.js), AI worker
+và frontend Flutter web. Các giải pháp vận hành nâng cao như GitOps, Canary
+Deployment và Auto-scaling được tập trung triển khai nhằm đảm bảo tính sẵn sàng
+và an toàn trong mỗi vòng lặp phát hành; không mở rộng nghiên cứu sang các
+kỹ thuật thử nghiệm nghiệp vụ như A/B Testing, Feature Flags hay Service Mesh
+(mTLS). Hệ thống giám sát (Observability) tập trung vào việc thu thập các chỉ số
+
+
+                                                                                2
+CHƯƠNG 1. GIỚI THIỆU ĐỀ TÀI
+
+
+hiệu suất vận hành cơ bản qua Azure Monitor và Grafana, chưa đi sâu vào cơ chế
+truy vết phân tán (Distributed Tracing) chuyên sâu.
+1.3   Định hướng giải pháp
+   Để giải quyết đồng thời bài toán nghiệp vụ và bài toán kỹ thuật, đồ án lựa
+chọn hướng tiếp cận Cloud Native kết hợp với kiến trúc Microservices. Về phía
+ứng dụng, hệ thống AI Tutor được tách thành các service độc lập theo chức năng
+nghiệp vụ: Auth, Learning, Assessment và AI Chat, mỗi service sở hữu cơ sở dữ
+liệu riêng và giao tiếp qua API. Các tác vụ AI tốn nhiều thời gian như tạo quiz hay
+phân tích bài học được xử lý bất đồng bộ qua hàng đợi BullMQ/Redis, giúp người
+dùng không phải chờ đợi.
+  Về phía vận hành, thay vì triển khai thủ công từng thành phần trên một máy chủ
+Virtual Private Server (VPS), toàn bộ hệ thống được container hóa bằng Docker,
+đóng gói bằng Helm và triển khai trên AKS. Quy trình phát hành được tự động hóa
+bằng GitHub Actions, kết hợp với ArgoCD theo mô hình GitOps và Argo Rollouts
+để triển khai theo chiến lược canary, giúp giảm rủi ro phát hành và hỗ trợ rollback
+nhanh khi cần thiết.
+1.4   Giới thiệu ứng dụng AI Tutor
+  AI Tutor là nền tảng học tập thông minh được thiết kế để phục vụ học sinh từ
+bậc tiểu học đến trung học phổ thông trên toàn quốc. Ứng dụng được phát triển
+bằng Flutter, hỗ trợ đồng thời trên nền tảng Web và thiết bị di động Android, giúp
+học sinh dễ dàng tiếp cận bất kể thiết bị sử dụng. Phía backend được xây dựng trên
+kiến trúc microservices với Node.js và tích hợp Google Gemini API để cung cấp
+các tính năng trí tuệ nhân tạo.
+   Cốt lõi của AI Tutor là vai trò gia sư cá nhân: hệ thống không chỉ cung cấp nội
+dung bài học mà còn chủ động phân tích điểm yếu của từng học sinh và đề xuất lộ
+trình học phù hợp. Trợ lý AI có thể giải đáp câu hỏi theo ngữ cảnh bài học hiện tại,
+tự động tạo bộ câu hỏi trắc nghiệm để ôn tập, tạo flashcard và tóm tắt bài học để
+giúp học sinh ghi nhớ hiệu quả hơn. Đây chính là giá trị cốt lõi mà đồ án hướng tới:
+dân chủ hóa cơ hội học tập chất lượng cao, đặc biệt cho các em học sinh ở vùng
+sâu, vùng xa không có điều kiện tiếp cận gia sư hay lớp học thêm.
+1.5   Bố cục đồ án
+   Báo cáo được tổ chức thành 6 chương với nội dung logic và liền mạch. Chương
+1 trình bày bối cảnh, bài toán nghiên cứu, mục tiêu và định hướng giải pháp của
+đồ án. Chương 2 tổng hợp cơ sở lý thuyết về các công nghệ và khái niệm được sử
+dụng, từ kiến trúc Microservices, Flutter, Node.js đến Kubernetes, CI/CD, GitOps
+
+
+3
+                                             CHƯƠNG 1. GIỚI THIỆU ĐỀ TÀI
+
+
+và mô hình ngôn ngữ lớn. Chương 3 trình bày phân tích yêu cầu hệ thống thông
+qua các Use Case, thiết kế kiến trúc ứng dụng, luồng xử lý nghiệp vụ, thiết kế dữ
+liệu và các công nghệ được lựa chọn. Chương 4 đề xuất quy trình DevOps và thiết
+kế chi tiết từng giải pháp vận hành, từ CI/CD, Canary Deployment đến KEDA,
+Observability, bảo mật và Terraform. Chương 5 trình bày kết quả thực nghiệm, bao
+gồm môi trường triển khai, quá trình xây dựng ứng dụng và các kịch bản kiểm thử.
+Cuối cùng, Chương 6 tổng kết những đóng góp của đồ án, nêu rõ các hạn chế hiện
+tại và định hướng phát triển trong tương lai.
+
+
+
+
+                                                                               4
+                       CHƯƠNG 2. CƠ SỞ LÝ THUYẾT
+
+
+2.1   Tổng quan
+  Chương này trình bày các cơ sở lý thuyết và công nghệ nền tảng phục vụ cho việc
+thiết kế hệ thống AI Tutor theo định hướng cloud-native và DevSecOps. Các nội
+dung được sắp xếp từ kiến trúc ứng dụng, container/Kubernetes, CI/CD – GitOps,
+chiến lược triển khai, autoscaling, observability, Infrastructure as Code, bảo mật
+trong pipeline đến tích hợp mô hình ngôn ngữ lớn.
+2.2   Kiến trúc Microservices
+      2.2.1   Khái niệm
+   Kiến trúc microservices là một phương pháp phát triển phần mềm, trong đó một
+ứng dụng lớn được xây dựng dưới dạng một tập hợp các dịch vụ nhỏ, độc lập và có
+khả năng triển khai riêng lẻ [1], [2]. Mỗi dịch vụ thực thi một quy trình nghiệp vụ
+cụ thể và giao tiếp với các dịch vụ khác thông qua các giao diện lập trình ứng dụng
+(API) được định nghĩa rõ ràng, thường là qua giao thức HTTP/REST hoặc message
+broker. Mỗi service duy trì một cơ sở dữ liệu riêng (Database per Service pattern)
+nhằm đảm bảo tính cô lập dữ liệu.
+      2.2.2   Ưu điểm của Microservices
+   Việc lựa chọn kiến trúc microservices cho dự án AI Tutor xuất phát từ những
+ưu điểm vượt trội mà nó mang lại so với kiến trúc nguyên khối (monolithic) truyền
+thống, đặc biệt phù hợp với một hệ thống học tập trực tuyến phức tạp và có định
+hướng phát triển lâu dài:
+   • Tính linh hoạt và khả năng mở rộng: Mỗi microservice có thể được phát
+     triển, triển khai và mở rộng quy mô một cách độc lập mà không ảnh hưởng
+     đến các thành phần khác. Ví dụ, khi dịch vụ AI Worker cần xử lý lượng lớn
+     yêu cầu sinh đề thi hoặc trò chuyện cùng lúc, hệ thống có thể chỉ tăng số lượng
+      bản sao (replicas) của dịch vụ đó thông qua cơ chế auto-scaling.
+   • Lựa chọn công nghệ đa dạng (Polyglot): Mặc dù trong dự án này, phần lớn
+     các service backend đều được viết bằng Node.js kết hợp Express, kiến trúc
+     microservices cho phép dễ dàng mở rộng trong tương lai bằng các công nghệ
+     khác (như Python cho các tác vụ Machine Learning chuyên sâu) tuỳ thuộc vào
+      yêu cầu đặc thù của từng bài toán.
+   • Tăng cường khả năng bảo trì và phát triển: Các dịch vụ nhỏ gọn, tập trung
+     vào một nghiệp vụ duy nhất (như Auth, Learning, Assessment) sẽ dễ đọc hiểu,
+     dễ bảo trì và mở rộng hơn. Mã nguồn được chia tách rõ ràng cũng giúp việc
+
+                                                                                  5
+                                              CHƯƠNG 2. CƠ SỞ LÝ THUYẾT
+
+
+    phát triển tính năng mới diễn ra song song và nhanh chóng.
+   • Nâng cao khả năng chịu lỗi (Fault Isolation): Việc phân tách thành các dịch
+     vụ độc lập giúp giới hạn phạm vi ảnh hưởng khi xảy ra lỗi. Nếu một dịch vụ
+     phụ trợ như AI Chat gặp sự cố hoặc quá tải, nó sẽ không làm sập toàn bộ
+     hệ thống; người dùng vẫn có thể đăng nhập và học tập các bài giảng thông
+     thường.
+     2.2.3   So sánh Monolith và Microservices
+
+
+               Bảng 2.1: So sánh kiến trúc Monolith và Microservices
+ Tiêu chí                Monolith                       Microservices
+ Triển khai              Toàn bộ ứng dụng               Từng service độc lập
+ Scale                   Theo toàn bộ app               Theo từng service
+ Công nghệ               Đồng nhất                      Đa dạng (polyglot)
+ Độ phức tạp vận hành    Thấp                           Cao (cần orchestration)
+ Fault isolation         Thấp                           Cao
+
+
+     2.2.4   Strangler Fig Pattern
+   Strangler Fig Pattern là chiến lược chuyển đổi dần từ monolith sang microser-
+vices. Thay vì viết lại toàn bộ, từng chức năng được “strangled” — tách ra thành
+service riêng trong khi monolith vẫn hoạt động như proxy. Đề tài áp dụng pattern
+này qua 4 giai đoạn: tách Auth → Learning → Assessment → AI Chat.
+     2.2.5   Áp dụng Microservices trong hệ thống AI Tutor
+    Trong phạm vi đồ án, lý thuyết microservices không chỉ được sử dụng như một
+khái niệm nền tảng mà được ánh xạ trực tiếp vào kiến trúc hệ thống AI Tutor. Hệ
+thống được tổ chức thành một lớp giao diện người dùng, một cổng giao tiếp API
+trung tâm và các dịch vụ chạy ngầm. Sơ đồ thiết kế chi tiết được trình bày ở Hình
+3.24 trong Chương 3; phần dưới đây tóm tắt vai trò của các lớp chính dưới góc nhìn
+lý thuyết microservices.
+  a, Tầng Giao diện và API Gateway
+  Frontend Flutter đóng vai trò là điểm chạm trực tiếp với người dùng trên cả nền
+tảng Web và thiết bị di động Android. Thay vì kết nối trực tiếp đến từng dịch vụ
+nhỏ lẻ, ứng dụng Flutter chỉ giao tiếp duy nhất với Backend Gateway. Gateway này
+là cánh cổng trung tâm tiếp nhận toàn bộ lưu lượng, thực hiện định tuyến (routing),
+giới hạn tần suất (rate limiting) và xử lý CORS trước khi chuyển tiếp yêu cầu đến
+các microservices nghiệp vụ ẩn bên trong mạng nội bộ.
+  b, Các dịch vụ Nghiệp vụ Lõi
+
+                                                                                  6
+CHƯƠNG 2. CƠ SỞ LÝ THUYẾT
+
+
+    Đây là trái tim của hệ thống học tập, bao gồm Auth Service, Learning Service
+và Assessment Service. Auth Service chuyên trách việc xác thực người dùng và
+cấp phát token; Learning Service quản lý kho dữ liệu bài học và nội dung lý thuyết;
+Assessment Service phụ trách chấm điểm, phân tích điểm yếu và lưu trữ lịch sử
+kiểm tra. Việc phân tách thành các dịch vụ độc lập giúp mỗi thành phần đều nhẹ
+nhàng, dễ bảo trì và sử dụng cơ sở dữ liệu riêng biệt.
+    c, Các dịch vụ Trí tuệ nhân tạo (AI)
+  Hệ thống cung cấp các chức năng AI nâng cao thông qua AI Chat Service và AI
+Worker. AI Chat Service xử lý giao tiếp tức thời như hỏi đáp trực tiếp nội dung bài
+học qua API của Google Gemini. Ngược lại, AI Worker là một tiến trình chạy nền
+(background) chuyên nhận các công việc tốn thời gian — như tạo bộ đề thi hoặc
+tóm tắt bài học — từ hàng đợi Redis, cho phép mở rộng linh hoạt mà không làm
+tắc nghẽn luồng truy cập chính của người dùng.
+2.3   Ngôn ngữ và Framework lập trình
+    a, Môi trường thực thi Node.js
+   Node.js là một môi trường thực thi mã nguồn mở, đa nền tảng dùng để chạy mã
+JavaScript bên ngoài máy chủ. Sở hữu kiến trúc hướng sự kiện (event-driven) và
+mô hình I/O không chặn (non-blocking), Node.js đặc biệt hiệu quả trong việc xử
+lý hàng ngàn kết nối đồng thời. Đồ án sử dụng Node.js kết hợp cùng framework
+Express để xây dựng toàn bộ các microservices backend, mang lại tốc độ phản hồi
+nhanh và hệ sinh thái thư viện phong phú.
+    b, Bộ công cụ giao diện Flutter
+   Flutter là bộ công cụ phát triển giao diện người dùng mã nguồn mở do Google
+tạo ra, cho phép xây dựng ứng dụng biên dịch tự nhiên cho nhiều nền tảng từ một
+cơ sở mã duy nhất. Với hiệu năng cao và hệ thống widget linh hoạt, Flutter được
+lựa chọn để phát triển ứng dụng AI Tutor phía người học. Điều này giúp đảm bảo
+trải nghiệm học tập mượt mà, đồng nhất trên cả trình duyệt Web và các thiết bị di
+động Android của học sinh.
+2.4   Container hóa và Điều phối Container
+    a, Nền tảng Container Docker
+   Docker cho phép đóng gói ứng dụng cùng toàn bộ môi trường chạy (dependen-
+cies) vào một container độc lập. Đồ án áp dụng các kỹ thuật Docker nâng cao
+như biên dịch đa bước (Multi-stage build) để giảm tối đa kích thước ảnh (image) ở
+môi trường production. Đồng thời, các container luôn được cấu hình để chạy dưới
+quyền người dùng không đặc quyền (non-root) và sử dụng tag bất biến (SHA) thay
+
+7
+                                               CHƯƠNG 2. CƠ SỞ LÝ THUYẾT
+
+
+vì :latest nhằm nâng cao tối đa mức độ bảo mật.
+  b, Hệ thống Điều phối Kubernetes (K8s)
+   Kubernetes là nền tảng mã nguồn mở hàng đầu trong việc quản lý và điều phối
+các ứng dụng container hóa. Thay vì thao tác trực tiếp với từng Pod (đơn vị nhỏ
+nhất), đồ án quản lý trạng thái hệ thống thông qua Deployment để tự động phục hồi
+khi có sự cố. Các dịch vụ giao tiếp với nhau qua IP tĩnh nội bộ (Service), kết nối ra
+Internet qua NGINX Ingress, và được cô lập về mặt mạng lưới thông qua các quy
+tắc Zero-Trust NetworkPolicy khắt khe.
+   Ở cấp độ triển khai trên nền tảng đám mây, AKS cung cấp một lớp Kubernetes
+được quản lý, giúp giảm gánh nặng vận hành control plane và tích hợp thuận lợi với
+các dịch vụ bảo mật, giám sát và lưu trữ của Azure. Hình 2.1 minh họa một kiến trúc
+tham khảo Microservices trên Azure Kubernetes Service do Microsoft Learn công
+bố [3]. Đây là sơ đồ tham khảo về mặt nguyên lý; kiến trúc cụ thể của AI Tutor
+được điều chỉnh theo yêu cầu đồ án, sử dụng MongoDB Atlas, Redis/BullMQ,
+ArgoCD/GitOps, KEDA và được trình bày chi tiết ở Chương 4.
+
+
+
+
+Hình 2.1: Kiến trúc tham khảo Microservices trên Azure Kubernetes Service theo Mi-
+crosoft Learn
+
+
+
+
+2.5   CI/CD và Mô hình GitOps
+  Để tự động hóa quá trình phát hành và giảm thiểu rủi ro, hệ thống áp dụng
+mô hình kết hợp giữa Continuous Integration (CI) truyền thống và Continuous
+Deployment (CD) theo phương pháp GitOps. Hình 2.2 minh họa luồng hoạt động
+tổng quát của quy trình này.
+
+                                                                                   8
+CHƯƠNG 2. CƠ SỞ LÝ THUYẾT
+
+
+
+
+                 Hình 2.2: Mô hình luồng CI/CD và GitOps tổng quát
+
+
+
+
+    a, GitHub Actions (Continuous Integration)
+  GitHub Actions là nền tảng tích hợp liên tục được gắn liền vào kho lưu trữ mã
+nguồn, tự động kích hoạt quy trình kiểm thử và đóng gói khi có thay đổi (push).
+Trong dự án, GitHub Actions chịu trách nhiệm biên dịch mã nguồn, quét lỗ hổng
+bảo mật và xây dựng Docker image. Việc xác thực với nền tảng Azure được thực
+hiện qua cơ chế liên kết định danh của GitHub Actions và Azure, giúp giảm phụ
+thuộc vào secret tĩnh trong pipeline.
+    b, ArgoCD (Continuous Deployment theo GitOps)
+   Khác với CI/CD truyền thống đẩy lệnh trực tiếp, ArgoCD hoạt động theo mô
+hình GitOps, liên tục theo dõi cấu hình lưu trữ trên Git để tự động đồng bộ trạng
+thái thực tế của Kubernetes. Nếu phát hiện có sự can thiệp thủ công làm sai lệch
+cấu hình máy chủ, ArgoCD sẽ ngay lập tức ghi đè để khôi phục trạng thái chuẩn
+(self-healing), đồng thời lưu lại toàn bộ lịch sử thay đổi để có thể rollback bất kỳ
+lúc nào.
+
+9
+                                              CHƯƠNG 2. CƠ SỞ LÝ THUYẾT
+
+
+2.6   Chiến lược triển khai và Quản lý sức khỏe
+  a, Chiến lược Canary Deployment
+   Thay vì khởi động lại toàn bộ dịch vụ (Recreate) gây gián đoạn, hoặc thay thế từ
+từ (Rolling Update) dễ lan truyền lỗi, hệ thống áp dụng Canary Deployment thông
+qua Argo Rollouts. Chiến lược này chỉ chuyển hướng một tỷ lệ nhỏ lưu lượng (ví
+dụ 20%) vào phiên bản mới để thử nghiệm thực tế. Nếu phiên bản này hoạt động
+ổn định, lưu lượng sẽ được tăng dần lên 100%; ngược lại, hệ thống sẽ ngay lập tức
+rollback về bản cũ, bảo vệ phần lớn người dùng khỏi sự cố.
+  b, Kiểm tra sức khỏe tự động (Health Probes)
+   Để đảm bảo định tuyến chính xác, Kubernetes sử dụng Readiness Probe để xác
+định xem ứng dụng đã khởi động hoàn tất và sẵn sàng nhận request hay chưa. Song
+song đó, Liveness Probe liên tục giám sát trạng thái sống còn của container trong
+suốt quá trình hoạt động. Nếu ứng dụng bị treo (deadlock) hoặc quá tải không phản
+hồi, Kubernetes sẽ tự động khởi động lại container đó để nhanh chóng khôi phục
+dịch vụ.
+2.7   Tự động mở rộng theo sự kiện (KEDA)
+  a, Hạn chế của Horizontal Pod Autoscaler (HPA)
+  HPA mặc định của Kubernetes tự động tăng giảm số lượng bản sao dựa trên các
+chỉ số nội bộ như tỷ lệ sử dụng CPU hoặc bộ nhớ. Tuy nhiên, đối với tác vụ nền
+như AI Worker xử lý hàng đợi (queue), CPU thường không phản ánh kịp thời khối
+lượng công việc đang ùn ứ, dẫn đến việc cấp phát tài nguyên quá trễ. Hơn nữa,
+HPA không thể mở rộng quy mô về 0 khi hệ thống hoàn toàn nhàn rỗi.
+  b, Kubernetes Event-driven Autoscaling (KEDA)
+   KEDA là công cụ mở rộng tự động dựa trên các sự kiện bên ngoài. Trong đồ
+án, KEDA được cấu hình để liên tục theo dõi chiều dài hàng đợi của Redis. Ngay
+khi có tác vụ AI được đưa vào hàng đợi, KEDA sẽ lập tức tăng số lượng Pod của
+AI Worker để xử lý song song. Điểm đáng giá nhất là tính năng Scale-to-Zero: khi
+không còn tác vụ nào, toàn bộ AI Worker sẽ bị tắt hoàn toàn, giúp tối ưu triệt để
+chi phí tài nguyên máy chủ.
+2.8   Quan sát hệ thống (Observability)
+  a, Thu thập Metrics với Prometheus
+  Prometheus là cốt lõi của hệ thống giám sát, hoạt động theo mô hình tự động
+kéo (pull) dữ liệu từ các máy chủ với chu kỳ ngắn (15 giây). Hệ thống này thu thập
+hàng loạt các chỉ số định lượng về mức tiêu thụ CPU, RAM, cũng như thời gian
+
+
+                                                                                10
+CHƯƠNG 2. CƠ SỞ LÝ THUYẾT
+
+
+phản hồi API. Dữ liệu được lưu trữ dưới dạng chuỗi thời gian (time-series), đóng
+vai trò là nguồn dữ liệu nền tảng cho việc phân tích hiệu suất và cảnh báo.
+     b, Trực quan hóa dữ liệu với Grafana
+   Grafana được sử dụng làm lớp hiển thị dữ liệu trực quan cho hệ thống, kết nối
+trực tiếp với Prometheus. Công cụ này cung cấp các biểu đồ động theo thời gian
+thực (dashboard) về sức khỏe tổng thể của hệ thống. Nhờ đó, đội ngũ vận hành có
+thể dễ dàng phát hiện các điểm nghẽn, theo dõi sát sao quá trình ứng dụng tự động
+mở rộng và trực quan hóa phân bổ lưu lượng truy cập trên một giao diện duy nhất.
+     c, Quản lý Log tập trung và Cảnh báo
+   Song song với các chỉ số đo lường, toàn bộ bản ghi sự kiện (logs) từ mọi con-
+tainer được thu thập tập trung thông qua Azure Log Analytics, giúp quá trình dò
+tìm lỗi diễn ra nhanh chóng. Nền tảng Azure Monitor được cấu hình các quy tắc
+cảnh báo tự động; khi phát hiện dấu hiệu bất thường như máy chủ quá tải hoặc dịch
+vụ khởi động lại liên tục, một thông báo sẽ lập tức được gửi đi để đội ngũ kỹ thuật
+can thiệp.
+2.9    Quản lý Hạ tầng và Bảo mật (DevSecOps)
+     a, Quản lý Hạ tầng bằng mã nguồn (Terraform)
+  Terraform là công cụ Infrastructure as Code (IaC) cho phép khai báo trạng thái
+mong muốn của toàn bộ hệ thống đám mây (Kubernetes, Database, Network) dưới
+dạng mã nguồn. Thay vì thao tác thủ công, Terraform sẽ tự động tính toán và tạo
+ra các tài nguyên cần thiết thông qua API. Điều này không chỉ giúp việc khởi tạo
+hệ thống diễn ra chính xác, có thể tái tạo ở bất kỳ đâu, mà còn đưa lịch sử hạ tầng
+vào chung hệ thống quản lý phiên bản Git.
+     b, Quản lý Secret và Bảo mật mạng
+   Trong mô hình DevSecOps, các thông tin nhạy cảm (như mật khẩu cơ sở dữ
+liệu) tuyệt đối không được lưu trong mã nguồn, mà được mã hóa và bảo quản trong
+Azure Key Vault, sau đó đồng bộ trực tiếp vào Pod qua CSI Driver. Ở cấp độ mạng
+nội bộ, cụm Kubernetes thiết lập nguyên tắc Zero-Trust bằng cách chặn mặc định
+toàn bộ lưu lượng (default-deny) và chỉ mở khóa cho các kết nối đã được khai báo
+quyền truy cập rõ ràng.
+     c, Kiểm tra lỗ hổng bảo mật tự động với Trivy
+   Trivy là trình quét lỗ hổng bảo mật được tích hợp ngay trong chuỗi CI/CD của
+GitHub Actions. Trước khi mã nguồn được phép đóng gói và phát hành, Trivy phân
+tích các thư viện phụ thuộc, cấu hình container/Kubernetes và image đã build. Nếu
+
+
+11
+                                               CHƯƠNG 2. CƠ SỞ LÝ THUYẾT
+
+
+phát hiện lỗ hổng nghiêm trọng nằm trong phạm vi chính sách quét, pipeline sẽ bị
+dừng (fail build), qua đó giảm rủi ro đưa thành phần chưa an toàn vào môi trường
+chạy.
+2.10    Trí tuệ nhân tạo và Mô hình ngôn ngữ lớn (LLM)
+   Mô hình ngôn ngữ lớn (Large Language Model – LLM) là mô hình học sâu được
+huấn luyện trên khối lượng dữ liệu văn bản lớn, có khả năng sinh văn bản, trả lời
+câu hỏi, tóm tắt nội dung và hỗ trợ tạo dữ liệu học tập. Trong hệ thống AI Tutor,
+Google Gemini API được sử dụng như dịch vụ AI bên ngoài để xử lý các tác vụ
+như chat với trợ lý học tập, sinh câu hỏi trắc nghiệm, tóm tắt bài học, tạo flashcard
+và đề xuất bài học phù hợp [4].
+   Về mặt kiến trúc, các chức năng AI không được đặt trực tiếp trong frontend mà
+đi qua backend gateway và AI Chat Service. Cách làm này giúp che giấu API key,
+kiểm soát quota, lưu lịch sử hội thoại và có thể đưa các tác vụ tốn thời gian vào
+hàng đợi để xử lý bất đồng bộ.
+2.11    Kết chương
+    Chương này đã tổng hợp các khái niệm nền tảng được sử dụng xuyên suốt đồ án.
+Các cơ sở lý thuyết này là tiền đề cho phần phân tích, thiết kế hệ thống ở Chương
+3, thiết kế quy trình DevOps và kiến trúc hạ tầng ở Chương 4, cũng như phần triển
+khai và đánh giá thực nghiệm ở Chương 5.
+
+
+
+
+                                                                                  12
+               CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+3.1    Tổng quan
+  AI Tutor là hệ thống học tập trực tuyến có tích hợp trợ lý AI. Trong phạm vi đồ
+án, hệ thống được nhìn dưới hai góc độ: (i) một ứng dụng học tập có các chức năng
+đăng nhập, xem bài học, làm bài kiểm tra và chat với trợ lý AI; (ii) một hệ thống
+microservices cần được triển khai, vận hành và giám sát theo quy trình DevOps
+trên nền tảng cloud.
+
+
+
+
+                      Bảng 3.1: Tác nhân và vai trò trong hệ thống
+      Tác nhân                Vai trò
+      Học sinh/người học      Đăng nhập, xem danh sách môn học/bài học, làm
+                              bài kiểm tra, theo dõi tiến độ và đặt câu hỏi cho
+                              AI Tutor.
+      Hệ thống AI Tutor       Điều phối request qua API Gateway, gọi các mi-
+                              croservices, quản lý dữ liệu học tập và gửi tác vụ
+                              AI vào hàng đợi khi cần xử lý bất đồng bộ.
+      AI Worker               Xử lý các tác vụ AI nền qua BullMQ/Redis, gọi
+                              Gemini API và lưu kết quả xử lý.
+      DevOps operator         Quản lý pipeline, hạ tầng cloud, GitOps, roll-
+                              out/canary, monitoring, secret và policy bảo mật.
+
+
+
+
+3.2    Phân tích yêu cầu
+       3.2.1    Yêu cầu chức năng (Use Cases)
+   Để phản ánh đúng phạm vi triển khai hiện tại của hệ thống AI Tutor, các yêu
+cầu chức năng được phân rã thành các nhóm Use Case cốt lõi xoay quanh người
+học, hệ thống AI Tutor, AI Worker và người vận hành kỹ thuật. Một số chức năng
+quản trị nâng cao như quản lý nội dung qua giao diện admin đầy đủ được xem là
+hướng mở rộng, không phải trọng tâm triển khai trong đồ án. Hình 3.1 minh họa
+sơ đồ Use Case tổng quát.
+
+                                                                                   13
+                         CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+
+
+              Hình 3.1: Sơ đồ Use Case tổng quát của hệ thống AI Tutor
+
+
+   Trong Hình 3.1, nhóm use case liên quan đến xác thực JWT thể hiện các luồng
+có trạng thái cá nhân như theo dõi tiến độ, làm bài kiểm tra, chat và xem lịch sử.
+Một số API đọc dữ liệu học tập như danh sách môn học/bài học có thể được thiết
+kế public hoặc optional-auth tùy ngữ cảnh. Use case tải Android APK được xem là
+kênh phân phối sản phẩm qua GitHub Pages, không phải luồng runtime bên trong
+AKS.
+   Danh sách các Use Case chính được trình bày trong Bảng 3.2. Việc định nghĩa
+các Use Case này giúp làm rõ ranh giới chức năng giữa frontend, API Gateway, các
+microservices và AI Worker.
+
+               Bảng 3.2: Danh sách các Use Case chính theo tác nhân
+  STT Tên Use Case                Mô tả chi tiết
+                     Nhóm tác nhân: Học sinh / Người học
+   1     Đăng ký tài khoản        Đăng ký tài khoản mới vào hệ thống thông qua
+                                  Auth Service.
+   2     Đăng nhập / Đăng Quản lý phiên đăng nhập và nhận/xóa token
+         xuất             JWT.
+
+
+
+
+                                                                               14
+CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+ STT Tên Use Case                 Mô tả chi tiết
+     3    Chọn khối lớp và xem Chọn khối lớp học, xem thông tin người dùng
+          hồ sơ                   và trạng thái đăng nhập.
+     4    Xem danh sách môn Duyệt các môn học theo khối lớp từ Learning
+          học               Service.
+     5    Xem danh sách bài Xem cấu trúc các bài học chi tiết bên trong
+          học               khóa học.
+     6    Học nội     dung     lý Đọc tài liệu văn bản, nội dung Markdown của
+          thuyết                  bài học.
+     7    Làm bài kiểm tra Thực hiện câu hỏi trắc nghiệm đánh giá mức
+          (Quiz)           độ hiểu bài.
+     8    Nộp bài và xem điểm     Nộp bài lên Assessment Service để chấm điểm
+                                  tự động.
+     9    Xem tiến độ học tập     Theo dõi phần trăm hoàn thành, trạng thái học
+                                  bài và dữ liệu tiến độ cá nhân.
+     10   Xem lịch sử làm bài     Xem lại các lần làm quiz, điểm số và thời gian
+                                  thực hiện.
+     11   Chat với AI Tutor       Nhắn tin hỏi đáp trực tiếp với trợ lý AI.
+     12   Xem/ghim/xóa lịch sử Xem lại, ghim hoặc xóa các đoạn hội thoại đã
+          chat AI              trao đổi với trợ lý AI.
+     13   Tạo quiz bằng AI        Yêu cầu AI Chat Service sinh câu hỏi quiz dựa
+                                  trên chủ đề hoặc nội dung bài học.
+     14   Tạo adaptive quiz       Tạo câu hỏi phù hợp hơn với trạng thái học tập
+                                  hoặc chủ đề người học còn yếu.
+     15   Tạo flashcard           Sinh thẻ ghi nhớ từ nội dung bài học để hỗ trợ
+                                  ôn tập nhanh.
+     16   Tóm tắt bài học         Sinh bản tóm tắt ngắn gọn cho nội dung bài
+                                  học bằng Google Gemini API.
+     17   Nhận gợi ý bài học      Gợi ý bài học tiếp theo dựa trên ngữ cảnh học
+                                  tập và lịch sử tương tác.
+
+
+
+
+15
+                        CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+  STT Tên Use Case              Mô tả chi tiết
+   18   Tải và cài đặt Android Truy cập trang GitHub Pages để tải bản An-
+        APK                     droid APK đã được build và ký release tự động
+                                từ GitHub Actions.
+               Nhóm tác nhân: Hệ thống AI Tutor / AI Worker
+   19   Cập nhật tiến độ bất Learning Service gửi cập nhật tiến độ sang As-
+        đồng bộ              sessment Service theo cơ chế fire-and-forget
+                             HTTP khi người học mở bài học.
+   20   Xử lý tác vụ AI nền     AI Worker xử lý tác vụ qua BullMQ/Redis, gọi
+                                Gemini API và lưu kết quả khi cần xử lý bất
+                                đồng bộ.
+        Nhóm tác nhân: Người vận hành kỹ thuật / DevOps Operator
+   21   Vận hành hệ thống và Theo dõi GitHub Actions, ArgoCD, Argo Roll-
+        theo dõi usage AI    outs, Prometheus/Grafana; đồng thời sử dụng
+                             endpoint kỹ thuật được bảo vệ để xem thống
+                             kê call/token AI khi cần kiểm tra vận hành.
+
+
+
+
+   Để minh họa rõ hơn các nghiệp vụ chính, Hình 3.2–3.22 trình bày đầy đủ 21 sơ
+đồ phân rã Use Case tương ứng với Bảng 3.2. Các sơ đồ này được xây dựng theo
+phạm vi đã triển khai trong repo: xác thực, học nội dung, làm bài kiểm tra, chat
+với AI, sử dụng tính năng AI hỗ trợ học tập, xử lý AI nền và vận hành kỹ thuật.
+Những chức năng quản trị nội dung đầy đủ cho giáo viên/admin không được đưa
+vào nhóm Use Case chính vì chưa phải trọng tâm triển khai trong đồ án.
+
+
+
+
+                    Hình 3.2: Use Case 01 – Đăng ký tài khoản
+
+                                                                             16
+CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+
+
+             Hình 3.3: Use Case 02 – Đăng nhập / Đăng xuất
+
+
+
+
+           Hình 3.4: Use Case 03 – Chọn khối lớp và xem hồ sơ
+
+
+
+
+            Hình 3.5: Use Case 04 – Xem danh sách môn học
+
+
+
+
+             Hình 3.6: Use Case 05 – Xem danh sách bài học
+
+17
+      CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+
+
+Hình 3.7: Use Case 06 – Học nội dung lý thuyết
+
+
+
+
+  Hình 3.8: Use Case 07 – Làm bài kiểm tra
+
+
+
+
+Hình 3.9: Use Case 08 – Nộp bài và xem điểm
+
+
+
+
+Hình 3.10: Use Case 09 – Xem tiến độ học tập
+
+                                                 18
+CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+
+
+              Hình 3.11: Use Case 10 – Xem lịch sử làm bài
+
+
+
+
+               Hình 3.12: Use Case 11 – Chat với AI Tutor
+
+
+
+
+          Hình 3.13: Use Case 12 – Xem / ghim / xóa lịch sử chat
+
+
+
+
+               Hình 3.14: Use Case 13 – Tạo quiz bằng AI
+
+19
+     CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+
+
+Hình 3.15: Use Case 14 – Tạo adaptive quiz
+
+
+
+
+  Hình 3.16: Use Case 15 – Tạo flashcard
+
+
+
+
+ Hình 3.17: Use Case 16 – Tóm tắt bài học
+
+
+
+
+Hình 3.18: Use Case 17 – Nhận gợi ý bài học
+
+                                              20
+CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+
+
+                 Hình 3.19: Use Case 18 – Tải và cài đặt Android APK
+
+
+
+
+                 Hình 3.20: Use Case 19 – Cập nhật tiến độ bất đồng bộ
+
+
+
+
+                     Hình 3.21: Use Case 20 – Xử lý tác vụ AI nền
+
+
+
+
+            Hình 3.22: Use Case 21 – Vận hành hệ thống và theo dõi usage AI
+
+
+       3.2.2   Đặc tả kịch bản một số Use Case cốt lõi
+     Mặc dù hệ thống được chia thành 21 Use Case chi tiết, phần này chỉ tập trung
+đặc tả kịch bản cho 3 Use Case quan trọng nhất đại diện cho luồng xác thực, luồng
+
+21
+                          CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+học tập và luồng tương tác trí tuệ nhân tạo.
+
+
+                   Bảng 3.3: Đặc tả kịch bản Use Case: Đăng nhập
+ Tên Use Case             Đăng nhập (UC02)
+ Tác nhân                 Người học
+ Tiền điều kiện           Người học đã đăng ký tài khoản thành công.
+ Luồng sự kiện chính 1. Người học nhập email và mật khẩu trên màn hình đăng
+                     nhập.
+                     2. Frontend gửi request HTTPS đến Auth Service thông
+                     qua API Gateway.
+                     3. Auth Service truy vấn MongoDB và kiểm tra tính hợp
+                     lệ của mật khẩu (so khớp mã băm bcrypt).
+                     4. Auth Service tạo cặp JWT (Access Token và Refresh
+                     Token) rồi trả về cho Frontend.
+                     5. Frontend lưu trữ token an toàn và chuyển hướng người
+                     học vào màn hình Trang chủ.
+ Luồng ngoại lệ           - Sai thông tin: Hệ thống báo "Email hoặc mật khẩu không
+                          chính xác".
+                          - Lỗi mạng: Hệ thống hiển thị popup thông báo lỗi kết nối.
+
+
+
+
+                Bảng 3.4: Đặc tả kịch bản Use Case: Làm bài kiểm tra
+ Tên Use Case             Làm bài kiểm tra (UC07)
+ Tác nhân                 Người học
+ Tiền điều kiện           Người học đã đăng nhập và đang mở chi tiết một bài kiểm
+                          tra.
+ Luồng sự kiện chính 1. Người học bấm nút "Bắt đầu".
+                     2. Frontend gọi Assessment Service để khởi tạo một phiên
+                     làm bài mới (Quiz Attempt).
+                     3. Hệ thống trả về danh sách câu hỏi. Frontend bắt đầu
+                     đếm ngược thời gian.
+                     4. Người học lần lượt chọn đáp án cho các câu hỏi và bấm
+                     "Nộp bài".
+                     5. Assessment Service chấm điểm tự động dựa trên đáp án
+                     đúng, phân tích các chủ đề yếu và lưu kết quả vào CSDL.
+                     6. Hệ thống hiển thị điểm số tổng kết và gợi ý học lại các
+                     chủ đề bị sai.
+ Luồng ngoại lệ           - Hết thời gian: Frontend tự động kích hoạt luồng nộp bài
+                          với các đáp án đã chọn.
+
+                                                                                22
+CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+                Bảng 3.5: Đặc tả kịch bản Use Case: Chat với AI Tutor
+ Tên Use Case             Chat với AI Tutor (UC11)
+ Tác nhân                 Người học
+ Tiền điều kiện           Người học đã đăng nhập và đang học một nội dung lý
+                          thuyết cụ thể.
+ Luồng sự kiện chính 1. Người học mở khung chat và gõ câu hỏi (ví dụ: "Giải
+                     thích lại khái niệm này cho tôi").
+                     2. Frontend gửi request kèm JWT và ngữ cảnh bài học
+                     hiện tại qua API Gateway.
+                     3. AI Chat Service nhận request, truy xuất lịch sử hội thoại
+                     gần nhất để làm ngữ cảnh phụ.
+                     4. AI Chat Service chèn thêm prompt hệ thống (đóng vai
+                     gia sư) và gọi API Google Gemini.
+                     5. Gemini trả lời. AI Chat Service lưu hội thoại vào cơ sở
+                     dữ liệu và phản hồi lại Frontend.
+                     6. Frontend render câu trả lời (hỗ trợ Markdown/Toán học)
+                     lên màn hình cho người học.
+ Luồng ngoại lệ           - API Gemini bị lỗi hoặc quá tải: Hệ thống báo "AI đang
+                          bận, vui lòng thử lại sau".
+                          - Nội dung vi phạm chính sách: Bộ lọc an toàn chặn câu
+                          trả lời và báo lỗi vi phạm.
+
+
+
+
+   Ranh giới trách nhiệm giữa các service được thiết kế theo nguyên tắc mỗi service
+sở hữu một nhóm nghiệp vụ và dữ liệu riêng để phục vụ cho các Use Case trên.
+Hình 3.25 mô tả cách phân tách logic giữa Auth, Learning, Assessment và AI Chat
+Service. Đây là sơ đồ thiết kế ở mức ứng dụng, bổ sung cho sơ đồ triển khai hạ tầng
+AKS ở Chương 4.
+
+23
+                          CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+
+
+               Hình 3.23: Ranh giới trách nhiệm giữa các microservices
+
+
+
+
+      3.2.3   Yêu cầu phi chức năng
+  • Độ tin cậy và Tính sẵn sàng: Hệ thống phải đảm bảo uptime cao thông qua
+    kiến trúc microservices trên Kubernetes.
+  • Khả năng mở rộng: Tự động scale dựa trên tải thực tế (event-driven autoscal-
+    ing) để tối ưu chi phí và hiệu suất.
+  • Bảo mật: Đảm bảo an toàn dữ liệu, tự động quét lỗ hổng bảo mật trong quy
+    trình CI/CD.
+  • Hiệu năng: Thời gian phản hồi nhanh, chịu được số lượng lớn người dùng
+    đồng thời.
+3.3   Thiết kế hệ thống
+      3.3.1   Lựa chọn kiến trúc phần mềm
+   Hệ thống AI Tutor phải đáp ứng nhiều yêu cầu phi chức năng khắt khe như khả
+năng mở rộng theo từng chức năng độc lập, tính sẵn sàng cao và dễ dàng tích hợp
+các thành phần AI xử lý bất đồng bộ. Trước khi quyết định kiến trúc, hai hướng
+tiếp cận chính được cân nhắc:
+   Kiến trúc Monolith (nguyên khối) đơn giản về mặt triển khai ban đầu, phù hợp
+với hệ thống nhỏ. Tuy nhiên, khi có yêu cầu scale riêng từng thành phần (chẳng
+
+                                                                             24
+CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+hạn AI Worker cần scale độc lập theo độ dài hàng đợi), hoặc khi cần tách biệt vòng
+đời triển khai giữa module xác thực và module học tập, kiến trúc Monolith trở nên
+cứng nhắc và khó bảo trì.
+   Kiến trúc Microservices được chọn vì phù hợp với trọng tâm nghiên cứu của đồ
+án — không chỉ là xây dựng phần mềm mà còn là thiết kế quy trình vận hành chuẩn
+doanh nghiệp trên nền tảng cloud. Mỗi service (Auth, Learning, Assessment, AI
+Chat, AI Worker) được triển khai, scale và quản lý vòng đời độc lập, giúp toàn bộ
+hệ thống tận dụng được tối đa các công cụ DevOps như ArgoCD, KEDA và Argo
+Rollouts.
+     3.3.2    Thiết kế tổng quan (Sơ đồ kiến trúc Microservices)
+   Hệ thống AI Tutor được thiết kế theo kiến trúc Microservices, phân tách rõ ràng
+giữa lớp giao diện, lớp định tuyến (API Gateway) và các dịch vụ nghiệp vụ độc
+lập. Hình 3.24 minh họa tổng quan kiến trúc ở mức ứng dụng, bao gồm sự tương
+tác giữa Frontend, các Microservices cốt lõi, Cơ sở dữ liệu và các API ngoại vi
+(External APIs).
+
+
+
+
+             Hình 3.24: Sơ đồ kiến trúc Microservices của hệ thống AI Tutor
+
+
+
+
+   Sự phân tách này giúp mỗi service có thể được phát triển, triển khai và mở rộng
+(scale) một cách độc lập, nâng cao khả năng chịu lỗi và tính linh hoạt của toàn hệ
+thống. Ranh giới trách nhiệm giữa các service được thể hiện rõ qua sơ đồ ranh giới
+dịch vụ ở Hình 3.25.
+
+25
+                          CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+
+
+               Hình 3.25: Ranh giới trách nhiệm giữa các microservices
+
+
+
+     3.3.3   Thiết kế chi tiết từng luồng nghiệp vụ (Sequence Diagram)
+   Để làm rõ sự phối hợp giữa các microservice trong từng tình huống nghiệp vụ
+cụ thể, các sơ đồ tuần tự (Sequence Diagram) sau đây mô tả chi tiết luồng tương
+tác giữa Frontend, API Gateway và các service nghiệp vụ.
+  1. Luồng đăng nhập: Flutter app gửi thông tin đăng nhập đến API Gateway;
+     gateway chuyển tiếp đến Auth Service; Auth Service xác thực người dùng
+     trong auth_db và trả về JWT.
+  2. Luồng học tập: Người dùng chọn môn học/bài học; request đi qua API Gate-
+     way đến Learning Service để lấy nội dung bài học; Learning Service gửi tín
+     hiệu cập nhật tiến độ sang Assessment Service theo cơ chế fire-and-forget.
+  3. Luồng kiểm tra: Assessment Service nhận bài làm, lấy nội dung quiz/đáp án
+     từ Learning Service qua internal API, lưu QuizAttempt và cập nhật Progress
+     trong assessment_db.
+  4. Luồng AI chat: AI Chat Service nhận câu hỏi, lấy ngữ cảnh bài học nếu có,
+     gọi Gemini API và lưu lịch sử vào ai_chat_db. Với tác vụ nền, request
+     được đưa vào Redis queue để AI Worker xử lý bất đồng bộ.
+  Các luồng tiêu biểu được minh họa trong Hình 3.26–3.29. Các sơ đồ này tập
+trung vào tương tác logic giữa frontend, gateway và service nghiệp vụ; chi tiết triển
+
+                                                                                  26
+CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+khai qua NGINX Ingress, ArgoCD, KEDA và các thành phần vận hành được thiết
+kế ở Chương 4 và đánh giá trong Chương 5.
+
+
+
+
+                 Hình 3.26: Luồng đăng nhập và phát hành JWT
+
+
+
+
+             Hình 3.27: Luồng xem bài học và cập nhật tiến độ học tập
+
+27
+                           CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+
+
+             Hình 3.28: Luồng nộp bài kiểm tra và cập nhật kết quả đánh giá
+
+
+
+
+                Hình 3.29: Luồng xử lý AI Chat với Google Gemini API
+
+
+
+     3.3.4    Thiết kế dữ liệu và phân tách database
+   Để tránh phụ thuộc dữ liệu chéo quá chặt giữa các service, hệ thống sử dụng
+MongoDB Atlas với nhiều logical database. Mỗi service sở hữu database riêng và
+chỉ expose dữ liệu cần thiết thông qua API nội bộ. Thiết kế này phù hợp với định
+hướng microservices, đồng thời giúp báo cáo rõ ràng hơn về ranh giới trách nhiệm
+của từng service.
+
+                                                                              28
+CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+                        Bảng 3.6: Phân tách database theo service
+     Service            Database             Nhóm dữ liệu chính
+     Auth               auth_db              Người dùng, thông tin xác thực, dữ liệu
+                                             liên quan đến JWT/session.
+     Learning           learning_db Môn học, bài học, nội dung học và
+                                    quiz gốc.
+     Assessment         assessment_dbQuizAttempt, tiến độ học tập, điểm số
+                                     và dữ liệu phân tích đánh giá.
+     AI Chat            ai_chat_db           Lịch sử hội thoại, metadata phục vụ AI
+                                             chat và các kết quả AI liên quan.
+
+
+
+
+   Hình 3.30 minh họa cách hệ thống sử dụng một MongoDB Atlas cluster nhưng
+tách thành nhiều logical database theo service. Cách làm này cân bằng giữa chi phí
+vận hành và yêu cầu ownership dữ liệu: mỗi service chỉ cần biết database của chính
+mình, trong khi dữ liệu tham chiếu giữa các service được truy cập thông qua API
+thay vì join trực tiếp.
+
+
+
+
+                  Hình 3.30: Phân tách logical database theo từng service
+
+
+
+
+  Ở mức mô hình dữ liệu, các collection chính gồm người dùng, môn học, bài
+học, quiz, lần làm quiz, tiến độ học tập và lịch sử hội thoại AI. Hình 3.31 thể hiện
+quan hệ tham chiếu ở mức khái quát; trong MongoDB, các quan hệ này không phải
+foreign key ràng buộc cứng như cơ sở dữ liệu quan hệ.
+
+29
+                          CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+
+
+                   Hình 3.31: Tổng quan mô hình dữ liệu mức logic
+
+
+     3.3.5   Mô tả các Collection chính
+   Bảng 3.7 trình bày chi tiết về chức năng và các trường dữ liệu (fields) quan trọng
+của các collection cốt lõi trong hệ thống, được phân chia theo từng cơ sở dữ liệu
+logic.
+
+
+                    Bảng 3.7: Mô tả chi tiết các Collection trong hệ thống
+ Database           Collection             Mô tả chức năng và cấu trúc chính
+                    users                  Lưu trữ thông tin định danh và xác thực
+ auth_db
+                                           người học. Các trường chính: _id, email,
+                                           password (mã băm bcrypt), fullName,
+                                           gradeLevel, role, createdAt.
+                    subjects               Quản lý danh mục các môn học. Các trường
+ learning_db                               chính:   _id, title, description,
+                                           gradeLevel, thumbnailUrl, sta-
+                                           tus.
+                    lessons                Quản lý nội dung chi tiết bài học. Các trường
+                                           chính: _id, subjectId (tham chiếu
+                                           logic), title, content (lý thuyết định
+                                           dạng Markdown/HTML), order.
+
+
+
+
+                                                                                  30
+CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+ Database            Collection          Mô tả chức năng và cấu trúc chính
+                     quizzes             Lưu trữ bộ đề kiểm tra tĩnh đi kèm môn học.
+                                         Gồm: _id, lessonId, mảng questions
+                                         (tiêu đề, danh sách lựa chọn, đáp án đúng),
+                                         passingScore.
+              quiz_attempts              Lưu trữ lịch sử một phiên làm bài kiểm
+ assessment_db
+                                         tra.  Gồm:     _id, userId, quizId,
+                                         mảng answers (đáp án người học đã
+                                         nộp), score, status, weakTopics,
+                                         submittedAt.
+                     user_progress       Lưu trữ tiến độ học tập tổng thể của học sinh.
+                                         Gồm: _id, userId, mảng completed-
+                                         Lessons, chỉ số tiến độ và lastAccesse-
+                                         dAt.
+ ai_chat_db          conversations       Lưu trữ lịch sử các phiên nhắn tin với AI
+                                         Tutor. Gồm: _id, userId, lessonId
+                                         (ngữ cảnh bài học), mảng messages (vai trò
+                                         user/assistant và nội dung), update-
+                                         dAt.
+
+
+
+
+       3.3.6   Thiết kế giao diện ứng dụng (Flutter)
+  Ứng dụng AI Tutor được xây dựng bằng Flutter [5], hỗ trợ cả web và mobile
+(Android APK). Giao diện được thiết kế riêng biệt, không sử dụng web wrapper.
+Trước khi triển khai giao diện hoàn chỉnh, một số màn hình chính được phác thảo
+dưới dạng wireframe nhằm kiểm tra luồng điều hướng, bố cục thông tin và mức độ
+phù hợp với các Use Case đã phân tích.
+     Các đặc điểm kỹ thuật:
+     • Dynamic API Base URL: Cấu hình qua –dart-define lúc build, cho
+       phép cùng codebase chạy trên nhiều môi trường.
+     • Android APK: Build tự động qua GitHub Actions (workflow_dispatch),
+       ký bằng release keystore, phân phối qua GitHub Pages.
+     • Web: Build Flutter Web, serve qua NGINX container trên AKS.
+
+31
+                         CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+         a, Bản phác thảo giao diện xác thực và điều hướng chính
+  Nhóm wireframe đầu tiên tập trung vào luồng khởi tạo phiên làm việc của người
+học. Hình 3.32 mô tả màn hình đăng nhập và đăng ký; Hình 3.33 mô tả màn hình
+chọn khối lớp, trang chủ và hồ sơ cá nhân.
+
+
+
+
+           Hình 3.32: Wireframe màn hình đăng nhập và đăng ký tài khoản
+
+
+
+
+      Hình 3.33: Wireframe màn hình chọn khối lớp, trang chủ và hồ sơ cá nhân
+
+                                                                                32
+CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+          b, Bản phác thảo giao diện học tập
+   Luồng học tập chính bao gồm việc chọn môn học, xem danh sách bài học, mở
+chi tiết bài học và sử dụng các công cụ AI hỗ trợ học tập. Hình 3.34 mô tả luồng
+duyệt môn học/bài học, trong khi Hình 3.35 thể hiện màn hình chi tiết bài học và
+màn hình đọc lý thuyết.
+
+
+
+
+     Hình 3.34: Wireframe màn hình môn học, chi tiết môn học và tìm kiếm nội dung
+
+
+
+
+        Hình 3.35: Wireframe màn hình chi tiết bài học và đọc nội dung lý thuyết
+
+33
+                          CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+         c, Bản phác thảo giao diện kiểm tra và AI Tutor
+   Các chức năng tương tác sâu với hệ thống gồm làm quiz, xem kết quả và chat
+với AI Tutor. Hình 3.36 mô tả luồng kiểm tra từ danh sách quiz đến màn hình nộp
+bài và kết quả. Hình 3.37 mô tả giao diện hội thoại với trợ lý AI, bao gồm lịch sử
+chat, tin nhắn người dùng và phản hồi từ AI.
+
+
+
+
+        Hình 3.36: Wireframe màn hình danh sách quiz, làm bài và xem kết quả
+
+
+
+
+         Hình 3.37: Wireframe màn hình chat với AI Tutor và lịch sử hội thoại
+
+                                                                                34
+CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+         d, Bản phác thảo giao diện theo dõi tiến độ và phân phối APK
+  Ngoài các màn hình học tập chính, hệ thống còn cung cấp dashboard tiến độ
+học tập và trang tải Android APK. Hình 3.38 mô tả dashboard tổng hợp số bài đã
+học, lịch sử quiz và gợi ý học tiếp. Hình 3.39 mô tả trang tải APK công khai được
+publish qua GitHub Pages.
+
+
+
+
+                  Hình 3.38: Wireframe dashboard tiến độ học tập
+
+
+
+
+           Hình 3.39: Wireframe trang tải Android APK qua GitHub Pages
+
+35
+                           CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+3.4   Công nghệ sử dụng
+   Hình 3.40 cung cấp cái nhìn tổng quan về hệ sinh thái công nghệ được sử dụng
+trong dự án AI Tutor, bao gồm lớp giao diện người dùng, dịch vụ hậu cảnh, cơ sở
+dữ liệu và các nền tảng triển khai đám mây (Cloud & DevOps).
+
+
+
+
+              Hình 3.40: Tổng quan các công nghệ được sử dụng trong dự án
+
+
+
+      3.4.1    Thiết kế công nghệ tầng ứng dụng
+
+
+                          Bảng 3.8: Công nghệ tầng ứng dụng
+ Công nghệ               Vai trò                                   Ghi chú
+ Flutter                 Frontend web/mobile                       Web app và Android APK cùng
+                                                                   codebase
+ Node.js + Express       API Gateway + microservices backend backend gateway, auth, learning,
+                                                             assessment, ai-chat
+ BullMQ + Redis          Job queue, async AI Worker                Scale qua KEDA
+ Google Gemini API AI generation                                   Quiz, chat, suggestion
+ MongoDB Atlas           Database (4 logical DBs)                  M0 Free tier
+
+
+
+      3.4.2    Thiết kế hạ tầng và DevOps
+   Phần này trình bày thiết kế triển khai hệ thống theo mô hình DevOps hiện đại,
+tập trung vào đóng gói, điều phối và tự động hóa toàn bộ quy trình phát hành. Mục
+tiêu là đảm bảo tính nhất quán, khả năng tự động phục hồi và dễ dàng mở rộng.
+
+                                                                                  36
+CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+           a, Đóng gói dịch vụ bằng Docker
+  Toàn bộ các thành phần của hệ thống bao gồm API Gateway, Auth Service,
+Learning Service, Assessment Service, AI Chat Service và AI Worker đều được
+đóng gói thành các Docker image độc lập. Việc đóng gói này giúp loại bỏ sự phụ
+thuộc vào môi trường máy chủ vật lý, đảm bảo ứng dụng chạy đồng nhất từ môi
+trường local của lập trình viên lên đến production trên đám mây. Các image được
+tối ưu kích thước và lưu trữ bảo mật trên Azure Container Registry (ACR).
+           b, Triển khai và Điều phối trên Kubernetes (AKS)
+  Hệ thống được triển khai lên nền tảng Azure Kubernetes Service (AKS). Mỗi
+microservice được vận hành trong một Deployment riêng biệt, cho phép mở rộng
+độc lập (scale-out) thông qua công cụ KEDA dựa trên các chỉ số tải thực tế (ví dụ:
+số lượng message trong hàng đợi BullMQ của AI Worker). Các dịch vụ giao tiếp
+nội bộ qua ClusterIP và chỉ mở các API cần thiết ra ngoài Internet qua NGINX
+Ingress Controller. Cấu hình bảo mật được tăng cường thông qua Azure Key Vault
+để quản lý thông tin nhạy cảm.
+           c, Tự động hóa CI/CD theo mô hình GitOps
+     Quá trình tích hợp và phân phối liên tục được thiết kế theo chuẩn GitOps:
+     • Continuous Integration (CI): Khi mã nguồn được push lên repository, GitHub
+       Actions tự động biên dịch, quét lỗ hổng bảo mật (Trivy), đóng gói thành
+       Docker image và đẩy lên ACR. Sau đó, pipeline CI tự động cập nhật tag phiên
+       bản mới vào repository chứa cấu hình hạ tầng (Manifest Repo).
+     • Continuous Deployment (CD): ArgoCD đóng vai trò là GitOps Controller
+       chạy bên trong AKS, liên tục theo dõi sự thay đổi từ Manifest Repo. Khi có
+       bản cập nhật mới, ArgoCD tự động kéo (pull-based) cấu hình về và áp dụng
+       lên cluster. Cơ chế này không chỉ tự động hóa triển khai mà còn hỗ trợ tự động
+       phục hồi (self-healing) nếu trạng thái cluster bị thay đổi trái phép. Việc phát
+       hành cũng có thể kết hợp với Argo Rollouts để kiểm soát rủi ro thông qua
+       chiến lược Canary.
+           d, Các công cụ Hạ tầng và DevOps
+  Để hiện thực hóa bản thiết kế trên, hệ thống kết hợp các công cụ cloud-native
+được phân loại cụ thể trong Bảng 3.9 và Bảng 3.10.
+
+
+
+
+37
+                           CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+                         Bảng 3.9: Hạ tầng và dịch vụ đám mây
+Công nghệ                               Vai trò
+Azure Kubernetes Service (AKS) Container orchestration
+Azure Container Registry (ACR)          Private Docker registry
+Azure Key Vault + CSI Driver            Secrets management
+Azure Monitor + Log Analytics           Cloud-native monitoring & alerting
+Terraform                               Infrastructure as Code
+DuckDNS + Let’s Encrypt                 Domain + TLS tự động (cert-manager)
+
+
+          e, DevOps Toolchain
+
+
+                              Bảng 3.10: Công cụ DevOps
+   Công nghệ                        Vai trò
+   GitHub Actions                   CI pipeline (build, push, security check, Gi-
+                                    tOps write-back)
+   ArgoCD                           GitOps CD controller, self-healing
+   Argo Rollouts                    Canary deployment controller
+   KEDA                             Event-driven autoscaler
+   Helm                             Kubernetes package manager
+   kube-prometheus-stack            Prometheus + Grafana
+   NGINX Ingress Controller Traffic routing + TLS termination + rate
+                            limiting
+   Trivy                            Container vulnerability scanner
+
+
+          f, Lý do chọn Azure AKS
+
+
+                        Bảng 3.11: So sánh các lựa chọn nền tảng
+Tiêu chí           AWS EKS            GKE              VPS tự quản Azure AKS
+Chi phí            Cao                Trung bình       Thấp nhất       Trung bình
+Tích hợp Key Không native             Không            Không           Native
+Vault
+Monitor      tích CloudWatch          Cloud Moni- Tự cài               Native
+hợp                                   toring
+Student credit     Ít                 Ít               Không           $100 Azure
+Phù hợp đồ án      Tốt                Tốt              Phức tạp hơn    Tốt nhất
+
+                                                                                    38
+CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+
+
+   Azure AKS được chọn vì tích hợp native với Key Vault (secrets), Monitor (alert-
+ing) [6], [7], và đặc biệt Azure for Students cung cấp $100 credit — đủ để demo
+hệ thống trong phạm vi đồ án.
+
+
+
+
+39
+CHƯƠNG 4. QUY TRÌNH DEVOPS VÀ KIẾN TRÚC HẠ TẦNG ĐỀ XUẤT
+
+
+4.1   Tổng quan
+  Chương này trình bày thiết kế hạ tầng và quy trình DevOps đề xuất cho AI Tutor.
+Nội dung tập trung vào kiến trúc triển khai trên Azure AKS, luồng CI/CD GitOps,
+chiến lược canary deployment, cơ chế event-driven autoscaling, hệ thống giám sát
+và các lớp bảo mật vận hành.
+4.2   Giải pháp thiết kế kiến trúc tổng thể hệ thống
+
+
+
+
+              Hình 4.1: Kiến trúc tổng thể hệ thống AI Tutor trên Azure AKS
+
+
+  Hệ thống AI Tutor được thiết kế theo kiến trúc microservices, triển khai trên
+AKS, bao gồm các thành phần chính:
+      4.2.1    Application Layer
+  • Frontend (Flutter Web): Giao diện người dùng, serve bởi NGINX container.
+  • Backend / API Gateway: Monolith giữ vai trò proxy, điều hướng request đến
+    các microservices.
+  • Auth Service (port 3001): Xác thực, quản lý người dùng, JWT token.
+  • Learning Service (port 3002): Quản lý bài học, tiến độ học tập.
+
+                                                                              40
+CHƯƠNG 4. QUY TRÌNH DEVOPS VÀ KIẾN TRÚC HẠ TẦNG ĐỀ XUẤT
+
+
+     • Assessment Service (port 3003): Quản lý bài kiểm tra, đánh giá, phân tích
+      điểm yếu.
+     • AI Chat Service (port 3004): Trợ lý AI, tạo quiz, gợi ý bài học (Gemini API).
+     • AI Worker: Background worker xử lý tác vụ AI nặng từ BullMQ queue.
+     • Redis: Message broker cho BullMQ, caching.
+       4.2.2   Infrastructure Layer
+     • NGINX Ingress Controller: Traffic routing, TLS termination (Let’s Encrypt),
+       rate limiting.
+     • ArgoCD: GitOps controller, auto-sync, self-healing.
+     • KEDA: Event-driven autoscaler cho AI Worker.
+     • Prometheus + Grafana: Metrics collection và visualization.
+     • Azure Monitor + Log Analytics: Cloud-native alerting.
+       4.2.3   External Services
+     • MongoDB Atlas M0: Database (4 logical databases, SRV connection).
+     • Google Gemini API: AI/LLM generation.
+     • Azure Key Vault: Secrets management (CSI Driver mount).
+     • Azure Container Registry: Private Docker image registry.
+       4.2.4   Communication Matrix
+   Hệ thống áp dụng Zero-Trust NetworkPolicy baseline. Bảng 4.1 mô tả ma trận
+giao tiếp giữa các service:
+
+
+
+
+                       Bảng 4.1: Ma trận giao tiếp giữa các microservices
+           Service        Ingress (nhận từ)             Egress (gọi đến)
+           frontend       ingress-nginx                 —
+           backend        ingress-nginx                 auth, learning, assessment, ai-
+                                                        chat, Atlas
+           auth           backend                       Atlas
+           learning       backend, ai-chat,       ai-   assessment, Atlas
+                          worker
+           assessment     backend, learning             redis, Atlas
+           ai-chat        backend                       learning, assessment, redis, At-
+                                                        las, Gemini (443)
+           ai-worker      — (KEDA trigger)              redis, learning, assessment, At-
+                                                        las, Gemini (443)
+           redis          ai-chat, ai-worker, assess-   —
+                          ment, KEDA
+
+
+41
+      CHƯƠNG 4. QUY TRÌNH DEVOPS VÀ KIẾN TRÚC HẠ TẦNG ĐỀ XUẤT
+
+
+4.3    Giải pháp quy trình vận hành liên tục CI/CD theo mô hình GitOps
+       4.3.1   Dẫn dắt và bài toán
+   Trong triển khai phần mềm truyền thống, các bước build image, đẩy lên registry
+và cập nhật môi trường production thường được thực hiện thủ công qua SSH hoặc
+script. Cách làm này tiềm ẩn nhiều rủi ro: lỗi con người khi thao tác thủ công,
+không có audit trail rõ ràng, và đặc biệt là thiếu khả năng rollback nhanh khi sự
+cố xảy ra. Bài toán đặt ra là cần một quy trình khép kín, tự động hóa hoàn toàn từ
+thời điểm developer push code đến khi ứng dụng được cập nhật trên môi trường
+production mà không cần can thiệp thủ công.
+       4.3.2   Giải pháp thiết kế chi tiết
+
+
+
+
+Hình 4.2: Luồng CI/CD GitOps end-to-end: từ git push đến pod mới running trong
+7–9 phút
+
+
+
+  Quy trình CI/CD được thiết kế để tự động hóa phần lớn luồng build, kiểm tra
+bảo mật, push image và GitOps write-back. Riêng bước canary promotion vẫn có
+thể giữ thủ công để quan sát hệ thống trước khi nâng traffic:
+  1. Developer: git push → GitHub main branch.
+  2. GitHub Actions (CI):
+        • Policy checks: chặn tag :latest, plaintext secrets.
+        • Trivy scan: filesystem + config + image (chặn CRITICAL CVE).
+        • Docker build (multi-stage, non-root) → push ACR (tag: <short-SHA>).
+  3. GitHub Actions (GitOps Write-back):
+
+                                                                               42
+CHƯƠNG 4. QUY TRÌNH DEVOPS VÀ KIẾN TRÚC HẠ TẦNG ĐỀ XUẤT
+
+
+         • Bot cập nhật imageTag trong values-prod.yaml tại repo GitOps
+           riêng.
+         • Commit + push → AI-Tutor-GitOps main branch.
+  4. ArgoCD (CD — pull-based):
+         • Polling Git, phát hiện thay đổi values-prod.yaml.
+         • Helm sync → AKS namespace prod.
+         • Self-healing: nếu ai sửa tay trong cluster → ArgoCD tự khôi phục.
+  5. Argo Rollouts (Canary):
+         • Deploy image mới vào canary pod (20% traffic).
+         • Pause → monitor → promote 50% → 100%.
+         • Rollback tức thì nếu phát hiện lỗi.
+   Repo AI-Tutor chỉ chứa source code. Repo AI-Tutor-GitOps chứa Helm
+charts và values-prod.yaml — là source-of-truth cho ArgoCD. CI bot write-
+back vào repo GitOps thay vì repo source code, tránh ô nhiễm lịch sử commit.
+       4.3.3   Kết quả đạt được
+   Toàn bộ luồng từ git push đến pod mới running hoàn tất trong khoảng 7–9
+phút mà không cần bất kỳ thao tác thủ công nào trên server. ArgoCD tự phục hồi
+pod bị xóa tay trong vòng 30 giây (self-healing). Lịch sử triển khai được ghi nhận
+hoàn toàn qua Git commit history, đảm bảo audit trail bất biến và khả năng rollback
+chỉ bằng lệnh git revert.
+4.4    Giải pháp triển khai phân cấp an toàn với Canary Deployment
+       4.4.1   Dẫn dắt và bài toán
+   Khi triển khai phiên bản mới lên môi trường production, cách tiếp cận truyền
+thống (Recreate hoặc RollingUpdate thuần túy) yêu cầu toàn bộ traffic phải chuyển
+sang phiên bản mới ngay lập tức. Nếu phiên bản mới có lỗi, 100% người dùng sẽ
+bị ảnh hưởng và thời gian rollback có thể kéo dài nhiều phút. Bài toán đặt ra là cần
+một chiến lược triển khai cho phép kiểm soát mức độ ảnh hưởng, dừng và phục hồi
+tức thì khi phát hiện sự cố.
+       4.4.2   Giải pháp thiết kế chi tiết
+     NGINX Ingress routing traffic theo tỷ lệ canary:
+     • 80% → backend stable (version cũ)
+     • 20% → backend canary (version mới)
+
+
+43
+      CHƯƠNG 4. QUY TRÌNH DEVOPS VÀ KIẾN TRÚC HẠ TẦNG ĐỀ XUẤT
+
+
+  Các bước promote được thực hiện theo lộ trình:
+  1. Bước 1: 20% traffic → pause (chờ quan sát trên Grafana).
+  2. Bước 2: kubectl argo rollouts promote → 50% → pause.
+  3. Bước 3: promote → 100% → stable. Old ReplicaSet cleanup.
+       4.4.3   Kết quả đạt được
+   Thời gian rollback đạt < 5 giây bằng lệnh kubectl argo rollouts abort
+backend -n prod, tức thì đưa 0% traffic về canary pod, không gây downtime.
+Tối đa 20% người dùng bị ảnh hưởng trong trường hợp xấu nhất — giảm đáng kể
+so với 100% trong deploy truyền thống.
+4.5    Giải pháp Auto-scaling chủ động theo sự kiện với KEDA
+       4.5.1   Dẫn dắt và bài toán
+    AI Worker là thành phần xử lý các tác vụ AI nặng (sinh quiz, tạo flashcard, tóm
+tắt bài học) theo mô hình bất đồng bộ. Đặc thù của workload này là tải biến động
+mạnh: trong giờ cao điểm học tập, hàng đợi có thể bùng nổ lên hàng chục job;
+trong đêm và cuối tuần, hàng đợi hoàn toàn rỗng. Dùng số lượng replica cố định
+dẫn đến lãng phí tài nguyên khi idle hoặc thiếu năng lực khi tải cao. Bài toán đặt ra
+là cần cơ chế scale động dựa trên trạng thái thực tế của hàng đợi, không phải CPU
+hay RAM.
+       4.5.2   Giải pháp thiết kế chi tiết
+  Luồng xử lý AI Worker:
+  1. User request → ai-chat service.
+  2. Enqueue job → Redis (bull:ai-jobs:wait queue).
+  3. KEDA ScaledObject: trigger khi Redis list length > 0.
+  4. AI Worker pod: consume job → Gemini API → save result → MongoDB.
+  Cấu hình ScaledObject:
+   • minReplicas: 0 (Scale-to-Zero khi idle)
+   • maxReplicas: 3
+   • pollingInterval: 15s
+   • cooldownPeriod: 30s
+   AI Worker được cấu hình Exponential Backoff retry (4 attempts, delay 1500ms)
+và Dead Letter Queue (ai-jobs-dlq) để đảm bảo job thất bại không bị mất mà
+được chuyển sang hàng đợi riêng để debug và xử lý lại.
+
+                                                                                  44
+CHƯƠNG 4. QUY TRÌNH DEVOPS VÀ KIẾN TRÚC HẠ TẦNG ĐỀ XUẤT
+
+
+       4.5.3   Kết quả đạt được
+  AI Worker scale từ 0 lên 1 replica trong ~15–30 giây sau khi job đầu tiên vào
+queue, và tự động scale lên tối đa 3 replicas khi hàng đợi có 15+ job. Sau khi queue
+xử lý hết, worker scale về 0 sau 30–60 giây, tiết kiệm hoàn toàn tài nguyên CPU và
+RAM trong thời gian idle.
+4.6    Giải pháp giám sát hệ thống tập trung (Observability Stack)
+       4.6.1   Dẫn dắt và bài toán
+   Trong môi trường microservices với nhiều service chạy độc lập, việc phát hiện
+sự cố thường đến muộn hơn so với hệ thống monolith vì lỗi có thể xảy ra cục bộ
+ở một service mà không ảnh hưởng rõ ràng ra ngoài. Bài toán đặt ra là cần một hệ
+thống giám sát tập trung, có khả năng thu thập metrics từ tất cả các thành phần,
+hiển thị theo thời gian thực và gửi cảnh báo tự động khi phát hiện bất thường.
+       4.6.2   Giải pháp thiết kế chi tiết
+     Tầng Prometheus + Grafana:
+     • Prometheus scrape metrics toàn bộ cluster (kube-state-metrics, node-exporter,
+       NGINX Ingress) mỗi 15 giây.
+     • Grafana dashboard: CPU/RAM per pod, NGINX RPS, error rate, BullMQ
+       queue length.
+     • Retention: 7 ngày.
+     Tầng Azure Monitor + Log Analytics:
+     • Alert Rule 1: Pod CrashLoopBackOff → notify.
+     • Alert Rule 2: Node CPU > 80% → notify.
+       4.6.3   Kết quả đạt được
+   Hệ thống phát hiện và gửi cảnh báo Pod CrashLoopBackOff trong vòng khoảng
+2 phút. Grafana phản ánh CPU spike theo thời gian thực. ArgoCD self-healing phục
+hồi pod bị xóa trong ~30 giây và hành động này được quan sát trực tiếp trên biểu
+đồ pod count của Grafana.
+4.7    Giải pháp bảo mật theo mô hình Zero-Trust và DevSecOps
+       4.7.1   Dẫn dắt và bài toán
+  Một hệ thống microservices trên cloud phải đối mặt với nhiều bề mặt tấn công:
+image có thể chứa CVE chưa được vá, secrets có thể bị lộ nếu lưu trong Git, traffic
+nội bộ giữa các service không được kiểm soát, và container chạy với quyền root
+dễ bị leo thang đặc quyền. Bài toán đặt ra là xây dựng một mô hình bảo mật theo
+
+
+45
+   CHƯƠNG 4. QUY TRÌNH DEVOPS VÀ KIẾN TRÚC HẠ TẦNG ĐỀ XUẤT
+
+
+chiều sâu (Defense in Depth) từ giai đoạn build đến runtime, không có điểm yếu
+bảo mật duy nhất.
+     4.7.2   Giải pháp thiết kế chi tiết
+
+
+
+
+                     Bảng 4.2: Các lớp bảo mật được triển khai
+ Lớp            Giải pháp                   Chi tiết
+ Secrets        Key Vault + CSI Driver      Secret gốc quản lý trong Key
+                                            Vault, CSI sync sang Kubernetes
+                                            Secret để inject env; không lưu
+                                            plaintext trong Git
+ Image policy CI check                      Reject build nếu tag là :latest
+ Vulnerability Trivy scan                   fs + config + image, chặn CRIT-
+                                            ICAL (CI), CRITICAL+HIGH
+                                            (GitOps)
+ Network       Default-deny NetworkPolicy Terraform deploy, Helm allow-
+                                            rules
+ Traffic       NGINX Rate Limiting          10 req/s per IP tại Ingress
+ Runtime       Non-root + hardened          readOnlyRootFilesystem,
+                                            drop: ALL             capabilities,
+                                            seccompProfile: Run-
+                                            timeDefault
+ TLS           cert-manager + Let’s Encrypt Auto-renew, TLSv1.3
+
+
+
+
+  Hình 4.3 minh họa trực quan 4 lớp bảo mật từ giai đoạn Build đến Runtime và
+Quản lý Secret. Cách tiếp cận Defense-in-Depth này đảm bảo hệ thống không có
+điểm yếu bảo mật duy nhất (single point of failure).
+
+                                                                             46
+CHƯƠNG 4. QUY TRÌNH DEVOPS VÀ KIẾN TRÚC HẠ TẦNG ĐỀ XUẤT
+
+
+
+
+       Hình 4.3: Sơ đồ các lớp bảo mật (Defense in Depth / Zero-Trust Baseline)
+
+
+
+
+   Hình 4.4 minh họa luồng xác thực JWT ở mức runtime. Auth Service phát hành
+JWT sau khi đăng nhập thành công; các request tiếp theo gửi token trong header
+Authorization. Thay vì gọi ngược về Auth Service cho mỗi request, các ser-
+vice xác thực token cục bộ bằng secret được quản lý tập trung qua Azure Key Vault
+và đồng bộ vào môi trường chạy của pod.
+
+47
+      CHƯƠNG 4. QUY TRÌNH DEVOPS VÀ KIẾN TRÚC HẠ TẦNG ĐỀ XUẤT
+
+
+
+
+               Hình 4.4: Luồng xác thực JWT cục bộ tại các microservices
+
+
+
+
+       4.7.3   Kết quả đạt được
+   Trivy gate tích hợp vào CI pipeline chặn thành công các image chứa CVE mức
+CRITICAL trước khi đẩy lên registry. Không có plaintext secret nào tồn tại trong
+Git repository — toàn bộ được inject vào pod qua CSI Driver tại runtime. Net-
+workPolicy default-deny ngăn chặn mọi traffic không được khai báo tường minh
+giữa các pod, bao gồm cả các kết nối nội bộ không mong muốn.
+4.8    Giải pháp quản lý hạ tầng đám mây tự động bằng Infrastructure as Code
+       (Terraform)
+       4.8.1   Dẫn dắt và bài toán
+   Việc tạo lập hạ tầng cloud thủ công qua giao diện portal tiềm ẩn nguy cơ cấu
+hình không nhất quán giữa các môi trường, khó tái tạo lại và không có lịch sử thay
+đổi. Nếu AKS cluster bị xóa nhầm hoặc cần tạo môi trường staging mới, toàn bộ
+quá trình cấu hình phải làm lại từ đầu. Bài toán đặt ra là quản lý toàn bộ hạ tầng
+như mã nguồn: version control, review trước khi apply, và có khả năng tái tạo môi
+trường hoàn toàn từ một lệnh duy nhất.
+
+                                                                               48
+CHƯƠNG 4. QUY TRÌNH DEVOPS VÀ KIẾN TRÚC HẠ TẦNG ĐỀ XUẤT
+
+
+       4.8.2   Giải pháp thiết kế chi tiết
+     Toàn bộ hạ tầng Azure được quản lý bằng Terraform, bao gồm:
+     • AKS Cluster: Node pool, VM size, max pods.
+     • ACR: Container registry với admin access.
+     • Key Vault: Secrets + role assignments cho AKS identity.
+     • NetworkPolicy module: Default-deny ingress/egress cho namespace prod.
+     • Monitoring: Log Analytics Workspace, Alert Rules.
+     Toàn bộ hạ tầng có thể tái tạo từ terraform apply + git push.
+       4.8.3   Kết quả đạt được
+   Toàn bộ hạ tầng AKS, ACR, Key Vault, NetworkPolicy và Alert Rules được tái
+tạo thành công từ trạng thái rỗng chỉ bằng lệnh terraform apply. Mỗi thay đổi
+hạ tầng đều được ghi nhận trong Git history và có thể rollback bằng git revert.
+Không có tài nguyên nào được tạo thủ công qua portal, đảm bảo tính nhất quán và
+khả năng kiểm toán hoàn chỉnh.
+4.9    Kết chương
+   Chương này đã mô tả kiến trúc hạ tầng và quy trình DevOps của hệ thống
+AI Tutor. Các thành phần được thiết kế xoay quanh nguyên tắc Git là source of
+truth, triển khai bất biến bằng image tag theo short SHA, quan sát hệ thống qua
+metrics/logs tập trung và giảm rủi ro phát hành thông qua canary rollout. Đây là cơ
+sở để lý giải các kết quả thực nghiệm được trình bày ở Chương 5.
+
+
+
+
+49
+          CHƯƠNG 5. TRIỂN KHAI VÀ ĐÁNH GIÁ THỰC NGHIỆM
+
+
+5.1    Tổng quan
+  Chương này trình bày quá trình triển khai thực tế hệ thống AI Tutor, môi trường
+cloud được sử dụng, so sánh phương án Cloud với VPS truyền thống, cân nhắc
+chi phí và các kịch bản đánh giá thực nghiệm. Một số ảnh minh chứng vận hành
+đã được chụp trực tiếp từ cụm AKS, GitHub Actions, ArgoCD, Grafana và Azure
+Portal trong phiên kiểm tra ngày 14/06/2026.
+5.2    Thiết kế kiến trúc
+   Kiến trúc thực nghiệm được triển khai trên Azure Kubernetes Service, gồm Flut-
+ter Web frontend, backend gateway, các microservices nghiệp vụ, Redis/BullMQ
+cho xử lý bất đồng bộ, KEDA cho scale AI Worker, MongoDB Atlas cho dữ liệu
+và Google Gemini API cho các tác vụ AI. Lớp vận hành bao gồm GitHub Ac-
+tions, ACR, ArgoCD, Argo Rollouts, Azure Key Vault CSI, Prometheus/Grafana
+và Azure Monitor. Các giải pháp thiết kế chi tiết của từng lớp được trình bày ở
+Chương 4; chương này tập trung vào việc ghi nhận môi trường, cách kiểm thử và
+kết quả quan sát được.
+5.3    Môi trường triển khai
+
+
+
+
+                      Bảng 5.1: Cấu hình môi trường triển khai
+      Thành phần            Cấu hình
+      AKS Node VM           Standard_D4s_v3 (4 vCPU, 16 GB RAM)
+      Architecture          amd64
+      Kubernetes runtime    Azure Kubernetes Service, verified ngày 14/06/2026
+      Region                Japan East
+      Database              MongoDB Atlas M0 (512MB, free)
+      Domain                ai-tutor-ts.duckdns.org
+      TLS                   Let’s Encrypt, TLSv1.3
+
+                                                                                 50
+CHƯƠNG 5. TRIỂN KHAI VÀ ĐÁNH GIÁ THỰC NGHIỆM
+
+
+5.4    So sánh Cloud vs VPS
+
+
+
+           Bảng 5.2: So sánh triển khai trên Cloud (AKS) và VPS truyền thống
+ Hạng mục                VPS thủ công            Azure AKS (đề tài)
+ Server cost             ~$15-20/tháng           ~$130/tháng (D4s_v3)
+ Database                Self-managed            Atlas M0 Free
+ CI/CD                   Cài Jenkins tay         GitHub Actions (2000 min
+                                                 free)
+ Monitoring              Cài tay                 kube-prometheus-stack
+ SSL                     Certbot + cron          cert-manager tự động
+ Deploy                  SSH + git pull + pm2    git push → tự động
+ Rollback                SSH + checkout          git revert
+ Self-healing            Không                   ArgoCD tự phục hồi
+ Autoscaling             Không (hoặc rất phức KEDA event-driven
+                         tạp)
+ Network Security        iptables thủ công       NetworkPolicy declarative
+ Secrets                 File .env trên server   Key Vault CSI Driver
+ Phù hợp với             Budget thấp, ít service Team DevOps, nhiều service
+
+
+
+    Nhận xét: AKS có chi phí server cao hơn, nhưng tiết kiệm đáng kể engineering
+time (ops time). Khi số lượng service tăng, lợi ích về tự động hóa càng rõ rệt. Đề
+tài sử dụng Azure Student Credit ($100) để demo.
+5.5    Cân nhắc về chi phí
+
+
+
+                         Bảng 5.3: Ước tính chi phí hàng tháng
+  Dịch vụ                  Chi phí         Ghi chú
+  AKS Node (D4s_v3)        ~$130/tháng     Stop khi không dùng
+  MongoDB Atlas M0         Free            512MB, đủ cho demo
+  ACR Basic                ~$5/tháng       Private registry
+  GitHub Actions           Free            2000 phút/tháng
+  DuckDNS                  Free            Dynamic DNS
+  Let’s Encrypt            Free            Auto-renew TLS
+  Gemini API               Free tier       Giới hạn requests/phút
+  Tổng                     ~$135/tháng     Tối ưu bằng stop AKS khi không dùng
+
+
+
+5.6    Xây dựng ứng dụng
+     Các chức năng của ứng dụng AI Tutor đã được xây dựng và triển khai thành
+công lên môi trường Kubernetes.
+
+51
+                   CHƯƠNG 5. TRIỂN KHAI VÀ ĐÁNH GIÁ THỰC NGHIỆM
+
+
+       5.6.1   Minh họa các chức năng chính
+          a, Luồng xác thực và khởi tạo tài khoản
+   Người dùng có thể đăng ký tài khoản mới và đăng nhập an toàn thông qua JWT.
+Giao diện được thiết kế tối giản, tập trung vào trải nghiệm người dùng trên thiết bị
+di động.
+
+
+
+
+                      Hình 5.1: Giao diện xác thực người dùng.
+
+
+
+
+          b, Khám phá và tham gia khóa học
+   Người học có thể xem danh sách các môn học, chọn bài học cụ thể và theo dõi
+tiến độ hoàn thành. Các bài học được trình bày dạng văn bản markdown phong
+phú.
+
+                                                                                 52
+CHƯƠNG 5. TRIỂN KHAI VÀ ĐÁNH GIÁ THỰC NGHIỆM
+
+
+
+
+                 Hình 5.2: Giao diện khám phá môn học và bài học.
+
+
+
+         c, Làm bài kiểm tra đánh giá năng lực
+  Sau khi học xong, người dùng tham gia làm bài trắc nghiệm (quiz). Kết quả
+được lưu lại, hệ thống sẽ sử dụng AI để phân tích các chủ đề kiến thức mà học sinh
+còn yếu nhằm đưa ra gợi ý ôn tập.
+
+
+
+
+             Hình 5.3: Giao diện làm bài kiểm tra và phân tích điểm yếu.
+
+53
+                  CHƯƠNG 5. TRIỂN KHAI VÀ ĐÁNH GIÁ THỰC NGHIỆM
+
+
+         d, Trợ lý học tập AI (AI Tutor Chat)
+  Đây là tính năng cốt lõi của hệ thống. Học sinh có thể nhắn tin trực tiếp với
+AI để hỏi đáp về bài học, yêu cầu giải thích lại khái niệm khó, hoặc yêu cầu AI
+tạo flashcard và bài tập thực hành. Hệ thống truyền toàn bộ ngữ cảnh bài học vào
+prompt để AI trả lời chính xác.
+
+
+
+
+                  Hình 5.4: Giao diện tương tác với Trợ lý AI Tutor.
+
+
+
+
+   Ngoài ứng dụng Android, hệ thống cũng cung cấp giao diện Flutter Web qua tên
+miền công khai. Phiên bản web dùng chung backend API với ứng dụng di động, do
+đó có thể dùng để kiểm thử nhanh các luồng học tập và vận hành hệ thống trong
+quá trình demo.
+
+                                                                             54
+CHƯƠNG 5. TRIỂN KHAI VÀ ĐÁNH GIÁ THỰC NGHIỆM
+
+
+
+
+              Hình 5.5: Giao diện trang chủ Flutter Web của hệ thống AI Tutor.
+
+
+
+
+5.7   Kiểm thử
+      5.7.1     Kiểm thử chức năng (Functional Testing)
+   Hệ thống được kiểm thử kỹ lưỡng ở cấp độ API và giao diện để đảm bảo các
+luồng nghiệp vụ hoạt động chính xác theo yêu cầu đề ra.
+          a, Chức năng Xác thực
+
+
+
+
+                  Bảng 5.4: Test cases cho chức năng xác thực người dùng.
+       TC Đầu vào            Kết quả mong đợi                   Kết quả thực tế
+      TC01 Email hợp lệ, mật Tạo tài khoản, trả                 Đạt
+           khẩu ≥6 ký tự     JWT
+      TC02 Email đã tồn tại  HTTP 409 Con-                      Đạt
+                             flict
+      TC03 Đăng nhập đúng Trả JWT hợp lệ                        Đạt
+           thông tin
+      TC04 Đăng nhập sai mật HTTP 401 Unau-                     Đạt
+           khẩu              thorized
+
+55
+                  CHƯƠNG 5. TRIỂN KHAI VÀ ĐÁNH GIÁ THỰC NGHIỆM
+
+
+         b, Chức năng Học tập và Kiểm tra
+
+
+               Bảng 5.5: Test cases cho chức năng học tập và làm quiz.
+     TC Đầu vào                       Kết quả mong đợi       Kết quả thực tế
+    TC05 Nộp đáp án bài Quiz          Cập nhật điểm,         Đạt
+         hợp lệ                       đánh giá
+    TC06 Truy cập bài học             HTTP 404 Not           Đạt
+         không tồn tại                Found
+    TC07 Nộp bài Quiz khi đã          HTTP 400 Bad Re-       Đạt
+         quá giờ                      quest
+
+
+         c, Chức năng Trợ lý AI
+
+
+                  Bảng 5.6: Test cases cho chức năng tương tác AI.
+     TC Đầu vào                       Kết quả mong đợi       Kết quả thực tế
+    TC08 Gửi tin nhắn hỏi bài         Trả lời đúng ngữ       Đạt
+         tập                          cảnh bài
+    TC09 Spam tin nhắn liên           Trả mã 429 Too         Đạt
+         tục                          Many Req
+    TC10 Gemini API bị time-          Đưa vào Queue          Đạt
+         out                          Retry
+
+
+     5.7.2   Kiểm thử vận hành (DevOps Verification)
+   Với đặc thù kiến trúc phức tạp, phương pháp kiểm thử vận hành tập trung vào
+việc kiểm chứng (verification) các hành vi hệ thống theo từng kịch bản thực tế như
+triển khai không gián đoạn, tự động hóa GitOps, rollback và autoscaling.
+         a, Trường hợp 1 — Zero-downtime Deployment (RollingUpdate vs
+            Recreate)
+   Phương pháp: Script curl loop request trong khi deploy mới. Kết quả quan sát
+trong quá trình demo:
+
+
+                    Bảng 5.7: So sánh Recreate và RollingUpdate
+       Chỉ số            Recreate   RollingUpdate + readinessProbe
+       Request thất bại 15/45 (33%)           0/67 (0%)
+       Downtime           ~14 giây              0 giây
+       Rollout time         ~15s                 ~27s
+
+
+         b, Trường hợp 2 — GitOps End-to-End
+  Đo thời gian từ git push → pod mới running:
+
+                                                                               56
+CHƯƠNG 5. TRIỂN KHAI VÀ ĐÁNH GIÁ THỰC NGHIỆM
+
+
+                 Bảng 5.8: Thời gian các giai đoạn trong luồng GitOps
+               Giai đoạn                                 Thời gian
+               GitHub Actions: build + Trivy scan + push ~2-3 phút
+               Bot write-back values-prod.yaml            ~30 giây
+               ArgoCD phát hiện + sync                    ~3 phút
+               Helm render + pod rollout                 ~1-2 phút
+               Tổng end-to-end                           ~7-9 phút
+
+
+     Verify self-healing: xóa pod thủ công → ArgoCD recreate trong ~30 giây.
+           c, Trường hợp 3 — Canary Deployment & Rollback
+
+
+                        Bảng 5.9: Kết quả Canary Deployment
+          Hành động               Kết quả
+          Deploy canary 20%       20% traffic → canary pod
+          Monitor trên Grafana    Error rate, latency observable
+          Rollback                kubectl argo rollouts abort
+          Thời gian rollback      < 5 giây
+          User bị ảnh hưởng       Tối đa 20% (canary slice)
+
+
+     So với deploy truyền thống: rollback mất 5-15 phút, 100% user bị ảnh hưởng.
+           d, Trường hợp 4 — KEDA Scale-to-Zero
+     Bơm N jobs vào Redis queue, quan sát ai-worker:
+
+
+                        Bảng 5.10: Kết quả KEDA autoscaling
+                Queue state     ai-worker replicas Scale time
+                0 jobs                   0             —
+                5 jobs bơm vào           1          ~15-30s
+                15 jobs               3 (max)       ~30-45s
+                Queue processed   0 (scale-down)    ~30-60s
+
+
+           e, Trường hợp 5 — Observability & Alert
+
+
+                       Bảng 5.11: Kết quả giám sát và cảnh báo
+         Hành động                         Phát hiện bởi       Thời gian
+         Kill pod → CrashLoopBackOff       Azure Monitor Alert ~2 phút
+         CPU > 80%                         Grafana + Alert     Real-time
+         Self-healing (ArgoCD)             Grafana pod graph   ~30 giây
+
+57
+                  CHƯƠNG 5. TRIỂN KHAI VÀ ĐÁNH GIÁ THỰC NGHIỆM
+
+
+      5.7.3   Kết quả tổng hợp kiểm thử
+
+
+
+                 Bảng 5.12: Tổng hợp mức độ đạt được các mục tiêu
+      Mục tiêu                    Đạt được        Chứng minh bởi
+      CI/CD tự động hóa phần         ✓            Trường hợp 2
+      lớn
+      Zero-downtime       deploy-    ✓            Trường hợp 1, 3
+      ment
+      GitOps (Git = source of        ✓            Trường hợp 2
+      truth)
+      Canary + rollback < 5s         ✓            Trường hợp 3
+      Scale-to-zero theo queue       ✓            Trường hợp 4
+      Observability + alerting       ✓            Trường hợp 5
+      IaC cho hạ tầng chính          ✓            Terraform state + cấu hình
+                                                  GitOps
+      Security baseline                  ✓        Trivy gate, Key Vault, Net-
+                                                  workPolicy
+
+
+
+5.8   Triển khai và Vận hành
+   Sau khi image được build và đẩy lên ACR, GitHub Actions ghi tag bất biến vào
+repo GitOps. ArgoCD theo dõi repo này và đồng bộ Helm chart vào namespace
+prod. Backend gateway được quản lý bằng Argo Rollouts để hỗ trợ canary deploy-
+ment, trong khi các service còn lại sử dụng Deployment/RollingUpdate tiêu chuẩn.
+Ở runtime, KEDA quan sát Redis queue để scale AI Worker, Prometheus/Grafana
+hiển thị metrics và Azure Monitor/Log Analytics phục vụ cảnh báo.
+      5.8.1   Trạng thái workload trên Kubernetes
+   Sau lần triển khai gần nhất, các workload chính trong namespace prod đều ở
+trạng thái sẵn sàng. Riêng learning-seed là Kubernetes Job chạy một lần để
+khởi tạo dữ liệu học tập, do đó trạng thái Completed là kết quả mong đợi.
+
+
+
+
+        Hình 5.6: Trạng thái các Pod trong namespace prod sau khi triển khai.
+
+                                                                                58
+CHƯƠNG 5. TRIỂN KHAI VÀ ĐÁNH GIÁ THỰC NGHIỆM
+
+
+        5.8.2   Giao diện quản lý GitOps (ArgoCD)
+   Giao diện ArgoCD xác nhận toàn bộ hệ thống gồm Ingress, Frontend, Gateway
+và các microservices đều ở trạng thái Healthy và Synced thành công về phiên
+bản mới nhất mà không gây gián đoạn dịch vụ.
+
+
+
+
+     Hình 5.7: Trạng thái đồng bộ hóa GitOps của ứng dụng trên giao diện ArgoCD.
+
+
+
+
+        5.8.3   Quản lý phân phối với Canary Deployment (Argo Rollouts)
+   Chiến lược Canary Deployment cho phép hệ thống điều hướng một phần nhỏ
+lưu lượng (ví dụ 20%) vào phiên bản mới để đánh giá rủi ro trước khi phát hành
+toàn bộ. Trong phạm vi bản review lượt 1, cơ chế này được chứng minh thông qua
+cấu hình Argo Rollouts và bảng kết quả kiểm thử Canary ở các mục trên. Ảnh giao
+diện Argo Rollouts trong trạng thái promote/abort sẽ được bổ sung ở bản hoàn
+thiện cuối cùng.
+        5.8.4   Giám sát hệ thống (Grafana & Prometheus)
+  Để đảm bảo khả năng chịu tải, hệ thống tích hợp Prometheus và Grafana. Dưới
+đây là màn hình giám sát sức khỏe API, HTTP Error Rate, và lưu lượng (Traffic by
+Pod).
+
+59
+                  CHƯƠNG 5. TRIỂN KHAI VÀ ĐÁNH GIÁ THỰC NGHIỆM
+
+
+
+
+  Hình 5.8: Dashboard Grafana hiển thị mức sử dụng tài nguyên của cụm Kubernetes.
+
+
+
+
+     5.8.5   Theo dõi tự động co giãn (HPA & KEDA)
+   Cơ chế Autoscaling (HPA dựa trên CPU và KEDA dựa trên hàng đợi Redis) giúp
+hệ thống tự động thay đổi số lượng replica khi tải thay đổi. Trong kịch bản đã kiểm
+thử, ai-worker có thể scale từ 0 lên tối đa 3 replica khi Redis queue có jobs và
+scale down về 0 sau khi xử lý xong. Ảnh minh chứng quá trình scale 0–3–0 sẽ được
+bổ sung ở bản hoàn thiện cuối cùng.
+     5.8.6   Quy trình CI/CD tự động (GitHub Actions)
+   Mọi thay đổi mã nguồn đều đi qua pipeline kiểm định gồm kiểm tra policy
+manifest, quét bảo mật Trivy ở mức filesystem/config/image, build Docker image
+và tự động cập nhật image tag vào GitOps repository. Với các module đã cấu hình
+test, pipeline có thể chạy thêm bước kiểm thử tự động; trong phạm vi đồ án, trọng
+tâm CI đặt vào kiểm soát image, secret, manifest và luồng GitOps write-back.
+
+                                                                                    60
+CHƯƠNG 5. TRIỂN KHAI VÀ ĐÁNH GIÁ THỰC NGHIỆM
+
+
+
+
+                Hình 5.9: Pipeline CI/CD tự động trên GitHub Actions.
+
+
+
+       5.8.7   Quản lý hạ tầng bằng mã (Terraform)
+     Toàn bộ hạ tầng Azure (AKS, ACR, Key Vault) được khởi tạo và quản lý trạng
+thái bằng Terraform, đảm bảo tính nhất quán và khả năng tái sử dụng.
+
+
+
+
+Hình 5.10: Danh sách các tài nguyên của hệ thống được cấp phát tự động trên Azure Portal.
+
+
+
+       5.8.8   Bảo mật và Zero-Trust (NetworkPolicy & HTTPS)
+   Hệ thống áp dụng baseline Zero-Trust ở mức Kubernetes NetworkPolicy: mặc
+định chặn lưu lượng không được khai báo và chỉ mở các hướng kết nối cần thiết
+giữa các thành phần trong namespace prod. Cách tiếp cận này giúp giảm bề mặt
+tấn công nội bộ, dù phần egress hiện vẫn chủ yếu được kiểm soát theo service/port
+thay vì chính sách FQDN chi tiết. Đồng thời, toàn bộ truy cập từ bên ngoài đều
+được mã hóa HTTPS thông qua Let’s Encrypt.
+
+61
+                   CHƯƠNG 5. TRIỂN KHAI VÀ ĐÁNH GIÁ THỰC NGHIỆM
+
+
+
+
+Hình 5.11: Minh chứng các NetworkPolicy theo mô hình default-deny và allow-list trong
+namespace prod.
+
+
+
+
+5.9   Kịch bản trình diễn vận hành (Live Demo)
+   Để khẳng định tính thực tiễn và độ ổn định của hệ thống, kịch bản trình diễn
+trực tiếp (Live Demo) được thiết kế với thời lượng 5-7 phút, bao quát các khía cạnh
+vận hành quan trọng nhất:
+  1. Tổng quan hệ thống đang chạy (1 phút): Mở Grafana dashboard để theo dõi
+     CPU/RAM, trạng thái Pod và NGINX RPS. Xác nhận trên ArgoCD rằng ứng
+     dụng ai-tutor-prod đang ở trạng thái Synced/Healthy.
+  2. Demo CI/CD GitOps end-to-end (2 phút): Thực hiện push code thay đổi
+     nhỏ (ví dụ đổi version). Quan sát GitHub Actions tự động build, Trivy scan,
+     và bot tự động write-back imageTag vào repo GitOps. Theo dõi ArgoCD tự
+     động nhận diện thay đổi và sync Pod mới.
+  3. Demo Canary Deployment (1 phút): Triển khai bản cập nhật với cấu hình
+     Canary 20% traffic. Theo dõi lưu lượng phân bổ trên Argo Rollouts dashboard
+     và tiến hành promote lên 100% (hoặc abort để demo rollback tức thì).
+  4. Demo KEDA Scale-to-Zero (1 phút): Quan sát ai-worker ban đầu ở trạng
+     thái 0 replicas. Bơm 15 jobs vào Redis queue. Quan sát hệ thống tự động scale
+     lên 3 replicas, xử lý hết hàng đợi rồi scale down về 0.
+  5. Demo Self-healing & Alerting (1 phút): Cố tình xóa một Pod cốt lõi để
+      quan sát Kubernetes Deployment/ReplicaSet tự tạo Pod thay thế; sau đó thay
+      đổi thủ công một trường cấu hình do GitOps quản lý (ví dụ số replicas hoặc
+      annotation) để quan sát ArgoCD phát hiện drift và đồng bộ lại theo trạng thái
+      khai báo trong Git. Đồng thời, kiểm tra cảnh báo liên quan trên Azure Monitor
+      khi điều kiện alert được kích hoạt.
+
+                                                                                  62
+CHƯƠNG 5. TRIỂN KHAI VÀ ĐÁNH GIÁ THỰC NGHIỆM
+
+
+5.10   Kết chương
+   Chương này đã trình bày toàn bộ quá trình thực nghiệm hệ thống. Thông qua
+việc minh họa các chức năng cốt lõi của AI Tutor, rà soát các kịch bản kiểm thử
+nghiệp vụ và đánh giá vận hành DevOps bằng các công cụ như ArgoCD, Grafana,
+kết quả thực nghiệm cho thấy hệ thống đáp ứng phần lớn các yêu cầu đã đặt ra ở
+Chương 3. Kịch bản Live Demo cũng chứng minh được các mục tiêu chính: kiến
+trúc linh hoạt, triển khai tự động theo GitOps, phát hành có kiểm soát bằng canary
+và co giãn AI Worker theo hàng đợi trong kịch bản thử nghiệm. Chương tiếp theo
+sẽ tổng kết lại những đóng góp nổi bật nhất của đồ án và đề xuất hướng phát triển.
+
+
+
+
+63
+               CHƯƠNG 6. KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN
+
+
+6.1   Tổng quan
+  Chương này tổng kết những đóng góp chính của đồ án, các hạn chế còn tồn tại
+và định hướng phát triển tiếp theo. Trọng tâm đánh giá nằm ở việc hệ thống không
+chỉ dừng lại ở mức xây dựng ứng dụng, mà còn hoàn thiện được một quy trình triển
+khai và vận hành cloud-native có CI/CD, GitOps, canary deployment, autoscaling,
+monitoring và security hardening.
+6.2   Kết luận
+       6.2.1   Những kết quả thực tiễn đạt được
+ 1. CI/CD và GitOps tự động hóa phần lớn quy trình — Từ git push đến
+    môi trường triển khai trong khoảng 7–9 phút đối với luồng build/deploy thông
+    thường. Pipeline bao gồm build, quét bảo mật (Trivy), push image, và GitOps
+    write-back; riêng canary promotion được giữ thủ công khi cần quan sát trước
+      khi tăng traffic.
+ 2. GitOps Write-back Pattern với repo riêng — Bot tự cập nhật SHA tag vào
+    repo GitOps riêng biệt, Git luôn là source of truth, ArgoCD tự sync. Source
+    code và deployment config được tách riêng, phù hợp với best practice GitOps
+    trong phạm vi đồ án.
+ 3. Zero-downtime Canary Deployment với rollback < 5 giây — Triển khai
+    phiên bản mới theo luồng 20% → 50% → 100% traffic. Rollback tức thì chỉ
+    ảnh hưởng tối đa 20% user, không cần thay đổi frontend.
+ 4. Event-driven Scale-to-Zero — AI Worker chạy 0 pod khi idle, tự scale lên 3
+    replicas khi có job trong Redis queue. Kết hợp BullMQ Retry + Dead Letter
+    Queue đảm bảo không mất job.
+ 5. Infrastructure as Code cho hạ tầng chính — Các thành phần Azure cốt lõi
+    như AKS, ACR, Key Vault, Monitor và network baseline được quản lý bằng
+    Terraform; phần cấu hình ứng dụng được quản lý bằng Helm/GitOps.
+ 6. Zero-Trust Network Security + Runtime Hardening — Default-deny toàn
+    bộ traffic (Terraform), chỉ cho phép theo service/port allow-list (Helm/ArgoCD).
+    Kết hợp Key Vault CSI, non-root containers, readOnlyRootFilesystem,
+    drop: ALL capabilities, seccompProfile: RuntimeDefault, Trivy
+    gate CRITICAL+HIGH. Runtime hardening đã được kiểm tra local và đã triển
+    khai thành công trên AKS sau khi CI build lại image mới.
+
+
+                                                                               64
+CHƯƠNG 6. KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN
+
+
+  7. Observability toàn diện — Prometheus + Grafana giám sát real-time, Azure
+     Monitor alerting tự động. Dashboard theo dõi độ sẵn sàng (Availability) và độ
+     trễ (Latency) toàn hệ thống.
+       6.2.2   Đánh giá và So sánh
+    So với phương án triển khai thủ công trên VPS, hệ thống đề xuất có chi phí hạ
+tầng cao hơn trong thời gian bật cụm, nhưng đổi lại đạt được khả năng tự động hóa
+triển khai, rollback có kiểm soát, quản lý secret tập trung, quan sát vận hành và tái
+lập hạ tầng tốt hơn. Với phạm vi đồ án tốt nghiệp, lựa chọn AKS + GitOps phù hợp
+để chứng minh quy trình phát triển phần mềm hiện đại hơn là tối ưu tuyệt đối chi
+phí production.
+       6.2.3   Những bài học kinh nghiệm rút ra
+     Quá trình xây dựng và vận hành đồ án đã đem lại những bài học quý giá:
+     • Tự động hóa Pipeline CI/CD tuy tốn nhiều thời gian thiết lập ban đầu (bao
+       gồm tích hợp Trivy, cấu hình rule chặn) nhưng lại tiết kiệm hàng trăm giờ vận
+       hành về sau và bảo vệ hệ thống khỏi rủi ro do thao tác thủ công.
+     • Mô hình GitOps qua ArgoCD chứng minh tính hiệu quả vượt trội trong việc
+      quản lý trạng thái cluster, tự động hóa phục hồi lỗi (self-healing) thay vì thực
+      thi lệnh kubectl một cách thủ công.
+     • Việc thiết lập môi trường Cloud native (AKS, Azure Monitor, IaC) mang lại
+       tính co giãn cao và tiện lợi, song song đó cần phải chú trọng kiểm soát chi phí
+       thực tế.
+
+
+
+
+65
+                          CHƯƠNG 6. KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN
+
+
+6.3   Hạn chế và Hướng phát triển
+      6.3.1   Hạn chế hiện tại
+
+
+
+
+                     Bảng 6.1: Hạn chế hiện tại và nguyên nhân
+       Hạn chế                             Nguyên nhân
+       1 node AKS (không thiết lập         Giới hạn về chi phí trên môi
+       High Availability phần cứng)        trường demo.
+       Chưa có Service Mesh (mTLS          Nhằm giữ hệ thống ở mức cơ
+       cho giao tiếp nội bộ)               bản, ưu tiên đảm bảo sự ổn định
+                                           của luồng chính thay vì tăng độ
+                                           trễ và phức tạp.
+       NetworkPolicy egress hiện chỉ       Các giải pháp CNI network pol-
+       lọc theo port                       icy chặn theo FQDN phức tạp và
+                                           làm tăng tải cho control plane,
+                                           trong khi CNI gốc chưa hỗ trợ.
+       Chưa áp dụng Chaos Testing          Giới hạn về thời gian triển khai
+                                           đồ án.
+       Chưa có distributed       tracing   Tạm tính việc tập trung vào met-
+       (Tracing phân tán)                  ric và logs qua Azure Monitor và
+                                           Prometheus đã đủ giải quyết bài
+                                           toán cơ bản.
+       Ứng dụng di động chưa phát          Chỉ phân phối qua phương thức
+       hành qua các Store chính thức       tải trực tiếp (APK). Việc phát
+                                           hành chính thức cần tài khoản
+                                           Developer và quy trình review
+                                           riêng.
+       Ứng dụng di động thiếu tính năng    Chưa có giải pháp phân phối
+       tự động cập nhật bản phân phối      OTA riêng cho tệp tải trực tiếp.
+       mới
+
+
+
+
+      6.3.2   Hướng phát triển tương lai
+  Dựa trên các hạn chế trên, hướng đi sắp tới cho dự án được phân chia bao gồm:
+          a, Ngắn hạn (1 – 3 tháng)
+  • Xây dựng cơ chế In-app Update (OTA) kiểm tra phiên bản mới thông qua API
+    để chủ động cập nhật ứng dụng mobile.
+  • Đổi quy trình Canary Rollout đang pause thủ công sang tự động (pause:
+      {duration: 60s} hoặc theo ngưỡng metrics) nếu các chỉ số Error Rate
+      và Latency hoàn toàn bình thường.
+
+                                                                              66
+CHƯƠNG 6. KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN
+
+
+           b, Trung hạn (3 – 6 tháng)
+     • Chuyển sang sử dụng cluster Multi-node cùng cấu hình PodAntiAffinity
+       để đảm bảo tính sẵn sàng cao (High Availability).
+     • Triển khai Service Mesh (như Linkerd hoặc Istio) để trang bị khả năng mã hóa
+       kết nối mTLS giữa mọi microservices với nhau.
+     • Tích hợp Distributed Tracing (qua OpenTelemetry và Jaeger) để có thể theo
+       dõi một HTTP Request xuyên suốt toàn bộ stack.
+           c, Dài hạn (Trên 6 tháng)
+     • Cấu hình Egress rule tường minh bằng Cilium FQDN Network Policy để thắt
+       chặt bảo mật kết nối tới MongoDB Atlas và hạ tầng Gemini API.
+     • Đưa ứng dụng mobile AI Tutor lên Google Play Store và Apple App Store
+       chính thức.
+     • Ứng dụng Chaos Engineering (bằng LitmusChaos hoặc Chaos Monkey) trong
+       quy trình test tự động ở môi trường staging nhằm liên tục kiểm tra tính tự phục
+       hồi.
+6.4    Kết chương
+   Chương này đã gói gọn lại toàn bộ các kết quả và bài học cốt lõi rút ra được từ
+đồ án. Bằng cách nhìn nhận khách quan những thiếu sót, đồ án đã đề xuất những
+định hướng phát triển ở nhiều mốc thời gian khác nhau, qua đó tạo đà cho dự án
+tiến gần hơn đến một sản phẩm thương mại hoàn thiện và vững chắc trên nền tảng
+Cloud-native định hướng DevSecOps.
+
+
+
+
+67
+                       TÀI LIỆU THAM KHẢO
+
+
+[1] S. Newman, Building Microservices: Designing Fine-Grained Systems, 2nd.
+    O’Reilly Media, 2021.
+[2] M. Fowler and J. Lewis, “Microservices: A definition of this new architectural
+    term,” martinfowler.com, 2014.
+[3] Microservices architecture on azure kubernetes service (aks), https : / /
+    learn.microsoft.com/en-us/azure/architecture/reference-
+    architectures/containers/aks-microservices/aks-microservices,
+    Accessed: 2026-06-14, 2024.
+[4] Google gemini api, https://ai.google.dev/, Accessed: 2026-06-01,
+    2024.
+[5] Flutter - build apps for any screen, https://flutter.dev/, Accessed:
+    2026-06-01, 2024.
+[6] Azure kubernetes service (aks) documentation, https://learn.microsoft.
+    com/en-us/azure/aks/, Accessed: 2026-06-01, 2024.
+[7] Azure key vault documentation, https : / / learn . microsoft . com /
+    en-us/azure/key-vault/, Accessed: 2026-06-01, 2024.
+
+
+
+
+                                                                    68
+PHỤ LỤC
+
+
+
+
+          69
+                      A. DANH SÁCH API ENDPOINTS
+
+
+   Hệ thống AI Tutor sử dụng Backend Gateway làm điểm vào chính cho frontend
+web và Android APK. Gateway không trực tiếp xử lý toàn bộ nghiệp vụ, mà định
+tuyến request đến các microservice tương ứng: Auth Service, Learning Service,
+Assessment Service và AI Chat Service. Phụ lục này liệt kê các API endpoint
+chính được sử dụng trong hệ thống, tập trung vào các endpoint phục vụ ứng dụng
+và một số endpoint nội bộ quan trọng giữa các service.
+A.1    API Gateway và endpoint hệ thống
+
+                  Bảng A.1: Endpoint hệ thống tại Backend Gateway
+ Method     Endpoint                    Phân quyền       Mô tả
+ GET        /                           Công khai        Trả về thông tin phiên bản,
+                                                         trạng thái và danh sách end-
+                                                         point chính của Backend
+                                                         Gateway.
+ GET        /health                     Công khai        Liveness endpoint cho Ku-
+                                                         bernetes và kiểm tra nhanh
+                                                         trạng thái tiến trình Gateway.
+ GET        /api/ping                   Công khai        Endpoint kiểm tra nhanh
+                                                         Gateway đang hoạt động.
+ GET        /api/ready                  Công khai        Readiness endpoint dùng
+                                                         cho cấu hình readiness
+                                                         probe trong Kubernetes.
+
+
+A.2    Auth Service
+  Các endpoint xác thực được expose ra bên ngoài qua prefix /api/users.
+Gateway chuyển tiếp request đến Auth Service tương ứng.
+
+                       Bảng A.2: Endpoint xác thực và người dùng
+ Method     Endpoint                    Phân quyền       Mô tả
+ POST                         Công khai
+            /api/users/register                          Đăng ký tài khoản mới bằng
+                                                         thông tin người dùng và mật
+                                                         khẩu.
+
+
+
+
+                                                                                70
+PHỤ LỤC A. DANH SÁCH API ENDPOINTS
+
+
+ Method     Endpoint                   Phân quyền         Mô tả
+ POST       /api/users/login           Công khai          Đăng nhập bằng email/mật
+                                                          khẩu và nhận JWT để gọi
+                                                          các API cần xác thực.
+ POST                         Công khai
+            /api/users/login/google                       Đăng nhập bằng Google,
+                                                          phục vụ luồng xác thực mở
+                                                          rộng của frontend.
+
+
+
+
+A.3    Learning Service
+  Learning Service quản lý dữ liệu môn học, bài học, nội dung lý thuyết và quiz
+gốc. Một số API đọc dữ liệu học tập có thể được gọi công khai hoặc optional-auth;
+riêng khi mở chi tiết bài học, Gateway truyền kèm Authorization header nếu có để
+Learning Service cập nhật tiến độ bất đồng bộ.
+
+
+
+
+                             Bảng A.3: Endpoint học tập
+ Method     Endpoint                   Phân quyền         Mô tả
+ GET        /api/subjects              Công khai          Lấy danh sách môn học, hỗ
+                                                          trợ lọc theo khối lớp qua
+                                                          query parameter.
+ GET        /api/subjects/:id Công khai                   Lấy chi tiết một môn học
+                                                          theo ID.
+ GET        /api/lessons               Công khai          Lấy danh sách bài học; fron-
+                                                          tend dùng để hiển thị cấu
+                                                          trúc nội dung học tập.
+ GET        /api/lessons/:id           Optional-auth      Lấy chi tiết bài học; nếu re-
+                                                          quest có JWT, hệ thống có
+                                                          thể gửi cập nhật tiến độ bất
+                                                          đồng bộ.
+ GET        /api/quizzes               Công khai          Lấy danh sách quiz gốc từ
+                                                          Learning Service.
+ GET        /api/quizzes/:id           Công khai          Lấy chi tiết một quiz theo ID
+                                                          để frontend hiển thị câu hỏi.
+ GET        /api/lesson-               Công khai          Lấy danh sách gợi ý bài học
+            suggestions                                   từ Learning Service.
+
+71
+                                  PHỤ LỤC A. DANH SÁCH API ENDPOINTS
+
+
+A.4    Assessment Service
+   Assessment Service quản lý kết quả làm bài, tiến độ học tập và phân tích chủ
+đề yếu của người học. Các endpoint bên dưới yêu cầu JWT vì dữ liệu gắn với tài
+khoản cá nhân.
+
+                     Bảng A.4: Endpoint đánh giá và tiến độ học tập
+ Method      Endpoint                   Phân quyền         Mô tả
+ GET                           Đăng nhập
+             /api/progress/summary                         Lấy tổng quan tiến độ học
+                                                           tập của người dùng hiện tại.
+ GET                           Đăng nhập
+             /api/progress/lesson/:id                      Lấy tiến độ của người dùng
+                                                           theo từng bài học.
+ POST                          Đăng nhập
+             /api/progress/lesson/:id                      Tạo hoặc cập nhật tiến độ
+                                                           học tập của người dùng cho
+                                                           một bài học.
+ POST                          Đăng nhập
+             /api/quizzes/:id/submit                       Nộp bài quiz, chấm điểm tự
+                                                           động và lưu kết quả làm bài.
+ GET         /api/quiz-                 Đăng nhập          Lấy lịch sử làm quiz của
+             history                                       người dùng.
+ GET         /api/weak-topics           Đăng nhập          Phân tích các chủ đề người
+                                                           học còn yếu, phục vụ adap-
+                                                           tive quiz và gợi ý học tập.
+
+
+A.5    AI Chat Service
+   AI Chat Service chịu trách nhiệm xử lý các chức năng AI như chat, tạo quiz,
+adaptive quiz, flashcard, tóm tắt bài học và gợi ý bài học. Các endpoint AI đi qua
+rate limiter tại Gateway và tiếp tục được xác thực tại AI Chat Service trước khi gọi
+Google Gemini API.
+
+                   Bảng A.5: Endpoint AI Chat và cá nhân hóa học tập
+ Method      Endpoint                    Phân quyền         Mô tả
+ POST        /api/chat                   Đăng nhập + Gửi tin nhắn đến AI Tutor;
+                                         rate limit  service lấy ngữ cảnh nếu có
+                                                     và gọi Gemini API.
+ POST        /api/gemini/chat            Đăng nhập + Endpoint tương thích cho
+                                         rate limit  luồng chat cũ, chuyển
+                                                     tiếp đến cùng logic với
+                                                     /api/chat.
+
+
+                                                                                 72
+PHỤ LỤC A. DANH SÁCH API ENDPOINTS
+
+
+ Method      Endpoint                    Phân quyền        Mô tả
+ GET         /api/chat-history           Đăng nhập + Lấy danh sách hội thoại AI
+                                         rate limit  của người dùng.
+ GET         /api/chats                  Đăng nhập + Lấy danh sách hội thoại
+                                         rate limit  AI, tương thích với fron-
+                                                     tend hiện tại.
+ DELETE /api/chats/:id                   Đăng nhập + Xóa một hội thoại AI theo
+                                         rate limit  ID.
+ PATCH       /api/chats/:id/pin Đăng nhập + Ghim hoặc bỏ ghim một
+                                rate limit  hội thoại AI.
+ POST        /api/generate-              Đăng nhập + Sinh quiz bằng Gemini API
+             quiz                        rate limit  dựa trên chủ đề hoặc nội
+                                                     dung bài học.
+ POST        /api/adaptive-              Đăng nhập + Sinh quiz cá nhân hóa dựa
+             quiz                        rate limit  trên tiến độ hoặc chủ đề yếu
+                                                     của người học.
+ POST        /api/generate-              Đăng nhập + Sinh flashcard từ nội dung
+             flashcards                  rate limit  bài học.
+ POST        /api/summarize              Đăng nhập + Tóm tắt nội dung bài học
+                                         rate limit        bằng Gemini API.
+ POST        /api/suggest-               Đăng nhập + Sinh gợi ý bài học tiếp theo
+             lessons                     rate limit  bằng AI.
+ GET         /api/suggest-               Đăng nhập + Lấy danh sách gợi ý bài học
+             lessons                     rate limit  AI đã lưu.
+
+
+A.6    Endpoint nội bộ giữa các microservice
+   Một số endpoint không được expose trực tiếp cho người dùng cuối mà chỉ phục
+vụ giao tiếp nội bộ giữa các service trong namespace prod. Các endpoint này là
+một phần quan trọng của thiết kế microservices vì giúp các service trao đổi dữ liệu
+cần thiết mà vẫn giữ ownership dữ liệu riêng.
+
+                    Bảng A.6: Endpoint nội bộ giữa các microservice
+ Method      Endpoint nội bộ              Service           Mô tả
+ GET         /internal/verify             Auth              Xác minh JWT cho các
+                                                            service cần kiểm tra danh
+                                                            tính người dùng.
+
+
+
+73
+                           PHỤ LỤC A. DANH SÁCH API ENDPOINTS
+
+
+Method   Endpoint nội bộ        Service      Mô tả
+GET                         Learning
+         /internal/quizzes/:id               Assessment Service lấy
+                                             quiz/đáp án khi chấm bài.
+POST     /internal/quizzes      Learning     AI Chat Service lưu quiz
+                                             được sinh tự động vào
+                                             Learning Service khi cần.
+GET                          Learning
+         /internal/lessons/:id               AI Chat Service lấy nội
+                                             dung bài học làm ngữ
+                                             cảnh cho Gemini API.
+GET                          Assessment
+         /internal/analysis/weak-            AI Chat Service lấy chủ đề
+         topics                              yếu để tạo adaptive quiz
+                                             hoặc gợi ý học tập.
+
+
+
+
+                                                                74
+

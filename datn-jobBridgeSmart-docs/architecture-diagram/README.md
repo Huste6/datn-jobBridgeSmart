@@ -63,7 +63,7 @@ ArgoCD (GitOps)
 
 **Màu nền:** Xanh dương nhạt  
 **Border:** Nét liền, màu xanh dương  
-**Label:** `Azure VNet: 10.0.0.0/16 (Southeast Asia)`
+**Label:** `Azure VNet (AKS Managed)`
 
 ### 2.1 – Entry Points (phía trên VNet)
 
@@ -73,44 +73,21 @@ Users / Internet
 DuckDNS (Free DNS)
 [jobbridge.duckdns.org]
       ↓
-Azure Application Gateway
-[HTTPS :443, WAF enabled]
+Azure Load Balancer (Standard)
+[Port 80/443 Public IP]
       ↓
-Internet Gateway (built-in Azure VNet)
+AKS NGINX Ingress Controller
 ```
 
-### 2.2 – Public Subnet: 10.0.1.0/24
-
-**Màu nền:** Xanh lá nhạt  
-**Label:** `Public Subnet – 10.0.1.0/24`
-
-Chứa:
-- **Azure NAT Gateway** – outbound traffic cho private subnets
-- **Azure Bastion** – SSH/RDP vào cluster an toàn (không expose port 22)
-
-### 2.3 – Private Subnet AZ-1: 10.0.2.0/24
+### 2.2 – Flat Node Subnet
 
 **Màu nền:** Cam nhạt  
-**Label:** `Private Subnet – AZ-1 – 10.0.2.0/24`
+**Label:** `AKS Subnet – flat namespace structure`
 
 Chứa:
 - **AKS Node Pool** (VM: Standard_B2s, managed by Azure)
-
-### 2.4 – Private Subnet AZ-2: 10.0.3.0/24
-
-**Màu nền:** Cam nhạt  
-**Label:** `Private Subnet – AZ-2 – 10.0.3.0/24`
-
-Chứa:
-- **AKS Node Pool** (optional, for HA / future scale)
-
-### 2.5 – Database Subnet: 10.0.4.0/24
-
-**Màu nền:** Tím nhạt  
-**Label:** `Database Subnet – 10.0.4.0/24 (private)`
-
-Chứa:
-- **MongoDB StatefulSet** (chạy trong AKS, Persistent Volume = Azure Disk)
+- **NGINX Ingress Controller** – handles SSL termination (cert-manager) and path routing.
+- **MongoDB StatefulSet** (chạy trong AKS data namespace, Persistent Volume = Azure Disk)
 
 ---
 
@@ -295,12 +272,12 @@ Azure Monitor
 ```
 ┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐
 │  SECURITY        │ │  NETWORKING      │ │  RELIABILITY     │
-│ • Azure RBAC     │ │ • VNet Isolation │ │ • HPA per service│
-│ • Key Vault      │ │ • Private Subnets│ │ • PodDisruption  │
-│   Secrets        │ │ • NAT Gateway    │ │   Budget         │
-│ • Non-root       │ │ • App Gateway    │ │ • Rolling Update │
-│   containers     │ │   WAF            │ │ • MongoDB PVC    │
-│ • Network Policy │ │ • TLS cert-mgr   │ │   (Azure Disk)   │
+│ • Azure RBAC     │ │ • Azure CNI      │ │ • HPA per service│
+│ • Key Vault      │ │ • Standard LB    │ │ • PodDisruption  │
+│   Secrets        │ │ • NGINX Ingress  │ │   Budget         │
+│ • Non-root       │ │ • TLS cert-mgr   │ │ • Rolling Update │
+│   containers     │ │ • Network Policy │ │ • MongoDB PVC    │
+│ • Network Policy │ │                  │ │   (Azure Disk)   │
 └──────────────────┘ └──────────────────┘ └──────────────────┘
 ┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐
 │  COST OPT        │ │  DEVOPS          │ │  COMPLIANCE      │
@@ -333,9 +310,7 @@ LEGEND:
 |---------|---------|------------|
 | CI/CD Pipeline | #1a1a2e (navy dark) | #4a90d9 |
 | Azure VNet | #e8f4fd (blue very light) | #0078d4 (Azure blue) |
-| Public Subnet | #e8f5e9 (green light) | #4caf50 |
-| Private Subnet | #fff3e0 (orange light) | #ff9800 |
-| Database Subnet | #f3e5f5 (purple light) | #9c27b0 |
+| Flat Node Subnet | #fff3e0 (orange light) | #ff9800 |
 | AKS Cluster | #ffffff with #ff6f00 border | #ff6f00 (orange) |
 | NS: frontend | #e3f2fd | #1976d2 |
 | NS: backend | #e8f5e9 | #388e3c |

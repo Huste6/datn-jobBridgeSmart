@@ -216,60 +216,61 @@ Handler fetch 3 documents từ MongoDB:
 ### Prompt
 
 ```
-Bạn là chuyên gia tuyển dụng. Hãy đánh giá CV ứng viên cho vị trí sau:
+Bạn là chuyên gia tuyển dụng kỹ thuật IT hỗ trợ HR đánh giá hồ sơ ứng viên.
 
-VỊ TRÍ: {job.title}
-MÔ TẢ: {job.description}
-YÊU CẦU: {requirements}
-TRÁCH NHIỆM: {responsibilities}
+Yêu cầu bắt buộc:
+- Chỉ dùng dữ liệu từ CV context và JD context được cung cấp.
+- Không bịa thông tin chưa có trong CV/JD.
+- Trả kết quả ở dạng JSON hợp lệ duy nhất, không kèm markdown, không kèm giải thích ngoài JSON.
 
-CV ỨNG VIÊN:
-{user.cv_text}
-
-{custom_prompt nếu có}
-
-Hãy:
-1. Cho điểm từ 0-100 dựa trên mức độ phù hợp
-2. Liệt kê điểm mạnh và điểm yếu
-3. Kết luận có nên mời phỏng vấn không
-
-Trả về theo format:
-SCORE: {số}
-NOTES: {nhận xét chi tiết}
+Schema JSON bắt buộc:
+{
+  "score": <0-100 (điểm tương thích tổng thể)>,
+  "summary": "<nhận xét/đánh giá chung của AI về hồ sơ ứng viên>",
+  "matching_skills": ["<kỹ năng phù hợp 1>", "<kỹ năng phù hợp 2>", ...],
+  "strengths": ["<điểm mạnh 1>", "<điểm mạnh 2>", ...],
+  "weaknesses": ["<điểm cần cải thiện 1>", "<điểm cần cải thiện 2>", ...],
+  "recommendations": ["<đề xuất cho nhà tuyển dụng 1>", "<đề xuất cho nhà tuyển dụng 2>", ...]
+}
 ```
 
-### Score Extraction
+### Score & Notes Extraction
 
-Handler parse response để extract score:
+Handler cố gắng parse JSON từ AI response. Nếu thành công và chứa thông tin có cấu trúc, trường `notes` lưu trữ dưới dạng chuỗi JSON đã được serialize. Nếu thất bại, hệ thống tự động rơi về cơ chế fallback (truy quét Regex tìm `score` và dùng toàn bộ văn bản phản hồi làm `notes` phi cấu trúc):
 
 ```go
-// Extract SCORE: {number} từ response
-re := regexp.MustCompile(`(?i)score[:\s]+(\d+)`)
-matches := re.FindStringSubmatch(reply)
-score, _ := strconv.Atoi(matches[1])
+type parsedFull struct {
+    Score           int      `json:"score"`
+    Summary         string   `json:"summary"`
+    MatchingSkills  []string `json:"matching_skills"`
+    Strengths       []string `json:"strengths"`
+    Weaknesses      []string `json:"weaknesses"`
+    Recommendations []string `json:"recommendations"`
+}
+// Nếu parse thành công, lưu notes dưới dạng JSON:
+// { "summary": "...", "matching_skills": [...], "strengths": [...], "weaknesses": [...], "recommendations": [...] }
 ```
 
 ### Database Update
 
-Sau khi có kết quả, AI service update application:
+Sau khi có kết quả, AI service cập nhật application record:
 
 ```go
+// Tải dữ liệu vào MongoDB
 h.appRepo.UpdateScoreAndNotes(ctx, appOID, score, notes)
-// MongoDB: db.applications.updateOne(
-//   { _id: appOID },
-//   { $set: { manual_score: 85, notes: "...", updated_at: now } }
-// )
 ```
 
 ### Response
 
+Khi thành công, API trả về dữ liệu có dạng:
+
 ```json
 {
-  "application_id": "...",
-  "job_id": "...",
-  "candidate_id": "...",
+  "application_id": "69c7dce8b6e986eb9f871375",
+  "job_id": "69c7d760385fe6fb5cf575eb",
+  "candidate_id": "69c7d760385fe6fb5cf575f8",
   "score": 85,
-  "notes": "**Điểm mạnh:**\n- 3 năm kinh nghiệm Go\n- Có kinh nghiệm microservices\n\n**Điểm yếu:**\n- Chưa có kinh nghiệm Kubernetes\n\n**Kết luận:** Nên mời phỏng vấn",
+  "notes": "{\"summary\":\"Ứng viên có 3+ năm kinh nghiệm DevOps, thành thạo Docker/K8s...\",\"matching_skills\":[\"Docker\",\"Kubernetes\",\"CI/CD\"],\"strengths\":[\"Kinh nghiệm thực tế với IaC\",\"Có chứng chỉ AWS\"],\"weaknesses\":[\"Kinh nghiệm về Go còn cơ bản\"],\"recommendations\":[\"Phỏng vấn trực tiếp về kiến thức hệ thống\"]}",
   "cv_ready": true,
   "cv_text_used": true,
   "model": "gpt-4o-mini"

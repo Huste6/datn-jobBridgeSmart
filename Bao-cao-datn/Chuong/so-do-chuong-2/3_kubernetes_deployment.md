@@ -1,36 +1,9 @@
 ### Sơ đồ kiến trúc triển khai trên Kubernetes (AKS)
 
-**Mô tả:**
+Sơ đồ này minh họa cách hệ thống JobBridge AI được triển khai trên Azure Kubernetes Service. Kiến trúc triển khai gồm lớp truy cập từ Internet, lớp định tuyến trong cụm, các Deployment cho từng thành phần ứng dụng, lớp lưu trữ dữ liệu và các dịch vụ nền tảng hỗ trợ như Azure Container Registry, Azure Key Vault và Argo CD.
 
-Sơ đồ này minh họa cách các thành phần của ứng dụng JobBridge AI được tổ chức và vận hành bên trong một cluster Azure Kubernetes Service (AKS).
+Người dùng truy cập hệ thống thông qua Ingress NGINX. Ingress tiếp nhận lưu lượng HTTP/HTTPS, xử lý tên miền và chứng chỉ TLS, sau đó định tuyến yêu cầu đến frontend hoặc API Gateway. Frontend phục vụ giao diện người dùng, còn API Gateway đóng vai trò reverse proxy để chuyển tiếp các yêu cầu API đến các microservice nội bộ như Auth Service, Jobs Service và AI Service. Việc xác thực, phân quyền và kiểm tra quyền sở hữu tài nguyên được thực hiện tại các service nghiệp vụ tương ứng thay vì đặt toàn bộ logic ở Gateway.
 
-**Các thành phần chính trong Kubernetes:**
+Mỗi thành phần ứng dụng được triển khai dưới dạng Kubernetes Deployment và được truy cập thông qua Kubernetes Service nội bộ. Các Deployment sử dụng image được lưu trữ trên Azure Container Registry và có thể được cập nhật theo cơ chế rolling update khi Argo CD đồng bộ phiên bản mới từ Helm chart. Các biến cấu hình không nhạy cảm được quản lý qua ConfigMap, trong khi thông tin nhạy cảm như khóa API, chuỗi kết nối và bí mật hệ thống được đưa vào Pod thông qua Secret hoặc Azure Key Vault CSI Driver.
 
-1.  **AKS Cluster:** Là môi trường Kubernetes được quản lý bởi Azure, nơi ứng dụng được triển khai. Nó bao gồm các Node (máy ảo) để chạy các container.
-2.  **Ingress Controller:**
-    *   Là cổng vào cho tất cả các traffic từ bên ngoài Internet vào cluster.
-    *   Nó nhận các yêu cầu HTTP/HTTPS và định tuyến chúng đến các `Service` phù hợp dựa trên các quy tắc (rules) được định nghĩa trong tài nguyên `Ingress`. Ví dụ: `jobbridge.com/api/auth/*` sẽ được chuyển đến `auth-service`.
-3.  **Services:**
-    *   Là một đối tượng trừu tượng của Kubernetes, cung cấp một địa chỉ IP và DNS name ổn định cho một nhóm các `Pods`.
-    *   Mỗi microservice (`auth`, `jobs`, `ai`, `gateway`, `frontend`) sẽ có một `Service` tương ứng (ví dụ: `auth-service`, `jobs-service`).
-    *   `Services` cho phép các microservice giao tiếp với nhau bên trong cluster một cách dễ dàng mà không cần biết địa chỉ IP cụ thể của từng `Pod`.
-4.  **Pods:**
-    *   Là đơn vị triển khai nhỏ nhất trong Kubernetes.
-    *   Mỗi `Pod` chứa một hoặc nhiều container. Trong trường hợp này, mỗi `Pod` sẽ chứa container cho một microservice (ví dụ: một `Pod` chạy container `auth`, một `Pod` khác chạy container `jobs`).
-    *   Kubernetes đảm bảo rằng một số lượng `Pods` (bản sao - replicas) nhất định cho mỗi microservice luôn chạy, cung cấp khả năng chịu lỗi và mở rộng.
-5.  **Deployments:**
-    *   Là tài nguyên Kubernetes quản lý các `Pods`.
-    *   Nó định nghĩa trạng thái mong muốn, ví dụ: "Tôi muốn 3 bản sao của `auth-service` luôn chạy với image phiên bản `v1.2.0`".
-    *   Khi bạn cập nhật phiên bản image, `Deployment` sẽ quản lý việc tạo `Pods` mới và xóa `Pods` cũ một cách an toàn (rolling update).
-6.  **ConfigMaps & Secrets:**
-    *   **ConfigMaps:** Dùng để lưu trữ các cấu hình không nhạy cảm của ứng dụng (ví dụ: URL của database, các biến môi trường).
-    *   **Secrets:** Dùng để lưu trữ các thông tin nhạy cảm như mật khẩu database, API keys.
-    *   Các `Pods` sẽ đọc thông tin từ `ConfigMaps` và `Secrets` khi khởi động.
-
-**Luồng hoạt động:**
-
-*   Yêu cầu từ người dùng đi vào **Ingress Controller**.
-*   **Ingress** chuyển yêu cầu đến `Service` của **API Gateway**.
-*   `Service` của API Gateway sẽ chuyển tiếp yêu cầu đến một trong các `Pod` của API Gateway.
-*   `Pod` API Gateway sau đó sẽ giao tiếp với các `Service` của các microservice khác (`auth-service`, `jobs-service`) khi cần thiết.
-*   Quá trình này đảm bảo tính linh hoạt, khả năng mở rộng và khả năng phục hồi cao cho toàn bộ ứng dụng.
+MongoDB được triển khai như lớp lưu trữ chính của hệ thống, phục vụ các dữ liệu về người dùng, doanh nghiệp, tin tuyển dụng, hồ sơ ứng tuyển và các kết quả liên quan đến tính năng AI. Ngoài cụm AKS, hệ thống còn kết nối đến các dịch vụ bên ngoài như Cloudinary để lưu trữ tệp tải lên và dịch vụ LLM/OpenAI-compatible API để thực hiện các chức năng hỗ trợ phỏng vấn, sinh câu hỏi và đánh giá CV. Cấu trúc triển khai này giúp hệ thống có khả năng mở rộng, dễ vận hành và phù hợp với quy trình phát hành tự động trên nền tảng cloud-native.

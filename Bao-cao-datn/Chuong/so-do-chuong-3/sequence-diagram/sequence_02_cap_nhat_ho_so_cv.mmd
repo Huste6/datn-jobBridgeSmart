@@ -1,0 +1,16 @@
+sequenceDiagram
+    title UC02 - Cập nhật hồ sơ và CV
+    participant U as Ứng viên
+    participant FE as Frontend
+    participant GW as API Gateway
+    participant AUTH as Auth Service
+    participant CLOUD as Cloudinary
+    participant DB as MongoDB
+    U->>FE: Cập nhật hồ sơ, tải avatar/CV
+    FE->>GW: PUT /api/users/me/profile
+    GW->>AUTH: Xác thực JWT và role seeker
+    AUTH->>CLOUD: Upload avatar/CV PDF
+    CLOUD-->>AUTH: Trả URL file
+    AUTH->>AUTH: Trích xuất cv_text từ CV
+    AUTH->>DB: Cập nhật profile, cv_url, cv_text
+    DB-->>FE: Trả hồ sơ đã cập nhật

@@ -1,0 +1,14 @@
+sequenceDiagram
+    title UC15 - Duyệt và khóa công ty
+    participant U as Quản trị viên
+    participant FE as Frontend
+    participant GW as API Gateway
+    participant AUTH as Auth Service
+    participant DB as MongoDB
+    U->>FE: Duyệt/từ chối/khóa công ty
+    FE->>GW: PUT /api/admin/companies/{id}
+    GW->>AUTH: Kiểm tra role admin
+    AUTH->>DB: Cập nhật trạng thái company
+    DB-->>AUTH: Trả company đã cập nhật
+    AUTH-->>FE: Trả kết quả kiểm duyệt
+    FE-->>U: Hiển thị trạng thái mới

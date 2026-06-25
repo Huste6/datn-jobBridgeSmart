@@ -4,8 +4,8 @@ import { sleep, check } from 'k6';
 // Cấu hình kịch bản stress test
 export const options = {
   stages: [
-    { duration: '30s', target: 1500 }, // Ramp-up to 150 users in 30s
-    { duration: '2m', target: 3000 },  // Stay at 300 users for 2 mins
+    { duration: '30s', target: 1500 }, // Ramp-up to 1500 virtual users in 30s
+    { duration: '2m', target: 3000 },  // Stay at 3000 virtual users for 2 mins
     { duration: '30s', target: 0 },   // Ramp-down to 0 users
   ],
 };

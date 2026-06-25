@@ -80,7 +80,7 @@ DELETE & \texttt{/api/jobs/my/:id} & recruiter & Xóa tin tuyển dụng. \\ \hl
 POST   & \texttt{/api/applications} & seeker & Ứng viên nộp hồ sơ ứng tuyển vào một vị trí. Hệ thống kiểm tra trùng lặp và trạng thái job còn mở. \\ \hline
 GET    & \texttt{/api/applications/me} & seeker & Ứng viên xem danh sách toàn bộ hồ sơ đã nộp cùng trạng thái xử lý. \\ \hline
 GET    & \texttt{/api/applications/} \newline \texttt{job/:jobId} & recruiter & Nhà tuyển dụng xem danh sách ứng viên đã nộp hồ sơ cho một vị trí; chỉ trả kết quả nếu job thuộc sở hữu của nhà tuyển dụng. \\ \hline
-PATCH  & \texttt{/api/applications/} \newline \texttt{:id/status} & recruiter & Cập nhật trạng thái hồ sơ (\texttt{submitted} $\to$ \texttt{reviewing} $\to$ \texttt{interview} $\to$ \texttt{offered/rejected}), kèm điểm thủ công và ghi chú. \\ \hline
+PATCH  & \texttt{/api/applications/} \newline \texttt{:id/status} & recruiter & Cập nhật trạng thái hồ sơ (\texttt{submitted} $\to$ \texttt{reviewing} $\to$ \texttt{interview} $\to$ \texttt{offered/rejected}), kèm điểm đánh giá đã lưu và ghi chú. \\ \hline
 \end{tabular}
 \end{table}
 

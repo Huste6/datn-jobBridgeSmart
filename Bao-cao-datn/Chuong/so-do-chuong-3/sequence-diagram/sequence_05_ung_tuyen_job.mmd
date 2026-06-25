@@ -1,0 +1,15 @@
+sequenceDiagram
+    title UC05 - Ứng tuyển job
+    participant U as Ứng viên
+    participant FE as Frontend
+    participant GW as API Gateway
+    participant JOBS as Jobs Service
+    participant DB as MongoDB
+    U->>FE: Bấm ứng tuyển job
+    FE->>GW: POST /api/applications
+    GW->>JOBS: Chuyển request kèm JWT
+    JOBS->>DB: Kiểm tra role, job, CV và application trùng
+    DB-->>JOBS: Trả dữ liệu hợp lệ
+    JOBS->>DB: Tạo application trạng thái submitted
+    DB-->>FE: Trả application mới
+    FE-->>U: Thông báo ứng tuyển thành công

@@ -80,7 +80,7 @@ resource "azurerm_kubernetes_cluster" "main" {
   default_node_pool {
     name       = "system"
     node_count = 1           # Cost-optimized: 1 node
-    vm_size    = "Standard_B2s"
+    vm_size    = "Standard_B2als_v2" # Cheaper burstable option in malaysiawest
   }
 
   network_profile {
@@ -264,7 +264,7 @@ Resource Group: rg-jobbridge
 │   └── Images: jobbridge-auth, jobbridge-jobs, jobbridge-ai, 
 │               jobbridge-gateway, jobbridge-frontend
 ├── AKS Cluster: aks-jobbridge
-│   └── Node Pool: system (1x Standard_B2s)
+│   └── Node Pool: system (1x Standard_B2als_v2)
 │        └── Kubernetes workloads (Helm release: jobbridge)
 └── Azure Key Vault: kv-jobbridge
     └── Secrets: JWT_SECRET, OPENAI_API_KEY, ...
@@ -278,14 +278,14 @@ Storage Account: satfjobbridge (resource group: rg-tfstate)
 
 ---
 
-## Chi phí ước tính (Azure Southeast Asia)
+## Chi phí ước tính (Azure Malaysia West)
 
 | Resource | SKU | Ước tính/tháng |
 |---------|-----|----------------|
-| AKS (1 node Standard_B2s) | B2s | ~$30 |
+| AKS (1 node Standard_B2als_v2) | B2als_v2 | ~$20 |
 | ACR | Basic | ~$5 |
 | Key Vault | Standard | ~$1 |
 | Storage (state) | LRS | < $1 |
-| **Tổng** | | **~$36/tháng** |
+| **Tổng** | | **~$27/tháng** |
 
 *Chú ý: AKS management fee = $0 (miễn phí cho cluster ≤ 1 node với free tier)*

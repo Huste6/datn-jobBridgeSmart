@@ -2,278 +2,161 @@
 \begin{document}
 
 \section{Tổng quan}
-Dựa trên nền tảng hệ thống đã được xây dựng và thực nghiệm ở Chương 4, chương này đi sâu phân tích các giải pháp kỹ thuật cốt lõi và đóng góp nổi bật nhất trong quá trình phát triển dự án ``JobBridge AI''. Đây là những đóng góp về mặt thiết kế và triển khai được em nghiên cứu, thiết kế và hiện thực hóa nhằm giải quyết các vấn đề về độ trễ AI, kiểm soát phân quyền trong kiến trúc microservices, tự động hóa và đảm bảo tính sẵn sàng cao cho hệ thống phân tán trên nền tảng đám mây Azure.
 
-Nội dung chính của chương bao gồm:
-\begin{itemize}
-    \item Giải pháp trích xuất và cache văn bản CV từ tệp PDF nhằm tối ưu độ trễ xử lý dữ liệu cho AI.
-    \item Giải pháp bảo mật phân lớp và kiểm soát tài nguyên nghiệp vụ tại API Gateway và các Microservices.
-    \item Quy trình vận hành liên tục GitOps kết hợp giám sát hệ thống tập trung (Observability).
-    \item Chiến lược Auto-scaling chủ động và đảm bảo tính sẵn sàng cao với HPA và PDB.
-    \item Hạ tầng khai báo với Terraform IaC và quản lý bí mật tập trung bằng Azure Key Vault CSI.
-\end{itemize}
+Dựa trên kết quả triển khai và đánh giá thực nghiệm ở Chương 4, chương này tập trung phân tích các giải pháp kỹ thuật nổi bật ở góc độ triển khai cloud, tự động hóa phát hành, vận hành liên tục và mở rộng hệ thống. Đây là nhóm đóng góp phù hợp nhất với định hướng của đồ án vì hệ thống JobBridge AI không chỉ dừng lại ở mức xây dựng chức năng web, mà đã được đóng gói, triển khai, giám sát và thử tải trên môi trường Kubernetes.
 
-\section{Giải pháp tối ưu hóa độ trễ xử lý dữ liệu với cơ chế Trích xuất và Cache văn bản CV từ tệp PDF}
-\label{sec:solution-caching}
+Các tối ưu ở tầng nghiệp vụ như trích xuất nội dung CV, kiểm tra vai trò người dùng hoặc kiểm tra quyền sở hữu tài nguyên vẫn là một phần quan trọng của hệ thống. Tuy nhiên, các nội dung này đã được thể hiện trong phần thiết kế và triển khai chức năng ở các chương trước; vì vậy, chương này không tách chúng thành đóng góp chính để tránh làm loãng trọng tâm.
 
-\subsection{Dẫn dắt và bài toán}
-Trong các hệ thống tuyển dụng tích hợp Trí tuệ nhân tạo (AI), việc gửi toàn bộ tài liệu hồ sơ (CV) dạng tệp PDF gốc lên các mô hình ngôn ngữ lớn (LLM) mỗi khi thực hiện các yêu cầu (như chấm điểm CV hoặc phỏng vấn giả lập) gặp phải ba hạn chế chính:
-\begin{enumerate}
-    \item \textbf{Độ trễ truyền tải lớn (Network Latency):} Việc tải tệp PDF nhị phân từ CDN (Cloudinary) về backend, sau đó truyền tiếp dữ liệu thô hoặc nội dung văn bản chưa tối ưu sang OpenAI API gây tốn kém thời gian và băng thông.
-    \item \textbf{Quá tải Token và Chi phí:} Định dạng PDF chứa nhiều mã nhị phân bố cục và siêu dữ liệu không cần thiết cho AI. Việc trích xuất động mỗi lần request làm tăng lượng token tiêu thụ đầu vào và chi phí vận hành OpenAI API.
-    \item \textbf{Tắc nghẽn CPU ở Backend (Parsing Bottleneck):} Việc trích xuất văn bản từ tệp PDF mỗi khi có API request chiếm dụng tài nguyên CPU của microservice, làm giảm thông lượng tổng thể khi có nhiều người dùng đồng thời.
-\end{enumerate}
+Nội dung chương được tổ chức theo bốn nhóm giải pháp: (i) hạ tầng cloud có thể tái tạo bằng Terraform và Azure; (ii) quy trình CI/CD kết hợp GitOps để triển khai production tự động; (iii) chiến lược mở rộng và bảo đảm sẵn sàng cao trên Kubernetes; (iv) giám sát tập trung và đánh giá vận hành dựa trên số liệu thực nghiệm.
 
-\subsection{Giải pháp thiết kế chi tiết}
-Để giải quyết vấn đề này, em đã thiết kế luồng xử lý dữ liệu CV theo cơ chế \textbf{Trích xuất một lần và Lưu bộ nhớ đệm chủ động (Extract-Once and Active Caching Flow)}. Luồng nghiệp vụ được mô tả trong Hình \ref{fig:flow-cv-caching}.
+\section{Hạ tầng cloud có thể tái tạo bằng Terraform và Azure}
+\label{sec:solution-cloud-iac}
+
+\subsection{Bài toán đặt ra}
+
+Khi triển khai một hệ thống gồm nhiều service lên môi trường cloud, việc tạo tài nguyên thủ công qua giao diện quản trị dễ dẫn đến sai lệch cấu hình giữa tài liệu và môi trường thật. Các tài nguyên như Azure Container Registry, AKS cluster, Key Vault, managed identity hoặc quyền truy cập có nhiều tham số phụ thuộc lẫn nhau; nếu cấu hình bằng tay, việc tái tạo môi trường khi cần khôi phục hoặc mở rộng sẽ tốn thời gian và dễ phát sinh lỗi.
+
+Một thách thức khác là quản lý bí mật hệ thống. Các thông tin như chuỗi kết nối cơ sở dữ liệu, khóa ký JWT, khóa truy cập mô hình AI và thông tin xác thực dịch vụ lưu trữ không nên được lưu trực tiếp trong mã nguồn, Docker image hoặc cấu hình triển khai công khai. Nếu không có cơ chế quản lý bí mật tập trung, pipeline GitOps có thể vô tình đưa secret vào repository, làm tăng rủi ro rò rỉ dữ liệu.
+
+\subsection{Giải pháp triển khai}
+
+Để giải quyết hai vấn đề trên, hạ tầng Azure của JobBridge AI được tổ chức theo hướng Infrastructure as Code bằng Terraform. Hình \ref{fig:terraform-3layer} minh họa cách tách hạ tầng thành ba tầng độc lập, đồng thời thể hiện luồng đưa bí mật từ Azure Key Vault vào Pod thông qua Secrets Store CSI Driver.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{so-do-chuong-5/flow_cv_extraction_caching.png}
-    \caption{Sơ đồ luồng trích xuất văn bản và lưu bộ nhớ đệm (Cache) CV ứng viên.}
-    \label{fig:flow-cv-caching}
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{so-do-chuong-5/terraform_3layer_architecture.png}%
+    }
+    \caption{Kiến trúc Terraform ba tầng và quản lý bí mật bằng Azure Key Vault CSI}
+    \label{fig:terraform-3layer}
 \end{figure}
 
-Giải pháp gồm các bước thực thi sau:
-\begin{itemize}
-    \item \textbf{Bước 1 -- Trích xuất ngay khi upload:} Khi ứng viên tải lên file PDF CV mới, Auth Service lưu file gốc lên Cloudinary và lấy về URL. Ngay lập tức, một tiến trình Go thuần sử dụng thư viện \texttt{ledongthuc/pdf} để phân tích nhị phân và trích xuất chuỗi văn bản thuần túy (Raw Text), loại bỏ toàn bộ định dạng nhị phân.
-    \item \textbf{Bước 2 -- Cache vào CSDL:} Chuỗi văn bản sau khi trích xuất được lưu trực tiếp vào trường \texttt{cv\_text} thuộc collection \texttt{users} trong MongoDB.
-    \item \textbf{Bước 3 -- Cache Lookup khi AI cần dữ liệu:} Khi tính năng AI Interview Coach hoặc AI Evaluate CV được kích hoạt, AI Service kiểm tra trường \texttt{cv\_text} trước:
-    \begin{itemize}
-        \item \textbf{Cache Hit:} Lấy trực tiếp chuỗi văn bản từ MongoDB, bỏ qua hoàn toàn bước tải file và trích xuất PDF.
-        \item \textbf{Cache Miss (dự phòng):} Tải tệp PDF từ Cloudinary CDN, trích xuất văn bản, cập nhật ngược lại MongoDB để làm cache cho các lần sau, rồi mới gửi dữ liệu đến OpenAI API.
-    \end{itemize}
-\end{itemize}
+Tầng Foundation tạo các tài nguyên nền tảng ít thay đổi như Resource Group và Azure Container Registry. Tầng Cluster tạo AKS cluster và node pool phục vụ triển khai ứng dụng. Tầng Security tạo Azure Key Vault, lưu các secret quan trọng và gán quyền đọc secret cho danh tính quản lý được AKS sử dụng.
 
-Quy trình trích xuất văn bản từ luồng nhị phân của tệp PDF được thực hiện qua các pha:
-\begin{enumerate}
-    \item \textbf{Pha 1 (Tải và Đệm dữ liệu):} Thực hiện HTTP GET bất đồng bộ tới URL Cloudinary CDN. Luồng dữ liệu được đọc trực tiếp vào bộ đệm RAM thông qua \texttt{io.Reader} để tránh ghi ra đĩa cứng (Disk I/O).
-    \item \textbf{Pha 2 (Định vị nhị phân):} Khởi tạo thực thể đọc PDF \texttt{pdf.Reader} với kích thước được định lượng chính xác bằng độ dài byte thực tế của tệp tin.
-    \item \textbf{Pha 3 (Giải mã văn bản):} Kích hoạt hàm \texttt{GetPlainText()}, quét qua toàn bộ các trang PDF, lọc bỏ thẻ nhị phân biểu diễn bố cục đồ họa, chỉ giữ lại ký tự chuỗi phẳng (Plain string).
-    \item \textbf{Pha 4 (Lưu đệm):} Gom dữ liệu từ \texttt{bytes.Buffer}, chuyển đổi thành chuỗi văn bản sạch, lưu vào MongoDB.
-\end{enumerate}
+Quy trình tự động hóa hạ tầng trong GitHub Actions hỗ trợ chạy Terraform theo từng tầng. Khi cấu hình hạ tầng thay đổi, pipeline có thể tự động phát hiện tầng bị ảnh hưởng, kiểm tra hợp lệ cấu hình, tạo kế hoạch thay đổi và chỉ thực hiện áp dụng trên nhánh chính hoặc khi được kích hoạt thủ công với quyền phù hợp. Cách làm này giúp thay đổi hạ tầng có dấu vết rõ ràng trong Git, đồng thời giảm rủi ro thao tác trực tiếp trên Azure Portal.
 
-\subsection{Kết quả đạt được}
-\begin{itemize}
-    \item \textbf{Rút ngắn độ trễ vượt bậc:} Thời gian chuẩn bị dữ liệu đầu vào cho AI giảm từ $1.5$ giây (khi phải download và parse PDF động) xuống còn dưới $20$ mili-giây (lấy chuỗi text trực tiếp từ MongoDB).
-    \item \textbf{Giảm tải CPU Server:} CPU của cụm microservices không còn bị quá tải khi có nhiều yêu cầu phỏng vấn hoặc đánh giá diễn ra đồng thời.
-    \item \textbf{Tối ưu hóa băng thông:} Hệ thống không cần truyền tải tệp nhị phân giữa các thành phần nội bộ trong mạng AKS, giúp tiết kiệm băng thông và giảm chi phí vận hành.
-\end{itemize}
+Đối với quản lý bí mật, Helm chart hỗ trợ chế độ lấy secret từ Azure Key Vault. Khi chế độ này được bật, SecretProviderClass của Azure CSI Driver sẽ lấy secret từ Key Vault và đồng bộ thành Kubernetes Secret cho các Pod sử dụng. Nhờ đó, image và manifest triển khai không cần chứa giá trị bí mật thật.
 
-\section{Giải pháp bảo mật phân lớp và kiểm soát tài nguyên nghiệp vụ tại API Gateway và Microservices}
-\label{sec:solution-security}
+\subsection{Kết quả và ý nghĩa}
 
-\subsection{Dẫn dắt và bài toán}
-Trong hệ thống phân tán gồm nhiều Microservices, việc chỉ bảo vệ xác thực (Authentication) tại API Gateway bằng cách giải mã Token JWT là chưa đủ để đảm bảo tính an toàn nghiệp vụ:
-\begin{itemize}
-    \item \textbf{Nguy cơ bỏ qua kiểm tra quyền (Authorization Bypass):} Một tài khoản ứng viên hợp lệ có thể cố tình gọi API của Nhà tuyển dụng nếu hệ thống chỉ kiểm tra tính hợp lệ của Token mà không kiểm tra Role.
-    \item \textbf{Tấn công giả mạo chủ sở hữu tài nguyên (BOLA -- Broken Object Level Authorization):} Ứng viên A có thể thay đổi tham số \texttt{job\_id} sang một job mà họ chưa ứng tuyển để sử dụng tính năng AI Coach. Tương tự, Nhà tuyển dụng X có thể gửi yêu cầu AI đánh giá CV của ứng viên thuộc công ty Y.
-\end{itemize}
+Giải pháp này giúp hạ tầng có khả năng tái tạo, dễ kiểm soát thay đổi và phù hợp với quy trình GitOps. Khi cần dựng lại môi trường, các tầng Terraform có thể được chạy lại theo thứ tự thay vì phải ghi nhớ cấu hình thủ công. Việc đưa Key Vault vào luồng triển khai cũng giúp tách biệt cấu hình nhạy cảm khỏi mã nguồn, giảm rủi ro lộ secret trong repository.
 
-\subsection{Giải pháp thiết kế chi tiết}
-Em đã triển khai \textbf{Giải pháp Bảo mật và Phân quyền Phân lớp (Layered Security Authorization Architecture)} gồm 3 lớp bảo vệ được mô tả trong Hình \ref{fig:security-layered}.
+Về chi phí, mô hình hiện tại sử dụng ACR Basic, AKS node pool cấu hình tiết kiệm và Key Vault ở mức phù hợp với quy mô đồ án. Cấu hình này đủ để kiểm chứng chức năng, CI/CD, GitOps và autoscaling ở mức thực nghiệm, đồng thời vẫn có thể mở rộng thêm node hoặc replica khi chuyển sang môi trường lớn hơn.
+
+\section{Tự động hóa phát hành bằng CI/CD và GitOps}
+\label{sec:solution-cicd-gitops}
+
+\subsection{Bài toán đặt ra}
+
+Trong hệ thống microservices, mỗi lần thay đổi mã nguồn có thể ảnh hưởng đến nhiều thành phần như frontend, gateway, auth service, jobs service và AI service. Nếu build image, cập nhật tag, đẩy image lên registry và triển khai lên Kubernetes bằng tay, quy trình phát hành sẽ phụ thuộc nhiều vào thao tác cá nhân, khó truy vết phiên bản và dễ xảy ra sai lệch giữa source code với môi trường production.
+
+Mục tiêu của giải pháp là tự động hóa chuỗi phát hành từ mã nguồn đến môi trường AKS, đồng thời vẫn bảo đảm rằng mọi trạng thái triển khai đều được khai báo trong Git. Điều này giúp hệ thống có khả năng rollback, audit và đồng bộ lại khi có drift giữa cluster thật và cấu hình mong muốn.
+
+\subsection{Giải pháp triển khai}
+
+Quy trình CI được hiện thực bằng pipeline kiểm tra, build, quét chất lượng và đẩy image. Khi có thay đổi ở phần backend hoặc frontend, pipeline tự động phát hiện nhóm mã nguồn bị ảnh hưởng, chạy build và kiểm thử tương ứng. Frontend được build và chạy test coverage bằng Node.js; backend được build và chạy test coverage bằng Go. Sau đó, pipeline thực hiện SonarCloud scan ở mức toàn repository nếu token được cấu hình.
+
+Sau bước kiểm tra chất lượng, pipeline build container image cho từng service bằng Kaniko. Các image tương ứng với những thành phần chính của hệ thống gồm Auth Service, Gateway, Jobs Service, AI Service và Frontend. Khi chạy trên nhánh chính, image được đẩy lên Azure Container Registry và được gắn tag theo mã commit ngắn, giúp liên kết trực tiếp giữa mã nguồn và phiên bản triển khai.
+
+Quy trình CD được tách thành pipeline cập nhật cấu hình triển khai cho Argo CD. Sau khi CI hoàn thành thành công trên nhánh chính, pipeline này thu thập metadata của các image đã build, cập nhật tag image trong Helm chart và commit thay đổi này trở lại repository. Argo CD theo dõi cấu hình triển khai tại nhánh chính, phát hiện tag mới và tự động đồng bộ các Deployment trong namespace của hệ thống.
+
+Ứng dụng Argo CD được cấu hình tự động đồng bộ, loại bỏ tài nguyên không còn được khai báo và tự phục hồi khi có sai khác giữa cluster với Git. Điều này có nghĩa là khi manifest trong Git thay đổi, Argo CD có thể tự đồng bộ cluster; nếu tài nguyên trong cluster bị chỉnh sửa thủ công, Argo CD có thể đưa trạng thái thực tế quay về trạng thái mong muốn trong Git.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{so-do-chuong-5/layered_security_architecture.png}
-    \caption{Cơ chế bảo mật phân tầng từ API Gateway đến Logic Nghiệp vụ Microservice.}
-    \label{fig:security-layered}
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{so-do-chuong-5/04_ci_cd_gitops_release_flow.png}%
+    }
+    \caption{Luồng CI/CD GitOps triển khai JobBridge AI từ mã nguồn đến AKS production}
+    \label{fig:ci-cd-gitops-release-flow}
 \end{figure}
 
-\begin{itemize}
-    \item \textbf{Lớp 1 -- Xác thực JWT tại API Gateway:} Gateway giải mã token, xác thực chữ ký số bằng khóa bí mật, sau đó trích xuất thông tin định danh và vai trò (\texttt{UserId}, \texttt{Role}), tiêm vào HTTP Headers (\texttt{X-User-Id}, \texttt{X-User-Role}) trước khi chuyển tiếp request vào mạng nội bộ Kubernetes.
-    \item \textbf{Lớp 2 -- Kiểm soát truy cập theo vai trò (Role-based Middleware):} Tại mỗi microservice, một Middleware Go đọc trường \texttt{X-User-Role} từ context và đối chiếu với danh sách quyền của endpoint:
-    \begin{itemize}
-        \item Endpoint \texttt{/ai/interview-coach}: Chỉ cho phép role \texttt{seeker}.
-        \item Endpoint \texttt{/ai/hr-evaluate-cv}: Chỉ cho phép role \texttt{recruiter}.
-    \end{itemize}
-    \item \textbf{Lớp 3 -- Kiểm tra quyền sở hữu tài nguyên (Resource Ownership Validation):} Lớp bảo vệ cuối nằm ở tầng Handler logic. Hệ thống truy vấn CSDL để đối chiếu mối quan hệ giữa thực thể yêu cầu và tài nguyên đích:
-    \begin{itemize}
-        \item Trước khi cho phép ứng viên dùng AI Coach, hệ thống kiểm tra xem ứng viên đó đã có bản ghi ứng tuyển hợp lệ vào công việc tương ứng chưa.
-        \item Trước khi cho phép nhà tuyển dụng gọi AI đánh giá CV, hệ thống xác thực tin tuyển dụng đó có thuộc sở hữu của doanh nghiệp mà nhà tuyển dụng quản lý hay không.
-    \end{itemize}
-\end{itemize}
+\subsection{Kết quả và ý nghĩa}
 
-Bảng \ref{tab:security-matrix} mô tả Ma trận Phân quyền được áp dụng trong hệ thống:
+Giải pháp CI/CD GitOps giúp rút ngắn đáng kể thời gian phát hành so với triển khai thủ công. Trong quan sát thực nghiệm ở Chương 4, Argo CD ghi nhận ứng dụng ở trạng thái khỏe mạnh, đã đồng bộ và lần đồng bộ gần nhất hoàn tất sau khoảng một phút. Kết quả này cho thấy luồng phát hành có thể đưa thay đổi từ commit chính lên môi trường production mà không cần thao tác trực tiếp trên cluster.
 
-\begin{table}[H]
-\centering
-\caption{Ma trận phân quyền và kiểm tra tài nguyên hệ thống JobBridge.}
-\label{tab:security-matrix}
-\small
-\begin{tabular}{|p{3.2cm}|p{2cm}|p{2.5cm}|p{5.8cm}|}
-\hline
-\textbf{Endpoint} & \textbf{Role} & \textbf{Header xác thực} & \textbf{Quy tắc kiểm tra nghiệp vụ (Handler)} \\ \hline
-\texttt{/ai/interview-coach} & \texttt{seeker} & \texttt{X-User-Role} & Kiểm tra bản ghi ứng tuyển của ứng viên với Job tương ứng trong CSDL. \\ \hline
-\texttt{/ai/hr-evaluate-cv} & \texttt{recruiter} & \texttt{X-User-Role} & Kiểm tra quyền sở hữu tin tuyển dụng thuộc doanh nghiệp của nhà tuyển dụng. \\ \hline
-\texttt{/jobs/my} & \texttt{recruiter} & \texttt{X-User-Role} & Chỉ liệt kê tin tuyển dụng do tài khoản nhà tuyển dụng hiện tại tạo lập. \\ \hline
-\texttt{/users/cv} & \texttt{seeker} & \texttt{X-User-Role} & Chỉ cho phép ứng viên cập nhật hoặc xem CV của chính tài khoản của họ. \\ \hline
-\end{tabular}
-\end{table}
+Về mặt vận hành, lợi ích quan trọng nhất không chỉ là nhanh hơn, mà là kiểm soát tốt hơn. Mỗi phiên bản image có tag theo commit, mỗi thay đổi triển khai đi qua Git và mọi trạng thái production đều có thể truy vết. Đây là nền tảng cần thiết nếu hệ thống cần mở rộng đội phát triển hoặc triển khai nhiều môi trường trong tương lai.
 
-Mọi yêu cầu không thỏa mãn đồng thời: (1) Role khớp với cấu hình Middleware, và (2) Vượt qua kiểm tra tính sở hữu tài nguyên ở Handler Logic, đều bị từ chối và trả về mã lỗi HTTP 403 Forbidden hoặc HTTP 401 Unauthorized.
-
-\subsection{Kết quả đạt được}
-\begin{itemize}
-    \item \textbf{Đạt tiêu chuẩn an toàn thông tin cao:} Ngăn chặn hoàn toàn các cuộc tấn công giả danh ID, truy cập chéo tài nguyên bất hợp pháp (BOLA) và leo thang đặc quyền (Privilege Escalation).
-    \item \textbf{Thiết kế tách biệt (Decoupled Design):} API Gateway chuyên xác thực chữ ký số token, trong khi các microservice chỉ xử lý nghiệp vụ dựa trên Header tin cậy. Cách tiếp cận này giúp hệ thống gọn nhẹ, dễ bảo trì và nâng cấp.
-\end{itemize}
-
-\section{Quy trình vận hành liên tục GitOps kết hợp Giám sát hệ thống tập trung (Observability)}
-\label{sec:solution-devops}
-
-\subsection{Dẫn dắt và bài toán}
-Việc vận hành hệ thống phân tán gồm 4 microservices backend và frontend trên Azure AKS đặt ra các thách thức về triển khai và giám sát:
-\begin{itemize}
-    \item \textbf{Triển khai thủ công dễ gặp lỗi:} Việc thủ công cập nhật tag Docker lên Kubernetes dễ xảy ra sai sót cấu hình (Human error), gây chết hệ thống âm thầm (Silent downtime).
-    \item \textbf{Thiếu khả năng quan sát hệ thống (Black-box operations):} Nếu không có hệ thống giám sát tập trung, khi một microservice bị rò rỉ bộ nhớ hoặc bị treo do OpenAI API phản hồi chậm, quản trị viên sẽ hoàn toàn bị động và thiếu số liệu để phân tích nguyên nhân gốc rễ.
-\end{itemize}
-
-\subsection{Giải pháp thiết kế chi tiết}
-Em đã kết hợp \textbf{Quy trình triển khai khai báo GitOps (ArgoCD)} và \textbf{Hệ thống giám sát Observability tập trung (Prometheus \& Grafana)} thành một giải pháp vận hành hoàn chỉnh.
-
-\subsubsection{Cơ chế GitOps đồng bộ hóa khai báo với ArgoCD}
-Em tách biệt hoàn toàn mã nguồn ứng dụng và mã nguồn cấu hình triển khai hạ tầng Kubernetes (định nghĩa qua Helm Chart). Khi GitHub Actions hoàn thành build image và tự động cập nhật tag mới lên Repository GitOps, ArgoCD chạy bên trong AKS cluster liên tục đối chiếu trạng thái. Khi phát hiện sự khác biệt, ArgoCD tự động đồng bộ hóa toàn bộ tài nguyên Ingress, Service, Deployment về đúng phiên bản mong muốn trên Git, hoàn toàn không gây mất mát dịch vụ (Zero-downtime Rolling Update). Kết quả thực tế được minh họa ở Hình \ref{fig:argocd-live} (Mục \ref{sec:trien-khai}).
-
-\subsubsection{Kiến trúc giám sát Observability tập trung}
-Hệ thống giám sát được thiết lập với hai thành phần chính:
-\begin{itemize}
-    \item \textbf{Prometheus Operator:} Định kỳ mỗi 30 giây thực hiện cào (scrape) các endpoint \texttt{/metrics} của tất cả Pod trong AKS để lưu trữ dữ liệu Time-series (CPU, Memory, HTTP Request Rate, Error Rate). Dữ liệu được lưu trữ 10 ngày với dung lượng volume 20Gi.
-    \item \textbf{Grafana Dashboard:} Truy vấn dữ liệu từ Prometheus thông qua ngôn ngữ PromQL để vẽ Dashboard trực quan theo thời gian thực. Kết quả đo đạc thực tế đã được trình bày ở Hình \ref{fig:grafana-live} (Mục \ref{sec:trien-khai}).
-\end{itemize}
-
-\subsection{Kết quả đạt được}
-\begin{itemize}
-    \item \textbf{Tự động hóa hoàn toàn quy trình phát hành:} Rút ngắn thời gian đưa tính năng mới lên production từ hàng giờ xuống còn dưới $2$ phút, loại bỏ hoàn toàn rủi ro thao tác thủ công.
-    \item \textbf{Tỷ lệ sẵn sàng cao (High Availability):} Qua kết quả đo đạc thực tế trên Grafana, hệ thống duy trì tỷ lệ sẵn sàng của Pod đạt $100\%$ và tỷ lệ lỗi API là $0\%$.
-    \item \textbf{Phát hiện sự cố chủ động:} Giao diện giám sát băng thông chi tiết theo từng Pod giúp quản trị viên định lượng tài nguyên chính xác và chủ động nâng cấp trước khi xảy ra quá tải.
-\end{itemize}
-
-\section{Chiến lược Auto-scaling chủ động và đảm bảo tính sẵn sàng cao với HPA và PDB}
+\section{Mở rộng và bảo đảm sẵn sàng cao trên Kubernetes}
 \label{sec:solution-hpa}
 
-\subsection{Dẫn dắt và bài toán}
-Hệ thống JobBridge AI chạy trên Azure AKS gồm 5 dịch vụ có mức tải biến thiên không đều theo giờ và theo tính năng. Tính năng AI (phỏng vấn giả lập, đánh giá CV) đặc biệt nhạy cảm với thời gian phản hồi vì mỗi request phải chờ OpenAI API xử lý. Nếu Pod AI đơn bị nghẽn do nhiều người dùng đồng thời, toàn bộ trải nghiệm người dùng bị ảnh hưởng. Đồng thời, khi triển khai Rolling Update, nếu không có biện pháp bảo vệ, các Pod cũ có thể bị xóa trước khi Pod mới sẵn sàng, gây gián đoạn dịch vụ trong thời gian ngắn.
+\subsection{Bài toán đặt ra}
 
-Đặt thêm bài toán chi phí: với cụm AKS ở cấp học thuật, cần tránh chạy quá nhiều replica thường trực khi hệ thống ở trạng thái nhàn rỗi, nhưng vẫn phải scale-out kịp thời khi có đợt tải đột biến.
+JobBridge AI có tải không đồng đều giữa các service. Gateway và Jobs Service chịu nhiều request đọc dữ liệu, tìm kiếm việc làm và truy vấn danh sách job. AI Service có thời gian xử lý dài hơn vì phụ thuộc vào LLM API bên ngoài. Nếu toàn bộ hệ thống chỉ chạy một replica cố định cho mỗi service, khi tải tăng đột biến, request dễ bị dồn vào một Pod, làm tăng độ trễ và giảm khả năng phục vụ đồng thời.
 
-\subsection{Giải pháp thiết kế chi tiết}
+Bên cạnh bài toán tải, hệ thống cũng cần duy trì tính sẵn sàng khi rolling update hoặc khi Kubernetes cần di chuyển Pod. Nếu Pod cũ bị xóa trước khi Pod mới sẵn sàng, người dùng có thể gặp lỗi gián đoạn ngắn trong quá trình phát hành.
 
-\subsubsection{Horizontal Pod Autoscaler (HPA)}
-Em triển khai HPA cho tất cả các dịch vụ với ngưỡng CPU-based scaling được phân tầng theo đặc điểm từng service. Hình \ref{fig:hpa-pdb-scaling} minh họa cơ chế scale-out của HPA và bảo vệ tính sẵn sàng của PDB. Bảng \ref{tab:hpa-config} tổng hợp cấu hình thực tế.
+\subsection{Giải pháp triển khai}
+
+Hệ thống sử dụng Horizontal Pod Autoscaler cho các service chính. Gateway, Auth Service và Jobs Service có thể scale từ 1 đến 5 replica với ngưỡng CPU 70\%. Frontend và AI Service có thể scale từ 1 đến 3 replica với ngưỡng CPU 75\%. Hình \ref{fig:hpa-pdb-scaling} minh họa cơ chế HPA tự động tăng replica khi tải vượt ngưỡng, kết hợp với PDB để bảo vệ tính sẵn sàng khi cập nhật.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{so-do-chuong-5/hpa_pdb_autoscaling.png}
-    \caption{Cơ chế HPA tự động scale Pod theo CPU và PDB bảo vệ tính sẵn sàng khi Rolling Update.}
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{so-do-chuong-5/hpa_pdb_autoscaling.png}%
+    }
+    \caption{Cơ chế HPA tự động mở rộng Pod và PDB bảo vệ tính sẵn sàng}
     \label{fig:hpa-pdb-scaling}
 \end{figure}
 
 \begin{table}[H]
 \centering
-\caption{Cấu hình Horizontal Pod Autoscaler (HPA) cho các dịch vụ trong cụm AKS.}
+\caption{Cấu hình HPA và PDB áp dụng cho các service chính}
 \label{tab:hpa-config}
 \small
-\begin{tabular}{|l|c|c|c|}
+\begin{tabular}{|p{0.27\textwidth}|c|c|c|c|}
 \hline
-\textbf{Dịch vụ} & \textbf{Min Replicas} & \textbf{Max Replicas} & \textbf{CPU Threshold} \\ \hline
-API Gateway       & 1 & 5 & 70\% \\ \hline
-Auth Service      & 1 & 5 & 70\% \\ \hline
-Jobs Service      & 1 & 5 & 70\% \\ \hline
-AI Service        & 1 & 3 & 75\% \\ \hline
-Frontend (nginx)  & 1 & 3 & 75\% \\ \hline
+\textbf{Service} & \textbf{Min} & \textbf{Max} & \textbf{CPU} & \textbf{PDB} \\ \hline
+Frontend & 1 & 3 & 75\% & 1 \\ \hline
+Gateway & 1 & 5 & 70\% & 1 \\ \hline
+Auth Service & 1 & 5 & 70\% & 1 \\ \hline
+Jobs Service & 1 & 5 & 70\% & 1 \\ \hline
+AI Service & 1 & 3 & 75\% & 1 \\ \hline
 \end{tabular}
 \end{table}
 
-API Gateway, Auth và Jobs Service được phép scale lên tối đa 5 replica với ngưỡng kích hoạt 70\% CPU vì đây là các dịch vụ xử lý request đồng thời cao, độ trễ thấp. AI Service và Frontend có ngưỡng cao hơn (75\%) và giới hạn 3 replica vì mỗi request AI phụ thuộc OpenAI API bên ngoài -- nhân rộng quá nhiều replica sẽ gây cạnh tranh connection pool chứ không cải thiện thông lượng thực.
+Các service cũng được cấu hình resource requests và limits trong Helm values. Đây là điều kiện quan trọng để Kubernetes scheduler phân bổ Pod hợp lý và để HPA có cơ sở tính phần trăm sử dụng CPU. Với cấu hình này, hệ thống có thể chạy tiết kiệm ở mức tải thấp nhưng vẫn có khả năng tăng replica khi request tăng.
 
-\subsubsection{Pod Disruption Budget (PDB)}
-Trong quá trình Rolling Update hoặc khi Kubernetes drain node để bảo trì, hệ thống có thể xóa nhiều Pod cùng lúc, gây gián đoạn dịch vụ. Em cấu hình Pod Disruption Budget với \texttt{minAvailable: 1} cho tất cả các dịch vụ. Ràng buộc này đảm bảo tại bất kỳ thời điểm nào trong quá trình cập nhật hoặc di chuyển tải, luôn có ít nhất 1 Pod healthy đang phục vụ traffic thực.
+\subsection{Kết quả và ý nghĩa}
 
-\subsubsection{Resource Requests và Limits}
-Để Kubernetes scheduler phân bổ tài nguyên hợp lý và để HPA có căn cứ tính toán phần trăm CPU chính xác (HPA so sánh CPU hiện tại với CPU Request, không phải với Limit), em cấu hình Resource Requests/Limits cho từng dịch vụ theo Bảng \ref{tab:resource-config}.
+Trong thực nghiệm tải bằng k6 ở Chương 4, nhóm API danh sách việc làm được dùng để tạo áp lực lên Gateway và Jobs Service. Khi tải tăng lên mức cao, Jobs Service scale từ 1 lên 4 Pod, Gateway scale từ 1 lên 2 Pod và không ghi nhận lỗi kết nối hoặc timeout trong lần quan sát. Điều này cho thấy cơ chế scale ngang hoạt động đúng vai trò: tự động bổ sung năng lực xử lý ở service chịu tải chính.
 
-\begin{table}[H]
-\centering
-\caption{Cấu hình Resource Requests và Limits cho các dịch vụ trong cụm AKS.}
-\label{tab:resource-config}
-\small
-\begin{tabular}{|l|c|c|c|c|}
-\hline
-\textbf{Dịch vụ} & \textbf{CPU Request} & \textbf{CPU Limit} & \textbf{Mem Request} & \textbf{Mem Limit} \\ \hline
-API Gateway       & 50m  & 200m  & 64Mi  & 128Mi \\ \hline
-Auth Service      & 50m  & 200m  & 64Mi  & 128Mi \\ \hline
-Jobs Service      & 50m  & 200m  & 64Mi  & 128Mi \\ \hline
-AI Service        & 100m & 500m  & 128Mi & 512Mi \\ \hline
-Frontend (nginx)  & 50m  & 200m  & 64Mi  & 128Mi \\ \hline
-\end{tabular}
-\end{table}
+Giải pháp này cũng tối ưu chi phí hơn so với việc chạy nhiều replica thường trực. Ở trạng thái nhàn rỗi, mỗi service chỉ cần số Pod tối thiểu; khi tải tăng, HPA mới mở rộng. Pod Disruption Budget được cấu hình để luôn duy trì ít nhất một Pod sẵn sàng trong quá trình cập nhật, qua đó giảm nguy cơ gián đoạn khi phát hành phiên bản mới.
 
-AI Service được cấp tài nguyên lớn nhất vì mỗi request phải duy trì kết nối TCP tới OpenAI API, xử lý JSON payload lớn (bao gồm toàn bộ lịch sử chat, CV text và JD), đồng thời thực hiện truy vấn MongoDB để kiểm tra quyền sở hữu. Frontend nginx chỉ phục vụ nội dung tĩnh đã build nên resource limit thấp nhất, giúp tiết kiệm tài nguyên cho các dịch vụ backend.
+\section{Giám sát tập trung và đánh giá vận hành bằng số liệu}
+\label{sec:solution-observability}
 
-\subsection{Kết quả đạt được}
-\begin{itemize}
-    \item \textbf{Phản ứng linh hoạt trước tải biến thiên:} HPA tự động mở rộng các service Gateway, Auth, Jobs từ 1 lên tối đa 5 replica khi phát hiện CPU vượt ngưỡng 70\%, đảm bảo latency không bị ảnh hưởng khi có nhiều người dùng đồng thời.
-    \item \textbf{Không gián đoạn khi cập nhật:} PDB với \texttt{minAvailable: 1} kết hợp Rolling Update strategy đảm bảo zero-downtime trong mọi chu kỳ triển khai.
-    \item \textbf{Tối ưu chi phí đám mây:} Hệ thống chỉ chạy 1 replica mỗi dịch vụ khi tải thấp (chi phí tối thiểu), tự động mở rộng khi cần và thu hẹp lại khi không còn nhu cầu.
-\end{itemize}
+\subsection{Bài toán đặt ra}
 
-\section{Hạ tầng khai báo với Terraform IaC và quản lý bí mật tập trung bằng Azure Key Vault CSI}
-\label{sec:solution-terraform}
+Một hệ thống triển khai được lên cloud chưa đồng nghĩa với việc đã sẵn sàng vận hành. Nếu không có số liệu quan sát, việc đánh giá chỉ dừng ở mức ``ứng dụng đang chạy''. Khi có lỗi 5xx, tăng độ trễ, Pod restart hoặc CPU tăng bất thường, người vận hành cần dashboard để xác định service nào đang gặp vấn đề và mức độ ảnh hưởng ra sao.
 
-\subsection{Dẫn dắt và bài toán}
-Việc tạo thủ công tài nguyên đám mây Azure qua Portal Web dễ gây ra hai vấn đề chính: (1) \textbf{Drift cấu hình} -- trạng thái thực tế của hạ tầng khác với tài liệu, không ai biết chính xác cấu hình của cluster đang chạy là gì; (2) \textbf{Không tái tạo được (Not Reproducible)} -- không thể dựng lại môi trường đồng nhất khi cần khắc phục sự cố hoặc chuyển sang môi trường mới.
+Đối với JobBridge AI, yêu cầu này đặc biệt quan trọng vì hệ thống gồm nhiều service và một phần chức năng phụ thuộc vào LLM API bên ngoài. Độ trễ của AI Service không thể được đánh giá giống API đọc dữ liệu thông thường, do đó cần tách nhóm chỉ số hạ tầng, chỉ số request và chỉ số tài nguyên Pod.
 
-Ngoài ra, các thông tin bí mật nhạy cảm (MongoDB URI, JWT Secret, OpenAI API Key) nếu được mã hóa trực tiếp trong ConfigMap hay Secret của Kubernetes sẽ tiềm ẩn nguy cơ rò rỉ nếu repository Git bị lộ, đặc biệt với đội nhóm sử dụng GitOps.
+\subsection{Giải pháp triển khai}
 
-\subsection{Giải pháp thiết kế chi tiết}
+Hệ thống sử dụng kube-prometheus-stack để triển khai Prometheus, Grafana, Alertmanager, kube-state-metrics và node exporter. Prometheus được cấu hình scrape interval 30 giây, evaluation interval 30 giây, retention 10 ngày và lưu trữ dữ liệu trên volume 20Gi. Grafana được triển khai qua ingress riêng và sử dụng sidecar dashboard để nạp dashboard từ ConfigMap.
 
-\subsubsection{Terraform IaC theo kiến trúc 3 tầng}
-Em tổ chức toàn bộ hạ tầng Azure trong 3 module Terraform độc lập, mỗi module quản lý một tầng riêng biệt theo nguyên tắc \textit{Separation of Concerns}. Hình \ref{fig:terraform-3layer} minh họa kiến trúc 3 tầng và luồng inject bí mật từ Key Vault vào các Pod.
+Hai dashboard chính được xây dựng cho mục đích khác nhau. Dashboard theo dõi sức khỏe API và Pod tập trung vào lưu lượng request, tỷ lệ lỗi, độ trễ và trạng thái sẵn sàng của Pod. Dashboard thử tải Pod tập trung vào CPU, memory, network và số lần restart của Pod trong quá trình thử tải. Các dashboard này đã được minh họa ở Chương 4.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{so-do-chuong-5/terraform_3layer_architecture.png}
-    \caption{Kiến trúc Terraform IaC 3 tầng và luồng quản lý bí mật qua Azure Key Vault CSI.}
-    \label{fig:terraform-3layer}
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{so-do-chuong-5/05_observability_architecture.png}%
+    }
+    \caption{Kiến trúc giám sát tập trung bằng Prometheus và Grafana}
+    \label{fig:observability-architecture}
 \end{figure}
 
-\textbf{Tầng 01 -- Foundation (Nền tảng):} Tạo Resource Group \texttt{rg-jobbridge} và Azure Container Registry \texttt{acrjobbridge} ở cấp Basic (chi phí khoảng \$5/tháng). Tầng này là nền tảng chung, ít thay đổi nhất và được tạo một lần duy nhất.
+\subsection{Kết quả và ý nghĩa}
 
-\textbf{Tầng 02 -- Cluster (Cụm Kubernetes):} Tạo AKS cluster với node pool sử dụng máy ảo loại \texttt{Standard\_B2s} (2 vCPU, 4GB RAM), cấu hình auto-scale từ 1 đến 2 node tùy theo tải thực tế. Cấu hình mạng theo mô hình \textit{kubenet} để tối ưu chi phí. Chi phí ước tính khoảng \$30/tháng khi chạy 1 node \texttt{Standard\_B2s}.
+Nhờ có Prometheus và Grafana, việc đánh giá hệ thống có cơ sở số liệu thay vì chỉ dựa trên quan sát thủ công. Khi chạy thử tải, dashboard cho thấy service nào vượt ngưỡng CPU, HPA phản ứng ra sao và Pod có restart hay không. Đây là bằng chứng quan trọng để chứng minh rằng cơ chế mở rộng không chỉ được cấu hình trên manifest, mà đã được quan sát trong môi trường triển khai thật.
 
-\textbf{Tầng 03 -- Security (Bảo mật):} Tạo Azure Key Vault \texttt{kv-jobbridge} và gán danh tính quản lý (Managed Identity) cho cụm AKS quyền đọc secrets. Key Vault lưu trữ 6 secrets hệ thống: MongoDB URI, JWT Secret, OpenAI API Key, Cloudinary API Key, Cloudinary Cloud Name và ACR Password.
-
-\subsubsection{Quản lý bí mật với Key Vault CSI Driver}
-Để Pods trong AKS đọc được secrets từ Azure Key Vault mà không cần nhúng credentials vào image hay ConfigMap, em triển khai \textbf{Secrets Store CSI Driver} với provider Azure. Tại thời điểm Pod khởi động, CSI Driver tự động lấy secrets từ Key Vault và mount vào hệ thống file của container dưới dạng biến môi trường. Cơ chế \textbf{secret rotation tự động mỗi 5 phút} đảm bảo khi một secret trong Key Vault được xoay vòng, tất cả Pod đang chạy sẽ nhận giá trị mới mà không cần khởi động lại -- đây là yêu cầu bắt buộc trong môi trường production bảo mật cao.
-
-\subsubsection{Chi phí vận hành thực tế}
-Bảng \ref{tab:infra-cost} tổng hợp chi phí ước tính của các tài nguyên Azure được quản lý bằng Terraform:
-
-\begin{table}[H]
-\centering
-\caption{Chi phí vận hành hạ tầng Azure ước tính theo tháng.}
-\label{tab:infra-cost}
-\small
-\begin{tabular}{|l|l|c|}
-\hline
-\textbf{Tầng Terraform} & \textbf{Tài nguyên} & \textbf{Chi phí ước tính} \\ \hline
-Foundation & ACR Basic (\texttt{acrjobbridge}) & \$5/tháng \\ \hline
-Cluster    & AKS 1 node \texttt{Standard\_B2s} & \$30/tháng \\ \hline
-Security   & Key Vault \texttt{kv-jobbridge} & Miễn phí (Free tier) \\ \hline
-\multicolumn{2}{|l|}{\textbf{Tổng cộng}} & \textbf{\$35/tháng} \\ \hline
-\end{tabular}
-\end{table}
-
-\subsection{Kết quả đạt được}
-\begin{itemize}
-    \item \textbf{Hạ tầng có thể tái tạo hoàn toàn:} Toàn bộ tài nguyên Azure được khai báo dưới dạng mã nguồn Terraform, có thể xóa và dựng lại trong dưới 15 phút chỉ bằng lệnh \texttt{terraform apply}.
-    \item \textbf{Bảo mật tập trung, không rò rỉ secrets:} Không có credentials nhạy cảm nào được lưu trong repository Git. Azure Key Vault là điểm quản lý duy nhất với nhật ký truy cập đầy đủ (audit log), sẵn sàng cho kiểm tra tuân thủ.
-    \item \textbf{Cập nhật secrets không downtime:} Cơ chế rotation 5 phút của CSI Driver đảm bảo secrets luôn được cập nhật mà không cần restart Pod, đảm bảo tính liên tục dịch vụ.
-    \item \textbf{Chi phí vận hành tối ưu:} Tổng chi phí ước tính chỉ \$35/tháng cho toàn bộ hạ tầng đám mây sản xuất, phù hợp với quy mô dự án học thuật nhưng vẫn theo đúng tiêu chuẩn vận hành thực tiễn.
-\end{itemize}
+Ở phạm vi đồ án, hệ thống đã chứng minh được khả năng giám sát và autoscaling ở mức thực nghiệm. Tuy nhiên, để hướng tới quy mô rất lớn, cần bổ sung thêm cảnh báo tự động, theo dõi độ trễ ở các phân vị cao cho từng nhóm API, giới hạn tần suất truy cập ở ingress hoặc gateway, cache cho dữ liệu đọc nhiều và hàng đợi bất đồng bộ cho tác vụ AI.
 
 \section{Kết chương}
-Chương này đã trình bày và phân tích năm giải pháp kỹ thuật cốt lõi được em nghiên cứu và hiện thực hóa trong dự án ``JobBridge AI'': (1) cơ chế trích xuất và cache văn bản CV giúp giảm độ trễ chuẩn bị dữ liệu AI từ $1.5$ giây xuống dưới $20$ms; (2) kiến trúc bảo mật phân lớp ngăn chặn $100\%$ các tấn công BOLA và leo thang đặc quyền; (3) quy trình GitOps kết hợp Observability tập trung đảm bảo vận hành liên tục và minh bạch; (4) chiến lược HPA và PDB đảm bảo hệ thống tự động mở rộng linh hoạt và không gián đoạn khi cập nhật; (5) hạ tầng khai báo Terraform 3 tầng kết hợp Key Vault CSI đảm bảo an toàn bí mật và khả năng tái tạo môi trường. Chương tiếp theo sẽ tổng kết toàn bộ kết quả đạt được và đề xuất hướng phát triển trong tương lai.
+
+Chương này đã phân tích các đóng góp kỹ thuật nổi bật của JobBridge AI ở góc độ hệ thống: hạ tầng cloud có thể tái tạo bằng Terraform, quản lý bí mật bằng Azure Key Vault CSI, tự động hóa phát hành bằng CI/CD GitOps, triển khai production bằng Argo CD, mở rộng bằng HPA/PDB và giám sát tập trung bằng Prometheus/Grafana.
+
+Các giải pháp này cho thấy hệ thống không chỉ đáp ứng yêu cầu chức năng của một nền tảng tuyển dụng, mà còn có nền tảng vận hành cloud tương đối hoàn chỉnh: có pipeline phát hành, có trạng thái triển khai khai báo trong Git, có cơ chế tự phục hồi drift, có autoscaling khi tải tăng và có dashboard để đánh giá bằng số liệu. Đây là cơ sở để chương tiếp theo tổng kết kết quả đạt được, nêu hạn chế và đề xuất hướng phát triển trong tương lai.
 
 \end{document}

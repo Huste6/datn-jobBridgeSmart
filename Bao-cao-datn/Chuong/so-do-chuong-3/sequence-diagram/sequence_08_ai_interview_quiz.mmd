@@ -1,0 +1,16 @@
+sequenceDiagram
+    title UC08 - AI Interview Quiz
+    participant U as Ứng viên
+    participant FE as Frontend
+    participant GW as API Gateway
+    participant AI as AI Service
+    participant DB as MongoDB
+    participant LLM as LLM API
+    U->>FE: Yêu cầu tạo quiz theo job
+    FE->>GW: POST /api/ai/interview-quiz
+    GW->>AI: Xác thực request
+    AI->>DB: Kiểm tra application và lấy JD/CV
+    DB-->>AI: Trả ngữ cảnh tạo quiz
+    AI->>LLM: Sinh câu hỏi, đáp án, giải thích
+    LLM-->>AI: Trả bộ quiz
+    AI-->>FE: Hiển thị quiz cho ứng viên

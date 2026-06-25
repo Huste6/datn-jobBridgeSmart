@@ -222,14 +222,15 @@ Nếu token invalid hoặc expired: `401 Unauthorized`.
               │
               ├─ Build prompt:
               │     "Đánh giá CV ứng viên cho vị trí <job>
-              │      Yêu cầu: <requirements>
+              │      JD: <requirements>, <responsibilities>
               │      CV ứng viên: <cv_text>
-              │      Hãy cho điểm 0-100 và nhận xét..."
+              │      Trả về cấu trúc JSON bắt buộc gồm: score, summary,
+              │      matching_skills, strengths, weaknesses, recommendations"
               │
-              ├─ Gọi OpenAI API
-              ├─ Parse response: extract score (0-100) và notes
-              └─ Update applications: { manual_score: 85, notes: "..." }
-                 Return { application_id, score: 85, notes: "..." }
+              ├─ Gọi OpenAI API (gpt-4o-mini)
+              ├─ Parse response: trích xuất điểm score và parse cấu trúc JSON
+              └─ Update applications: { manual_score: score, notes: "<chuỗi JSON đã serialize>" }
+                 Return { application_id, score, notes: "<chuỗi JSON đã serialize>" }
 ```
 
 ## 9. Luồng Phê duyệt Công ty

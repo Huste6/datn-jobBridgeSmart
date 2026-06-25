@@ -129,6 +129,13 @@ Tất cả API calls đều proxy qua `/api` → Vite dev server forward tới `
 - User avatar dropdown (profile, logout)
 - Main content area
 
+### HrShell (Recruiter/HR Layout)
+- Nằm tại: [frontend/src/pages/hr/HrShell.tsx](file:///c:/learn_it_skill/datn-jobBridge/frontend/src/pages/hr/HrShell.tsx)
+- Sidebar chứa các liên kết quản lý tuyển dụng (Tạo/Hồ sơ company, Quản lý/Danh sách job, Ứng viên theo job)
+- **Tính năng thu gọn (Collapsible)**: Hỗ trợ đóng mở sidebar (toggle từ `240px` về `64px`) để tăng diện tích hiển thị cho phần nội dung chính
+- Header chứa thông tin tài khoản tuyển dụng, chuyển vùng ứng viên, và nút Logout
+- Layout rộng rãi với thuộc tính `max-w-none` để tối ưu các trang so sánh hoặc xem tài liệu PDF trực tiếp
+
 ### AdminLayout
 - Sidebar với navigation links
 - Header với admin info

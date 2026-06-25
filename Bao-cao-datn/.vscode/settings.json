@@ -1,3 +1,4 @@
 {
-  "latex-workshop.latex.path": "C:\\Users\\Admin\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64"
+  "latex-workshop.latex.path": "C:\\Users\\Admin\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64",
+  "latex-workshop.latex.autoBuild.run": "never"
 }

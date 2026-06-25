@@ -1,0 +1,14 @@
+sequenceDiagram
+    title UC10 - Quản lý tin tuyển dụng
+    participant U as Nhà tuyển dụng
+    participant FE as Frontend
+    participant GW as API Gateway
+    participant JOBS as Jobs Service
+    participant DB as MongoDB
+    U->>FE: Tạo/chỉnh sửa/mở đóng job
+    FE->>GW: POST/PUT /api/jobs
+    GW->>JOBS: Kiểm tra role recruiter
+    JOBS->>DB: Kiểm tra công ty và quyền sở hữu
+    DB-->>JOBS: Trả dữ liệu hợp lệ
+    JOBS->>DB: Lưu thông tin job
+    JOBS-->>FE: Trả danh sách job của recruiter

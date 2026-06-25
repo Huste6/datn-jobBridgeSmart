@@ -1,0 +1,14 @@
+sequenceDiagram
+    title UC09 - Quản lý công ty
+    participant U as Nhà tuyển dụng
+    participant FE as Frontend
+    participant GW as API Gateway
+    participant AUTH as Auth Service
+    participant DB as MongoDB
+    U->>FE: Tạo/cập nhật hồ sơ công ty
+    FE->>GW: POST/PUT /api/hr/company
+    GW->>AUTH: Kiểm tra role recruiter
+    AUTH->>DB: Lưu hồ sơ công ty trạng thái pending
+    DB-->>AUTH: Trả công ty đã lưu
+    AUTH-->>FE: Trả kết quả cập nhật
+    FE-->>U: Hiển thị trạng thái chờ duyệt

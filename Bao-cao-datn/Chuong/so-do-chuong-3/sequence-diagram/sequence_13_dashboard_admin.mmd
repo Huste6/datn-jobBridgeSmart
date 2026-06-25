@@ -1,0 +1,14 @@
+sequenceDiagram
+    title UC13 - Dashboard thống kê
+    participant U as Quản trị viên
+    participant FE as Frontend
+    participant GW as API Gateway
+    participant AUTH as Auth Service
+    participant DB as MongoDB
+    U->>FE: Mở dashboard quản trị
+    FE->>GW: GET /api/admin/dashboard
+    GW->>AUTH: Kiểm tra role admin
+    AUTH->>DB: Đếm users, companies, jobs, applications
+    DB-->>AUTH: Trả số liệu tổng hợp
+    AUTH-->>FE: Trả dữ liệu dashboard
+    FE-->>U: Hiển thị biểu đồ và chỉ số

@@ -1,0 +1,15 @@
+sequenceDiagram
+    title UC01 - Đăng ký / Đăng nhập
+    participant U as Người dùng
+    participant FE as Frontend
+    participant GW as API Gateway
+    participant AUTH as Auth Service
+    participant DB as MongoDB
+    U->>FE: Nhập email, mật khẩu
+    FE->>GW: POST /api/auth/register hoặc /login
+    GW->>AUTH: Định tuyến request xác thực
+    AUTH->>DB: Kiểm tra email, mật khẩu, trạng thái tài khoản
+    DB-->>AUTH: Trả thông tin người dùng
+    AUTH->>AUTH: Băm/so khớp mật khẩu và tạo JWT
+    AUTH-->>FE: Trả JWT và thông tin vai trò
+    FE-->>U: Điều hướng theo vai trò

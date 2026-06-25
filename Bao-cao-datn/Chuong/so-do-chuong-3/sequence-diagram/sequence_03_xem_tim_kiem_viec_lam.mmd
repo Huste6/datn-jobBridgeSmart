@@ -1,0 +1,14 @@
+sequenceDiagram
+    title UC03 - Xem và tìm kiếm việc làm
+    participant U as Người dùng
+    participant FE as Frontend
+    participant GW as API Gateway
+    participant JOBS as Jobs Service
+    participant DB as MongoDB
+    U->>FE: Nhập từ khóa/bộ lọc
+    FE->>GW: GET /api/jobs?keyword&location&salary
+    GW->>JOBS: Chuyển truy vấn tìm kiếm
+    JOBS->>DB: Tìm job đang mở và lọc dữ liệu
+    DB-->>JOBS: Trả danh sách job
+    JOBS-->>FE: Trả kết quả phân trang
+    FE-->>U: Hiển thị danh sách/chi tiết job

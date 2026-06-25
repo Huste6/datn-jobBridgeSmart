@@ -1,0 +1,16 @@
+sequenceDiagram
+    title UC07 - AI Interview Coach
+    participant U as Ứng viên
+    participant FE as Frontend
+    participant GW as API Gateway
+    participant AI as AI Service
+    participant DB as MongoDB
+    participant LLM as LLM API
+    U->>FE: Gửi câu hỏi luyện phỏng vấn
+    FE->>GW: POST /api/ai/interview-coach
+    GW->>AI: Chuyển request kèm JWT
+    AI->>DB: Kiểm tra đã ứng tuyển job và lấy JD/CV
+    DB-->>AI: Trả job, application, cv_text
+    AI->>LLM: Tạo prompt và gọi LLM
+    LLM-->>AI: Trả phản hồi tư vấn
+    AI-->>FE: Trả câu trả lời

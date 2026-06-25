@@ -1,0 +1,14 @@
+sequenceDiagram
+    title UC11 - Xem ứng viên theo job
+    participant U as Nhà tuyển dụng
+    participant FE as Frontend
+    participant GW as API Gateway
+    participant JOBS as Jobs Service
+    participant DB as MongoDB
+    U->>FE: Chọn một job đang quản lý
+    FE->>GW: GET /api/jobs/{id}/applications
+    GW->>JOBS: Chuyển request kèm JWT
+    JOBS->>DB: Kiểm tra owner_id của job
+    DB-->>JOBS: Trả applications và CV ứng viên
+    JOBS-->>FE: Trả danh sách ứng viên
+    FE-->>U: Hiển thị CV, trạng thái, ghi chú

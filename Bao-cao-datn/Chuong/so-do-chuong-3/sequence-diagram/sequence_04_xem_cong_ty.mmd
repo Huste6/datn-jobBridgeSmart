@@ -1,0 +1,14 @@
+sequenceDiagram
+    title UC04 - Xem công ty
+    participant U as Người dùng
+    participant FE as Frontend
+    participant GW as API Gateway
+    participant AUTH as Auth Service
+    participant DB as MongoDB
+    U->>FE: Chọn danh sách hoặc hồ sơ công ty
+    FE->>GW: GET /api/public/companies
+    GW->>AUTH: Lấy công ty đã duyệt và chưa khóa
+    AUTH->>DB: Truy vấn companies
+    DB-->>AUTH: Trả hồ sơ công ty
+    AUTH-->>FE: Trả dữ liệu public
+    FE-->>U: Hiển thị hồ sơ và job của công ty

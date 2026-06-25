@@ -3,360 +3,287 @@
 
 \label{chapter:3}
 
-\section{Tổng quan}
-Chương 2 đã trình bày các cơ sở lý thuyết và công nghệ nền tảng được sử dụng trong dự án. Dựa trên nền tảng đó, chương này sẽ đi sâu vào việc phân tích các yêu cầu của hệ thống "JobBridge AI" và trình bày chi tiết bản thiết kế kỹ thuật. Mục tiêu của chương này là chuyển đổi từ các yêu cầu nghiệp vụ thành một mô hình hệ thống rõ ràng, sẵn sàng cho việc triển khai ở chương sau.
+\section{Tổng quan phân tích và thiết kế hệ thống}
 
-Nội dung chính của chương bao gồm:
-\begin{itemize}
-    \item Phân tích các yêu cầu chức năng và phi chức năng của hệ thống.
-    \item Trình bày các sơ đồ ca sử dụng (Use Case) để mô tả tương tác của người dùng.
-    \item Thiết kế chi tiết cho cơ sở dữ liệu.
-    \item Thiết kế giao diện người dùng (UI/UX) cho các luồng nghiệp vụ chính.
-\end{itemize}
+Chương này trình bày quá trình phân tích và thiết kế hệ thống JobBridge AI dựa trên phạm vi chức năng đã xác định ở Chương 1 và nền tảng công nghệ đã trình bày ở Chương 2. Nội dung được tổ chức theo hướng từ yêu cầu nghiệp vụ đến thiết kế chi tiết: xác định tác nhân, phân rã use case, đặc tả kịch bản, thiết kế luồng xử lý, mô hình dữ liệu và định hướng giao diện.
+
+Cách trình bày này giúp làm rõ mối liên hệ giữa yêu cầu tuyển dụng thực tế, dữ liệu nghiệp vụ và các màn hình mà người dùng thao tác.
+
+Trong phạm vi đồ án, JobBridge AI gồm bốn nhóm tác nhân chính: khách truy cập, ứng viên, nhà tuyển dụng và quản trị viên. Khách truy cập có thể tra cứu thông tin công khai như danh sách việc làm và hồ sơ công ty đã được duyệt. Ứng viên có thể đăng ký tài khoản, hoàn thiện hồ sơ cá nhân, tải CV, ứng tuyển vào các vị trí phù hợp và sử dụng các chức năng AI hỗ trợ luyện phỏng vấn.
+
+Nhà tuyển dụng có thể quản lý hồ sơ công ty, đăng tin tuyển dụng, theo dõi ứng viên theo từng vị trí và sử dụng AI để hỗ trợ đánh giá CV. Quản trị viên chịu trách nhiệm theo dõi số liệu hệ thống, quản lý tài khoản người dùng và kiểm duyệt hồ sơ công ty.
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.25}
+    \begin{tabular}{|l|p{0.6\textwidth}|}
+        \hline
+        \textbf{Tác nhân} & \textbf{Vai trò trong hệ thống} \\
+        \hline
+        Khách truy cập & Xem thông tin công khai, tìm kiếm việc làm, xem hồ sơ công ty, đăng ký và đăng nhập tài khoản. \\
+        \hline
+        Ứng viên & Quản lý hồ sơ cá nhân, tải avatar và CV, ứng tuyển công việc, theo dõi trạng thái ứng tuyển, sử dụng AI Coach và AI Quiz theo ngữ cảnh job đã ứng tuyển. \\
+        \hline
+        Nhà tuyển dụng & Quản lý công ty, quản lý tin tuyển dụng, xem ứng viên theo job, cập nhật trạng thái application và sử dụng AI để đánh giá mức độ phù hợp của CV. \\
+        \hline
+        Quản trị viên & Theo dõi dashboard thống kê, quản lý người dùng, duyệt hoặc khóa công ty và kiểm soát trạng thái hoạt động của tài khoản. \\
+        \hline
+    \end{tabular}
+    \caption{Tác nhân và vai trò trong hệ thống JobBridge AI}
+    \label{tab:actors-roles}
+\end{table}
 
 \section{Phân tích yêu cầu}
 \label{sec:phan-tich-yeu-cau}
-Hệ thống JobBridge AI được xây dựng nhằm giải quyết các thách thức trong quy trình tuyển dụng hiện đại, mang lại lợi ích cho cả ứng viên và nhà tuyển dụng. Để đạt được mục tiêu này, hệ thống cần đáp ứng các yêu cầu chức năng và phi chức năng cụ thể.
 
 \subsection{Yêu cầu chức năng}
-\label{ssec:yeu-cau-chuc-nang}
-Yêu cầu chức năng (Functional Requirements) là những gì hệ thống phải làm. Dựa trên các vai trò người dùng chính là Ứng viên và Nhà tuyển dụng, các yêu cầu chức năng được phân loại như sau:
 
-\subsubsection{Đối với Ứng viên}
-\begin{itemize}
-    \item \textbf{F1 - Quản lý tài khoản:} Ứng viên có thể đăng ký, đăng nhập, đăng xuất và quản lý thông tin hồ sơ cá nhân.
-    \item \textbf{F2 - Tìm kiếm việc làm:} Cung cấp công cụ tìm kiếm và bộ lọc nâng cao (theo vị trí, mức lương, ngành nghề) để ứng viên tìm được công việc phù hợp.
-    \item \textbf{F3 - Xem chi tiết việc làm:} Hiển thị đầy đủ thông tin về một tin tuyển dụng, bao gồm mô tả công việc, yêu cầu, và thông tin công ty.
-    \item \textbf{F4 - Quản lý CV:} Ứng viên có thể tải lên và lưu trữ nhiều phiên bản CV.
-    \item \textbf{F5 - Nộp hồ sơ ứng tuyển:} Cho phép ứng viên nộp hồ sơ (apply) vào các vị trí mong muốn chỉ với vài cú nhấp chuột.
-    \item \textbf{F6 - Sử dụng tính năng AI Interview Coach:} Ứng viên đã ứng tuyển một vị trí có thể bắt đầu phiên luyện tập phỏng vấn giả lập với AI, nhận câu hỏi bám sát JD và CV, đồng thời được đánh giá và phản hồi sau mỗi câu trả lời.
-    \item \textbf{F7 - Sử dụng tính năng AI Interview Quiz:} Ứng viên có thể yêu cầu hệ thống sinh bộ câu hỏi trắc nghiệm (1--30 câu) theo nội dung JD của vị trí quan tâm để tự kiểm tra kiến thức.
-\end{itemize}
+Các yêu cầu chức năng của hệ thống được xác định theo từng nhóm tác nhân để bảo đảm ranh giới nghiệp vụ rõ ràng. Đối với khách truy cập, hệ thống cần cung cấp khả năng xem trang công khai, tìm kiếm việc làm, xem chi tiết việc làm, xem danh sách công ty, đăng ký và đăng nhập.
 
-\subsubsection{Đối với Nhà tuyển dụng}
-\begin{itemize}
-    \item \textbf{F9 - Quản lý tài khoản:} Nhà tuyển dụng có thể đăng ký, đăng nhập, và quản lý thông tin công ty.
-    \item \textbf{F10 - Đăng tin tuyển dụng:} Cung cấp biểu mẫu chi tiết để nhà tuyển dụng có thể tạo và đăng các vị trí đang cần tuyển.
-    \item \textbf{F11 - Quản lý tin tuyển dụng:} Cho phép chỉnh sửa, cập nhật trạng thái (đang mở, đã đóng) hoặc xóa các tin đã đăng.
-    \item \textbf{F12 - Quản lý ứng viên:} Xem danh sách các ứng viên đã nộp hồ sơ cho một vị trí cụ thể, xem chi tiết hồ sơ và CV của họ.
-    \item \textbf{F13 - Phân tích CV ứng viên bằng AI:} Khi xem một CV, hệ thống tự động dùng AI để tóm tắt, trích xuất các thông tin quan trọng như kỹ năng, kinh nghiệm, trình độ học vấn, giúp nhà tuyển dụng sàng lọc nhanh hơn.
-\end{itemize}
+Đối với ứng viên, hệ thống cần hỗ trợ quản lý hồ sơ cá nhân, tải avatar, tải CV PDF, trích xuất nội dung văn bản từ CV, ứng tuyển vào một job, theo dõi trạng thái hồ sơ đã nộp và sử dụng các chức năng AI sau khi đã ứng tuyển.
+
+Đối với nhà tuyển dụng, hệ thống cần hỗ trợ tạo và cập nhật hồ sơ công ty, tạo mới và quản lý tin tuyển dụng, xem danh sách ứng viên theo từng job, ghi chú, cập nhật điểm đánh giá hồ sơ và yêu cầu AI đánh giá CV. Đối với quản trị viên, hệ thống cần cung cấp các chức năng thống kê, quản lý người dùng, khóa hoặc mở khóa tài khoản, duyệt hoặc khóa hồ sơ công ty.
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.18}
+    \begin{tabular}{|p{0.08\textwidth}|p{0.25\textwidth}|p{0.55\textwidth}|}
+        \hline
+        \textbf{Mã} & \textbf{Tên use case} & \textbf{Mô tả ngắn} \\
+        \hline
+        UC01 & Đăng ký / Đăng nhập & Người dùng tạo tài khoản, xác thực và nhận JWT để truy cập chức năng theo vai trò. \\
+        \hline
+        UC02 & Cập nhật hồ sơ và CV & Ứng viên cập nhật thông tin cá nhân, tải avatar, tải CV và lưu nội dung CV đã trích xuất. \\
+        \hline
+        UC03 & Xem và tìm kiếm việc làm & Người dùng tra cứu danh sách việc làm, lọc theo tiêu chí và xem chi tiết job. \\
+        \hline
+        UC04 & Xem công ty & Người dùng xem danh sách công ty đã công khai và các tin tuyển dụng của công ty. \\
+        \hline
+        UC05 & Ứng tuyển job & Ứng viên nộp hồ sơ vào một job với CV hiện tại và trạng thái ban đầu. \\
+        \hline
+        UC06 & Theo dõi ứng tuyển & Ứng viên xem danh sách hồ sơ đã nộp và trạng thái xét duyệt tương ứng. \\
+        \hline
+        UC07 & AI Interview Coach & Ứng viên sử dụng AI để luyện phỏng vấn theo mô tả công việc và CV đã nộp. \\
+        \hline
+        UC08 & AI Interview Quiz & Ứng viên yêu cầu AI sinh câu hỏi trắc nghiệm theo ngữ cảnh job đã ứng tuyển. \\
+        \hline
+        UC09 & Quản lý công ty & Nhà tuyển dụng tạo, cập nhật và gửi duyệt hồ sơ công ty. \\
+        \hline
+        UC10 & Quản lý tin tuyển dụng & Nhà tuyển dụng tạo, chỉnh sửa, mở, đóng hoặc xóa tin tuyển dụng. \\
+        \hline
+        UC11 & Xem ứng viên theo job & Nhà tuyển dụng xem application, CV và trạng thái của ứng viên theo từng job thuộc sở hữu. \\
+        \hline
+        UC12 & Đánh giá CV bằng AI & Nhà tuyển dụng sử dụng AI để nhận xét mức độ phù hợp giữa CV và mô tả công việc. \\
+        \hline
+        UC13 & Dashboard thống kê & Quản trị viên theo dõi số lượng người dùng, công ty, tin tuyển dụng và dữ liệu vận hành. \\
+        \hline
+        UC14 & Quản lý người dùng & Quản trị viên xem danh sách, lọc theo vai trò và khóa hoặc mở khóa tài khoản. \\
+        \hline
+        UC15 & Duyệt và khóa công ty & Quản trị viên duyệt, từ chối, khóa hoặc mở khóa hồ sơ công ty. \\
+        \hline
+    \end{tabular}
+    \caption{Danh sách các use case chính theo tác nhân}
+    \label{tab:usecase-list}
+\end{table}
 
 \subsection{Yêu cầu phi chức năng}
-\label{ssec:yeu-cau-phi-chuc-nang}
-Yêu cầu phi chức năng (Non-functional Requirements) định nghĩa các tiêu chuẩn về chất lượng và cách thức hoạt động của hệ thống.
-\begin{itemize}
-    \item \textbf{NF1 - Hiệu năng (Performance):}
-    \begin{itemize}
-        \item Thời gian phản hồi của trang web phải dưới 2 giây cho các tác vụ thông thường.
-        \item Thời gian phản hồi của AI (tạo CV, trả lời phỏng vấn) phải dưới 5 giây để đảm bảo trải nghiệm tương tác tự nhiên.
-        \item Hệ thống có khả năng chịu tải ít nhất 100 người dùng đồng thời.
-    \end{itemize}
-    \item \textbf{NF2 - Tính sẵn sàng (Availability):} Hệ thống phải hoạt động 99.5\% thời gian, đảm bảo người dùng có thể truy cập bất cứ lúc nào.
-    \item \textbf{NF3 - Khả năng mở rộng (Scalability):} Kiến trúc microservices và triển khai trên Kubernetes cho phép hệ thống dễ dàng nâng cấp (scale-out) từng dịch vụ độc lập khi lưu lượng truy cập tăng cao.
-    \item \textbf{NF4 - Bảo mật (Security):}
-    \begin{itemize}
-        \item Mật khẩu người dùng phải được băm (hashing) trước khi lưu vào cơ sở dữ liệu.
-        \item Sử dụng JWT (JSON Web Tokens) để xác thực và phân quyền truy cập API.
-        \item Áp dụng các biện pháp chống lại các tấn công phổ biến như XSS, CSRF.
-        \item Toàn bộ giao tiếp giữa client và server phải được mã hóa bằng HTTPS.
-    \end{itemize}
-    \item \textbf{NF5 - Tính dễ sử dụng (Usability):} Giao diện người dùng phải trực quan, thân thiện và dễ dàng điều hướng cho cả người dùng không chuyên về công nghệ.
-    \item \textbf{NF6 - Khả năng bảo trì (Maintainability):} Mã nguồn được chia thành các module (microservices) rõ ràng, tuân thủ các nguyên tắc code sạch (clean code), có tài liệu và comment đầy đủ để dễ dàng bảo trì và phát triển trong tương lai.
-\end{itemize}
 
-\section{Thiết kế hệ thống}
-\label{section:3.2}
+Về bảo mật, hệ thống cần lưu mật khẩu dưới dạng đã băm, xác thực người dùng bằng JWT và phân quyền theo ba nhóm vai trò: ứng viên, nhà tuyển dụng và quản trị viên. Các thao tác nhạy cảm không chỉ kiểm tra vai trò mà còn kiểm tra quyền sở hữu tài nguyên; chẳng hạn, nhà tuyển dụng chỉ được xem ứng viên và đánh giá CV đối với các tin tuyển dụng do chính mình tạo.
 
-\subsection{Thiết kế ca sử dụng (Use Case)}
-\label{ssec:thiet-ke-use-case}
-Sơ đồ Use Case được sử dụng để mô hình hóa các yêu cầu chức năng của hệ thống, xác định các tương tác giữa người dùng (actors) và hệ thống.
+Về hiệu năng, hệ thống cần đáp ứng ổn định các thao tác tra cứu việc làm, nộp hồ sơ, quản lý tin tuyển dụng và gọi AI trong phạm vi tải thử nghiệm của đồ án. Về tính bảo trì, các chức năng cần được tổ chức theo miền nghiệp vụ rõ ràng để thuận tiện cho kiểm thử, mở rộng và thay đổi về sau.
 
-\subsubsection{Xác định các tác nhân (Actors)}
-Hệ thống có ba tác nhân chính:
-\begin{itemize}
-    \item \textbf{Ứng viên (Seeker):} Người tìm việc, sử dụng hệ thống để tìm kiếm công việc, tạo và quản lý hồ sơ, ứng tuyển và luyện tập phỏng vấn với AI.
-    \item \textbf{Nhà tuyển dụng (Recruiter):} Người đại diện cho công ty, sử dụng hệ thống để đăng tin tuyển dụng, xem hồ sơ ứng viên và sử dụng AI để đánh giá CV.
-    \item \textbf{Quản trị viên (Admin):} Quản lý toàn bộ nền tảng, duyệt/từ chối công ty đăng ký, khóa/mở tài khoản người dùng vi phạm và theo dõi tổng quan hệ thống qua dashboard.
-\end{itemize}
+\section{Thiết kế use case}
+\label{sec:thiet-ke-use-case}
 
-\subsubsection{Sơ đồ Use Case tổng quát}
-Sơ đồ dưới đây thể hiện một cách tổng quan các chức năng chính mà mỗi tác nhân có thể thực hiện trong hệ thống JobBridge.
+Sơ đồ use case tổng quát trong Hình \ref{fig:use-case-tong-quat} mô tả các tương tác chính giữa bốn nhóm tác nhân và hệ thống JobBridge AI. Các quan hệ include được sử dụng cho những chức năng có điều kiện nghiệp vụ bắt buộc.
+
+Cụ thể, AI Coach và AI Quiz phải bao gồm bước kiểm tra điều kiện ứng tuyển hợp lệ, còn chức năng đánh giá CV bằng AI phải bao gồm bước kiểm tra quyền sở hữu job trước khi lấy dữ liệu ứng viên và gọi mô hình ngôn ngữ.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth,height=0.7\textheight,keepaspectratio]{"so-do-chuong-3/1_use-case-tong-quat.png"}
-    \caption{Sơ đồ Use Case tổng quát của hệ thống.}
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.16\textwidth]{Chuong/so-do-chuong-3/usecase/usecase_00_tong_quat.png}%
+    }
+    \caption{Sơ đồ Use Case tổng quát của hệ thống JobBridge AI}
     \label{fig:use-case-tong-quat}
 \end{figure}
 
-\subsubsection{Sơ đồ Use Case chi tiết}
-Phần này trình bày các sơ đồ Use Case riêng cho từng chức năng chính của hệ thống. Mỗi sơ đồ thể hiện tác nhân liên quan và các bước con (include) trong luồng nghiệp vụ.
-\setlength{\textfloatsep}{8pt}
-\setlength{\intextsep}{8pt}
-\vspace{-0.5em}
+\newcommand{\usecaseDetailImage}[1]{%
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{#1}%
+    }%
+}
 
-\noindent\textbf{Đăng ký tài khoản.} Người dùng mới (ứng viên hoặc nhà tuyển dụng) thực hiện đăng ký bằng cách chọn vai trò, nhập thông tin cơ bản, xác thực email và tạo tài khoản.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/Đăng ký.png"}
-    \caption{Use Case: Đăng ký tài khoản.}
-    \label{fig:uc-dang-ky}
-\end{figure}
+Các use case chi tiết được trình bày trong Hình \ref{fig:usecase-01} đến Hình \ref{fig:usecase-15}. Mỗi sơ đồ được thiết kế dạng khung ngang để thể hiện rõ tác nhân, use case chính và các thao tác thành phần được bao gồm trong use case đó, đồng thời tiết kiệm không gian trình bày trong báo cáo.
 
-\noindent\textbf{Đăng nhập.} Người dùng nhập thông tin đăng nhập, hệ thống xác thực và tạo phiên làm việc để truy cập các chức năng tương ứng.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/Đăng nhập.png"}
-    \caption{Use Case: Đăng nhập.}
-    \label{fig:uc-dang-nhap}
-\end{figure}
+\begin{figure}[H]\centering\usecaseDetailImage{Chuong/so-do-chuong-3/usecase/usecase_01_dang_ky_dang_nhap.png}\caption{Use Case 01 -- Đăng ký / Đăng nhập}\label{fig:usecase-01}\end{figure}
+\begin{figure}[H]\centering\usecaseDetailImage{Chuong/so-do-chuong-3/usecase/usecase_02_cap_nhat_ho_so_cv.png}\caption{Use Case 02 -- Cập nhật hồ sơ và CV}\label{fig:usecase-02}\end{figure}
+\begin{figure}[H]\centering\usecaseDetailImage{Chuong/so-do-chuong-3/usecase/usecase_03_xem_tim_kiem_viec_lam.png}\caption{Use Case 03 -- Xem và tìm kiếm việc làm}\label{fig:usecase-03}\end{figure}
+\begin{figure}[H]\centering\usecaseDetailImage{Chuong/so-do-chuong-3/usecase/usecase_04_xem_cong_ty.png}\caption{Use Case 04 -- Xem danh sách và hồ sơ công ty}\label{fig:usecase-04}\end{figure}
+\begin{figure}[H]\centering\usecaseDetailImage{Chuong/so-do-chuong-3/usecase/usecase_05_ung_tuyen_job.png}\caption{Use Case 05 -- Ứng tuyển job}\label{fig:usecase-05}\end{figure}
+\begin{figure}[H]\centering\usecaseDetailImage{Chuong/so-do-chuong-3/usecase/usecase_06_theo_doi_ung_tuyen.png}\caption{Use Case 06 -- Theo dõi ứng tuyển}\label{fig:usecase-06}\end{figure}
+\begin{figure}[H]\centering\usecaseDetailImage{Chuong/so-do-chuong-3/usecase/usecase_07_ai_interview_coach.png}\caption{Use Case 07 -- AI Interview Coach}\label{fig:usecase-07}\end{figure}
+\begin{figure}[H]\centering\usecaseDetailImage{Chuong/so-do-chuong-3/usecase/usecase_08_ai_interview_quiz.png}\caption{Use Case 08 -- AI Interview Quiz}\label{fig:usecase-08}\end{figure}
+\begin{figure}[H]\centering\usecaseDetailImage{Chuong/so-do-chuong-3/usecase/usecase_09_quan_ly_cong_ty.png}\caption{Use Case 09 -- Quản lý công ty}\label{fig:usecase-09}\end{figure}
+\begin{figure}[H]\centering\usecaseDetailImage{Chuong/so-do-chuong-3/usecase/usecase_10_quan_ly_tin_tuyen_dung.png}\caption{Use Case 10 -- Quản lý tin tuyển dụng}\label{fig:usecase-10}\end{figure}
+\begin{figure}[H]\centering\usecaseDetailImage{Chuong/so-do-chuong-3/usecase/usecase_11_xem_ung_vien_theo_job.png}\caption{Use Case 11 -- Xem ứng viên theo job}\label{fig:usecase-11}\end{figure}
+\begin{figure}[H]\centering\usecaseDetailImage{Chuong/so-do-chuong-3/usecase/usecase_12_ai_danh_gia_cv.png}\caption{Use Case 12 -- Đánh giá CV bằng AI}\label{fig:usecase-12}\end{figure}
+\begin{figure}[H]\centering\usecaseDetailImage{Chuong/so-do-chuong-3/usecase/usecase_13_dashboard_admin.png}\caption{Use Case 13 -- Dashboard thống kê}\label{fig:usecase-13}\end{figure}
+\begin{figure}[H]\centering\usecaseDetailImage{Chuong/so-do-chuong-3/usecase/usecase_14_quan_ly_nguoi_dung.png}\caption{Use Case 14 -- Quản lý người dùng}\label{fig:usecase-14}\end{figure}
+\begin{figure}[H]\centering\usecaseDetailImage{Chuong/so-do-chuong-3/usecase/usecase_15_duyet_khoa_cong_ty.png}\caption{Use Case 15 -- Duyệt và khóa công ty}\label{fig:usecase-15}\end{figure}
 
-\noindent\textbf{Đăng xuất.} Người dùng kết thúc phiên làm việc; hệ thống hủy phiên đăng nhập để đảm bảo an toàn thông tin.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/Đăng xuất.png"}
-    \caption{Use Case: Đăng xuất.}
-    \label{fig:uc-dang-xuat}
-\end{figure}
+\subsection{Đặc tả kịch bản toàn bộ use case}
 
-\noindent\textbf{Onboarding chọn vai trò.} Sau khi tạo tài khoản, người dùng chọn vai trò (ứng viên/nhà tuyển dụng) và hoàn tất thông tin cơ bản để kích hoạt trải nghiệm phù hợp.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/Onboard chọn vai trò.png"}
-    \caption{Use Case: Onboarding chọn vai trò.}
-    \label{fig:uc-onboard-vai-tro}
-\end{figure}
+Phần này đặc tả toàn bộ 15 use case đã xác định trong Bảng \ref{tab:usecase-list}. Mỗi đặc tả làm rõ tác nhân, điều kiện tiền đề, luồng chính, luồng ngoại lệ và hậu điều kiện. Đây là cơ sở để đối chiếu giữa yêu cầu nghiệp vụ, thiết kế API và các luồng xử lý được trình bày ở phần sau.
 
-\noindent\textbf{Cập nhật hồ sơ cá nhân.} Ứng viên cập nhật thông tin cá nhân và tải lên avatar/CV để hoàn thiện hồ sơ trước khi ứng tuyển.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/Cập nhật hồ sơ cá nhân.png"}
-    \caption{Use Case: Cập nhật hồ sơ cá nhân.}
-    \label{fig:uc-cap-nhat-ho-so}
-\end{figure}
+\newcommand{\usecaseSpec}[7]{%
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{|p{0.22\textwidth}|p{0.66\textwidth}|}
+\hline
+\textbf{Tên use case} & #1 \\
+\hline
+\textbf{Tác nhân chính} & #2 \\
+\hline
+\textbf{Tiền điều kiện} & #3 \\
+\hline
+\textbf{Luồng chính} & #4 \\
+\hline
+\textbf{Luồng ngoại lệ} & #5 \\
+\hline
+\textbf{Hậu điều kiện} & #6 \\
+\hline
+\end{tabular}
+\caption{Đặc tả kịch bản Use Case: #1}
+\label{#7}
+\end{table}
+}
 
-\noindent\textbf{Xem danh sách công việc.} Ứng viên tìm kiếm, lọc theo tiêu chí và xem danh sách kết quả việc làm phù hợp.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/danh sách công việc.png"}
-    \caption{Use Case: Xem danh sách công việc.}
-    \label{fig:uc-danh-sach-cong-viec}
-\end{figure}
+\usecaseSpec{Đăng ký / Đăng nhập (UC01)}{Khách truy cập, ứng viên, nhà tuyển dụng, quản trị viên.}{Người dùng chưa có phiên đăng nhập hợp lệ hoặc cần tạo tài khoản mới.}{Người dùng nhập email và mật khẩu; hệ thống kiểm tra dữ liệu; nếu đăng ký thì tạo tài khoản sau khi băm mật khẩu; nếu đăng nhập thì xác thực thông tin, phát hành JWT và điều hướng theo vai trò.}{Email đã tồn tại; sai mật khẩu; tài khoản bị khóa; dữ liệu đầu vào không hợp lệ.}{Người dùng có tài khoản hợp lệ hoặc có JWT để truy cập chức năng được phân quyền.}{tab:spec-uc01}
 
-\noindent\textbf{Xem chi tiết công việc.} Ứng viên xem mô tả, yêu cầu và thông tin công ty để quyết định ứng tuyển.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/xem chi tiết công việc.png"}
-    \caption{Use Case: Xem chi tiết công việc.}
-    \label{fig:uc-chi-tiet-cong-viec}
-\end{figure}
+\usecaseSpec{Cập nhật hồ sơ và CV (UC02)}{Ứng viên.}{Ứng viên đã đăng nhập đúng vai trò.}{Ứng viên nhập thông tin hồ sơ, tải avatar hoặc CV PDF; hệ thống xác thực phiên đăng nhập, lưu tệp lên Cloudinary, trích xuất nội dung CV và cập nhật hồ sơ người dùng trong MongoDB.}{Tệp không đúng định dạng; quá trình tải lên thất bại; CV không trích xuất được nội dung; người dùng không có quyền cập nhật hồ sơ.}{Hồ sơ ứng viên được cập nhật, đường dẫn CV và nội dung CV đã trích xuất sẵn sàng cho các chức năng ứng tuyển và AI.}{tab:spec-uc02}
 
-\noindent\textbf{Ứng tuyển công việc.} Ứng viên chọn CV/hồ sơ phù hợp, gửi hồ sơ ứng tuyển và hệ thống lưu lại thông tin application.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/ứng tuyển công việc.png"}
-    \caption{Use Case: Ứng tuyển công việc.}
-    \label{fig:uc-ung-tuyen}
-\end{figure}
+\usecaseSpec{Xem và tìm kiếm việc làm (UC03)}{Khách truy cập, ứng viên.}{Không yêu cầu đăng nhập đối với dữ liệu công khai.}{Người dùng nhập từ khóa hoặc bộ lọc; frontend gửi truy vấn đến Jobs Service; service lọc các job đang mở theo từ khóa, địa điểm, mức lương hoặc tiêu chí liên quan và trả kết quả phân trang.}{Không có job phù hợp; tham số lọc sai định dạng; service truy vấn dữ liệu lỗi.}{Người dùng xem được danh sách việc làm hoặc chi tiết một job công khai.}{tab:spec-uc03}
 
-\noindent\textbf{Lưu công việc yêu thích.} Ứng viên lưu lại các công việc quan tâm để xem và ứng tuyển sau.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/lưu công việc yêu thích.png"}
-    \caption{Use Case: Lưu công việc yêu thích.}
-    \label{fig:uc-luu-yeu-thich}
-\end{figure}
+\usecaseSpec{Xem công ty (UC04)}{Khách truy cập, ứng viên.}{Công ty đã được duyệt và không bị khóa.}{Người dùng mở danh sách công ty hoặc hồ sơ công ty; hệ thống truy vấn các công ty public, trả thông tin hồ sơ và các job đang mở của công ty.}{Công ty không tồn tại; công ty chưa được duyệt; công ty bị khóa; không có job đang mở.}{Người dùng xem được hồ sơ công ty hợp lệ và có thể chuyển sang danh sách job của công ty đó.}{tab:spec-uc04}
 
-\noindent\textbf{AI Interview Coach.} Ứng viên chọn job đã ứng tuyển, hệ thống tạo kịch bản phỏng vấn và phản hồi theo từng lượt trao đổi.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/AI Interview Coach.png"}
-    \caption{Use Case: AI Interview Coach.}
-    \label{fig:uc-ai-coach}
-\end{figure}
+\usecaseSpec{Ứng tuyển job (UC05)}{Ứng viên.}{Ứng viên đã đăng nhập, có CV hợp lệ và tin tuyển dụng đang mở.}{Ứng viên chọn tin tuyển dụng và gửi yêu cầu ứng tuyển; hệ thống kiểm tra vai trò, trạng thái tin tuyển dụng, CV hiện tại và hồ sơ ứng tuyển trùng; sau đó tạo hồ sơ ứng tuyển ở trạng thái đã nộp.}{Ứng viên chưa đăng nhập; không có CV; tin tuyển dụng đã đóng; tin tuyển dụng không tồn tại; ứng viên đã ứng tuyển vị trí đó.}{Hồ sơ ứng tuyển mới được lưu và nhà tuyển dụng có thể xem trong danh sách ứng viên theo tin tuyển dụng.}{tab:spec-uc05}
 
-\noindent\textbf{AI Interview Quiz.} Hệ thống tạo bộ câu hỏi trắc nghiệm theo JD, hiển thị quiz và ghi nhận đáp án của ứng viên.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/AI Interview Quiz.png"}
-    \caption{Use Case: AI Interview Quiz.}
-    \label{fig:uc-ai-quiz}
-\end{figure}
+\usecaseSpec{Theo dõi ứng tuyển (UC06)}{Ứng viên.}{Ứng viên đã đăng nhập và truy cập trang theo dõi ứng tuyển.}{Giao diện gửi yêu cầu lấy danh sách hồ sơ ứng tuyển của ứng viên; hệ thống xác thực người dùng, truy vấn các hồ sơ gắn với ứng viên, kết hợp thông tin tin tuyển dụng và trả danh sách trạng thái.}{JWT hết hạn; người dùng không phải ứng viên; không có hồ sơ ứng tuyển; truy vấn dữ liệu lỗi.}{Ứng viên xem được lịch sử nộp hồ sơ và trạng thái xét duyệt tương ứng.}{tab:spec-uc06}
 
-\noindent\textbf{Quản lý tin tuyển dụng.} Nhà tuyển dụng tạo, chỉnh sửa và xóa các tin tuyển dụng, cập nhật trạng thái hiển thị.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/quản lý tin tuyển dụng.png"}
-    \caption{Use Case: Quản lý tin tuyển dụng.}
-    \label{fig:uc-quan-ly-tin}
-\end{figure}
+\usecaseSpec{AI Interview Coach (UC07)}{Ứng viên.}{Ứng viên đã đăng nhập, đã ứng tuyển vị trí tương ứng và hệ thống có mô tả công việc cùng nội dung CV đã trích xuất.}{Ứng viên gửi câu hỏi luyện phỏng vấn; AI Service kiểm tra điều kiện ứng tuyển, lấy mô tả công việc và nội dung CV, tạo prompt theo ngữ cảnh vị trí tuyển dụng, gọi LLM API và trả phản hồi tư vấn.}{Ứng viên chưa ứng tuyển vị trí liên quan; thiếu nội dung CV; LLM API lỗi; request vượt giới hạn hoặc dữ liệu không đủ ngữ cảnh.}{Ứng viên nhận phản hồi luyện phỏng vấn bám sát mô tả công việc và hồ sơ cá nhân.}{tab:spec-uc07}
 
-\noindent\textbf{Danh sách ứng viên theo job.} Nhà tuyển dụng chọn một tin tuyển dụng và xem danh sách ứng viên đã nộp hồ sơ.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/danh sách ứng viên theo job.png"}
-    \caption{Use Case: Xem danh sách ứng viên theo job.}
-    \label{fig:uc-ung-vien-theo-job}
-\end{figure}
+\usecaseSpec{AI Interview Quiz (UC08)}{Ứng viên.}{Ứng viên đã ứng tuyển job và có dữ liệu JD, CV text hợp lệ.}{Ứng viên yêu cầu tạo quiz; AI Service xác minh application, tổng hợp JD và CV text, gọi LLM API để sinh câu hỏi, đáp án và giải thích, sau đó trả kết quả về frontend.}{Chưa ứng tuyển job; CV thiếu nội dung; LLM API lỗi; dữ liệu đầu ra không đúng cấu trúc.}{Ứng viên nhận bộ câu hỏi trắc nghiệm để luyện tập trước phỏng vấn.}{tab:spec-uc08}
 
-\noindent\textbf{Xem danh sách công ty.} Ứng viên/khách truy cập duyệt danh sách công ty, tìm kiếm và lọc theo tiêu chí.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/xem danh sách công ty.png"}
-    \caption{Use Case: Xem danh sách công ty.}
-    \label{fig:uc-danh-sach-cong-ty}
-\end{figure}
+\usecaseSpec{Quản lý công ty (UC09)}{Nhà tuyển dụng.}{Người dùng đã đăng nhập với vai trò nhà tuyển dụng.}{Nhà tuyển dụng tạo hoặc cập nhật hồ sơ công ty; hệ thống kiểm tra quyền, lưu thông tin công ty và trạng thái duyệt; giao diện hiển thị trạng thái hiện tại của hồ sơ.}{Thiếu thông tin bắt buộc; mã số thuế hoặc dữ liệu công ty không hợp lệ; nhà tuyển dụng đã có công ty nhưng gửi tạo mới sai luồng.}{Hồ sơ công ty được lưu, cập nhật hoặc chuyển sang trạng thái chờ duyệt.}{tab:spec-uc09}
 
-\noindent\textbf{Duyệt công ty/public profile.} Quản trị viên duyệt thông tin công ty, cập nhật trạng thái công khai để hiển thị với người dùng.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.65\textwidth,height=0.45\textheight,keepaspectratio]{"so-do-chuong-3/duyệt công ty public profile.png"}
-    \caption{Use Case: Duyệt công ty/public profile.}
-    \label{fig:uc-duyet-cong-ty}
-\end{figure}
+\usecaseSpec{Quản lý tin tuyển dụng (UC10)}{Nhà tuyển dụng.}{Nhà tuyển dụng đã đăng nhập và có quyền thao tác với công ty/job tương ứng.}{Nhà tuyển dụng tạo, chỉnh sửa, mở, đóng hoặc xóa job; Jobs Service kiểm tra role, quyền sở hữu và trạng thái dữ liệu trước khi lưu thay đổi vào MongoDB.}{Công ty chưa được duyệt; job không thuộc sở hữu; dữ liệu job thiếu trường bắt buộc; trạng thái job không cho phép thao tác.}{Tin tuyển dụng được tạo hoặc cập nhật và xuất hiện trong danh sách job của nhà tuyển dụng.}{tab:spec-uc10}
 
-\subsubsection{Mô tả chi tiết một số Use Case quan trọng}
-\begin{itemize}
-    \item \textbf{UC5: Nộp hồ sơ ứng tuyển}
-    \begin{itemize}
-        \item \textbf{Tác nhân:} Ứng viên.
-        \item \textbf{Mô tả:} Ứng viên sau khi tìm thấy một công việc phù hợp có thể tiến hành nộp hồ sơ trực tuyến.
-        \item \textbf{Luồng sự kiện:}
-        \begin{enumerate}
-            \item Ứng viên nhấn nút "Nộp hồ sơ" tại trang chi tiết việc làm.
-            \item Hệ thống hiển thị form ứng tuyển, yêu cầu chọn CV từ danh sách đã tải lên.
-            \item Ứng viên chọn CV và xác nhận nộp.
-            \item Hệ thống ghi nhận thông tin ứng tuyển vào cơ sở dữ liệu và thông báo thành công cho ứng viên.
-        \end{enumerate}
-    \end{itemize}
-    \item \textbf{UC13: Phân tích CV ứng viên bằng AI}
-    \begin{itemize}
-        \item \textbf{Tác nhân:} Nhà tuyển dụng.
-        \item \textbf{Mô tả:} Khi nhà tuyển dụng xem CV của một ứng viên, AI sẽ tự động phân tích và đưa ra các thông tin tóm tắt quan trọng.
-        \item \textbf{Luồng sự kiện:}
-        \begin{enumerate}
-            \item Nhà tuyển dụng mở trang chi tiết một hồ sơ ứng tuyển.
-            \item Hệ thống lấy nội dung text từ file CV và gửi đến service AI.
-            \item Service AI xử lý văn bản, trích xuất các thực thể như: Kỹ năng (Skills), Kinh nghiệm làm việc (Work Experience), Trình độ học vấn (Education), Thông tin liên hệ (Contact Info).
-            \item Kết quả phân tích được hiển thị ở một khu vực riêng biệt bên cạnh CV, giúp nhà tuyển dụng nắm bắt thông tin nhanh chóng.
-        \end{enumerate}
-    \end{itemize}
-\end{itemize}
+\usecaseSpec{Xem ứng viên theo job (UC11)}{Nhà tuyển dụng.}{Nhà tuyển dụng sở hữu tin tuyển dụng cần xem.}{Nhà tuyển dụng chọn một tin tuyển dụng; hệ thống kiểm tra quyền sở hữu, truy vấn các hồ sơ ứng tuyển tương ứng, lấy thông tin CV và trạng thái ứng viên rồi trả về giao diện.}{Tin tuyển dụng không tồn tại; nhà tuyển dụng không sở hữu tin tuyển dụng; chưa có hồ sơ ứng tuyển; dữ liệu ứng viên bị thiếu.}{Nhà tuyển dụng xem được danh sách ứng viên, CV, trạng thái, ghi chú và điểm đánh giá đã lưu.}{tab:spec-uc11}
 
-\subsection{Thiết kế cơ sở dữ liệu}
-\label{ssec:thiet-ke-csdl}
-Hệ thống sử dụng MongoDB, một cơ sở dữ liệu NoSQL hướng tài liệu (document-oriented), vì những lý do sau:
-\begin{itemize}
-    \item \textbf{Linh hoạt:} Cấu trúc schema linh hoạt cho phép dễ dàng lưu trữ các loại dữ liệu đa dạng và thay đổi cấu trúc khi cần, rất phù hợp với các thông tin như hồ sơ người dùng, CV, hay mô tả công việc.
-    \item \textbf{Khả năng mở rộng:} MongoDB hỗ trợ mở rộng theo chiều ngang (horizontal scaling) một cách hiệu quả, sẵn sàng cho việc tăng trưởng dữ liệu và lưu lượng truy cập trong tương lai.
-    \item \textbf{Hiệu năng:} Khả năng truy vấn và ghi dữ liệu nhanh chóng đối với các tập dữ liệu lớn.
-\end{itemize}
+\usecaseSpec{Đánh giá CV bằng AI (UC12)}{Nhà tuyển dụng.}{Nhà tuyển dụng sở hữu job của application và CV đã có nội dung trích xuất.}{Nhà tuyển dụng chọn application; AI Service kiểm tra role và quyền sở hữu job, lấy JD và CV text, gọi LLM API để sinh nhận xét mức độ phù hợp và trả kết quả về frontend.}{Không sở hữu job; application không tồn tại; thiếu CV text; LLM API lỗi hoặc trả kết quả không hợp lệ.}{Nhà tuyển dụng nhận được nhận xét hỗ trợ sàng lọc; quyết định tuyển dụng cuối cùng vẫn do con người thực hiện.}{tab:spec-uc12}
 
-Sơ đồ quan hệ thực thể (ERD) dưới đây mô tả các collection chính và mối quan hệ logic giữa chúng. Cần lưu ý rằng các "khóa ngoại" trong sơ đồ này thể hiện sự tham chiếu ở cấp độ ứng dụng, không phải là ràng buộc được thực thi bởi MongoDB.
+\usecaseSpec{Dashboard thống kê (UC13)}{Quản trị viên.}{Người dùng đã đăng nhập với vai trò quản trị viên.}{Quản trị viên mở dashboard; hệ thống kiểm tra quyền, tổng hợp số lượng người dùng, công ty, tin tuyển dụng và hồ sơ ứng tuyển, sau đó trả dữ liệu thống kê cho giao diện.}{JWT hết hạn; người dùng không phải quản trị viên; truy vấn thống kê lỗi.}{Quản trị viên xem được các chỉ số tổng quan phục vụ theo dõi vận hành.}{tab:spec-uc13}
+
+\usecaseSpec{Quản lý người dùng (UC14)}{Quản trị viên.}{Quản trị viên đã đăng nhập.}{Quản trị viên lọc danh sách người dùng, xem chi tiết hoặc khóa/mở khóa tài khoản; Auth Service kiểm tra role admin và cập nhật trạng thái người dùng trong MongoDB.}{Người dùng mục tiêu không tồn tại; admin tự khóa nhầm tài khoản của chính mình; dữ liệu lọc không hợp lệ.}{Danh sách người dùng hoặc trạng thái tài khoản được cập nhật theo thao tác quản trị.}{tab:spec-uc14}
+
+\usecaseSpec{Duyệt và khóa công ty (UC15)}{Quản trị viên.}{Quản trị viên đã đăng nhập và công ty cần xử lý tồn tại.}{Quản trị viên xem danh sách công ty, duyệt, từ chối, khóa hoặc mở khóa hồ sơ; Auth Service kiểm tra role admin và cập nhật trạng thái công ty.}{Công ty không tồn tại; trạng thái chuyển đổi không hợp lệ; dữ liệu phản hồi thiếu lý do khi từ chối.}{Hồ sơ công ty được cập nhật trạng thái, ảnh hưởng trực tiếp đến khả năng công khai hồ sơ và đăng tin tuyển dụng.}{tab:spec-uc15}
+
+\section{Thiết kế luồng nghiệp vụ}
+\label{sec:thiet-ke-luong-nghiep-vu}
+
+Các luồng xử lý chi tiết được mô tả bằng sequence diagram nhằm làm rõ thứ tự trao đổi thông điệp giữa người dùng, giao diện, các thành phần xử lý nghiệp vụ, cơ sở dữ liệu và dịch vụ ngoài. Khác với Chương 2, nơi kiến trúc microservices và nền tảng triển khai đã được trình bày ở mức tổng quan, phần này chỉ tập trung vào trình tự nghiệp vụ của từng use case.
+
+Mỗi sơ đồ cần thể hiện rõ điểm phát sinh request, bước xác thực hoặc kiểm tra quyền, thao tác dữ liệu chính, lời gọi dịch vụ hỗ trợ khi cần và kết quả trả về cho người dùng.
+
+Các sơ đồ trong Hình \ref{fig:seq-uc01} đến Hình \ref{fig:seq-uc15} mô tả trình tự xử lý của từng use case, bao gồm bước gửi request từ giao diện, kiểm tra quyền, truy xuất dữ liệu trong MongoDB, xử lý tệp qua Cloudinary khi cần thiết và gọi LLM API đối với các chức năng AI. Nhóm sơ đồ này giúp làm rõ thứ tự phối hợp giữa người dùng, frontend, gateway, service nghiệp vụ, cơ sở dữ liệu và dịch vụ AI bên ngoài.
+
+\newcommand{\sequenceDiagramImage}[1]{%
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{#1}%
+    }%
+}
+
+\begin{figure}[H]\centering\sequenceDiagramImage{Chuong/so-do-chuong-3/sequence-diagram/sequence_01_dang_ky_dang_nhap.png}\caption{Sequence diagram UC01 -- Đăng ký / Đăng nhập}\label{fig:seq-uc01}\end{figure}
+\begin{figure}[H]\centering\sequenceDiagramImage{Chuong/so-do-chuong-3/sequence-diagram/sequence_02_cap_nhat_ho_so_cv.png}\caption{Sequence diagram UC02 -- Cập nhật hồ sơ và CV}\label{fig:seq-uc02}\end{figure}
+\begin{figure}[H]\centering\sequenceDiagramImage{Chuong/so-do-chuong-3/sequence-diagram/sequence_03_xem_tim_kiem_viec_lam.png}\caption{Sequence diagram UC03 -- Xem và tìm kiếm việc làm}\label{fig:seq-uc03}\end{figure}
+\begin{figure}[H]\centering\sequenceDiagramImage{Chuong/so-do-chuong-3/sequence-diagram/sequence_04_xem_cong_ty.png}\caption{Sequence diagram UC04 -- Xem công ty}\label{fig:seq-uc04}\end{figure}
+\begin{figure}[H]\centering\sequenceDiagramImage{Chuong/so-do-chuong-3/sequence-diagram/sequence_05_ung_tuyen_job.png}\caption{Sequence diagram UC05 -- Ứng tuyển job}\label{fig:seq-uc05}\end{figure}
+\begin{figure}[H]\centering\sequenceDiagramImage{Chuong/so-do-chuong-3/sequence-diagram/sequence_06_theo_doi_ung_tuyen.png}\caption{Sequence diagram UC06 -- Theo dõi ứng tuyển}\label{fig:seq-uc06}\end{figure}
+\begin{figure}[H]\centering\sequenceDiagramImage{Chuong/so-do-chuong-3/sequence-diagram/sequence_07_ai_interview_coach.png}\caption{Sequence diagram UC07 -- AI Interview Coach}\label{fig:seq-uc07}\end{figure}
+\begin{figure}[H]\centering\sequenceDiagramImage{Chuong/so-do-chuong-3/sequence-diagram/sequence_08_ai_interview_quiz.png}\caption{Sequence diagram UC08 -- AI Interview Quiz}\label{fig:seq-uc08}\end{figure}
+\begin{figure}[H]\centering\sequenceDiagramImage{Chuong/so-do-chuong-3/sequence-diagram/sequence_09_quan_ly_cong_ty.png}\caption{Sequence diagram UC09 -- Quản lý công ty}\label{fig:seq-uc09}\end{figure}
+\begin{figure}[H]\centering\sequenceDiagramImage{Chuong/so-do-chuong-3/sequence-diagram/sequence_10_quan_ly_tin_tuyen_dung.png}\caption{Sequence diagram UC10 -- Quản lý tin tuyển dụng}\label{fig:seq-uc10}\end{figure}
+\begin{figure}[H]\centering\sequenceDiagramImage{Chuong/so-do-chuong-3/sequence-diagram/sequence_11_xem_ung_vien_theo_job.png}\caption{Sequence diagram UC11 -- Xem ứng viên theo job}\label{fig:seq-uc11}\end{figure}
+\begin{figure}[H]\centering\sequenceDiagramImage{Chuong/so-do-chuong-3/sequence-diagram/sequence_12_ai_danh_gia_cv.png}\caption{Sequence diagram UC12 -- Đánh giá CV bằng AI}\label{fig:seq-uc12}\end{figure}
+\begin{figure}[H]\centering\sequenceDiagramImage{Chuong/so-do-chuong-3/sequence-diagram/sequence_13_dashboard_admin.png}\caption{Sequence diagram UC13 -- Dashboard thống kê}\label{fig:seq-uc13}\end{figure}
+\begin{figure}[H]\centering\sequenceDiagramImage{Chuong/so-do-chuong-3/sequence-diagram/sequence_14_quan_ly_nguoi_dung.png}\caption{Sequence diagram UC14 -- Quản lý người dùng}\label{fig:seq-uc14}\end{figure}
+\begin{figure}[H]\centering\sequenceDiagramImage{Chuong/so-do-chuong-3/sequence-diagram/sequence_15_duyet_khoa_cong_ty.png}\caption{Sequence diagram UC15 -- Duyệt và khóa công ty}\label{fig:seq-uc15}\end{figure}
+
+\section{Thiết kế dữ liệu}
+\label{sec:thiet-ke-du-lieu}
+
+Hệ thống sử dụng MongoDB làm cơ sở dữ liệu chính, vì dữ liệu nghiệp vụ của nền tảng tuyển dụng có cấu trúc linh hoạt và thường gắn với các document có nội dung thay đổi theo vai trò người dùng. Thiết kế dữ liệu không mô hình hóa theo ERD quan hệ truyền thống với khóa ngoại bắt buộc, mà tổ chức thành các collection độc lập gồm người dùng, công ty, tin tuyển dụng và hồ sơ ứng tuyển.
+
+Một số mã định danh như mã chủ sở hữu, mã ứng viên hoặc mã tin tuyển dụng chỉ đóng vai trò tham chiếu logic để service nghiệp vụ truy vấn và kiểm tra quyền; MongoDB không tự thực thi quan hệ giữa các collection ở tầng lưu trữ.
+
+Cách tổ chức này giúp hệ thống giảm phụ thuộc vào phép nối dữ liệu phức tạp, đồng thời cho phép mỗi service kiểm soát nhất quán nghiệp vụ theo ngữ cảnh sử dụng. Các tệp avatar và CV được lưu trên Cloudinary, trong khi MongoDB chỉ lưu URL, metadata cần thiết và phần văn bản đã trích xuất từ CV để phục vụ chức năng ứng tuyển và AI.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{"so-do-chuong-3/erd_database.png"}
-    \caption{Sơ đồ quan hệ thực thể (ERD) của hệ thống.}
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{Chuong/so-do-chuong-3/erd_database.png}%
+    }
+    \caption{Mô hình tài liệu MongoDB của hệ thống JobBridge AI}
     \label{fig:erd-database}
 \end{figure}
 
-\subsubsection{Mô tả các collection}
-\begin{itemize}
-    \item \textbf{users:} Lưu trữ thông tin tài khoản của cả ứng viên, nhà tuyển dụng và quản trị viên. Bao gồm các trường \texttt{avatar\_url}, \texttt{cv\_url} và \texttt{cv\_text} (nội dung văn bản đã trích xuất từ CV PDF, dùng làm cache cho AI).
-    \item \textbf{companies:} Lưu trữ thông tin chi tiết về các công ty tuyển dụng. Mỗi công ty liên kết với một người dùng có vai trò \texttt{recruiter} qua trường \texttt{owner\_id}. Trường \texttt{status} ghi nhận trạng thái duyệt (\texttt{pending}/\texttt{approved}/\texttt{rejected}).
-    \item \textbf{jobs:} Chứa thông tin các tin tuyển dụng, bao gồm tiêu đề, mô tả, yêu cầu, quyền lợi, mức lương, trạng thái (\texttt{open}/\texttt{closed}) và liên kết đến người đăng qua \texttt{owner\_id}.
-    \item \textbf{applications:} Collection trung gian ghi lại lịch sử ứng tuyển. Liên kết \texttt{job\_id} và \texttt{user\_id}, lưu trạng thái xét duyệt, điểm AI (\texttt{manual\_score}) và ghi chú của nhà tuyển dụng.
-\end{itemize}
-
-\subsection{Thiết kế giao diện (UI/UX)}
-\label{ssec:thiet-ke-giao-dien}
-Bản phác thảo giao diện người dùng (Wireframe) được thiết kế theo hướng tập trung tối giản bố cục và luồng trải nghiệm người dùng trước khi tiến hành lập trình. Dưới đây là thiết kế chi tiết cho một số màn hình chức năng chính dưới dạng wireframe.
-
-\subsubsection{Xác thực người dùng}
-Hệ thống cung cấp bản phác thảo thiết kế (Wireframe) cho màn hình đăng ký và đăng nhập của người dùng.
-\begin{figure}[H]
+\begin{table}[H]
     \centering
-    \begin{subfigure}[b]{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{"so-do-chuong-3/ui_wireframe_dang_ky.png"}
-        \caption{Màn hình đăng ký}
-        \label{fig:ui-dang-ky}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{"so-do-chuong-3/ui_wireframe_dang_nhap.png"}
-        \caption{Màn hình đăng nhập}
-        \label{fig:ui-dang-nhap}
-    \end{subfigure}
-    \caption{Bản phác thảo giao diện (Wireframe) các chức năng xác thực.}
-    \label{fig:ui-xac-thuc}
-\end{figure}
+    \renewcommand{\arraystretch}{1.18}
+    \begin{tabular}{|p{0.2\textwidth}|p{0.68\textwidth}|}
+        \hline
+        \textbf{Collection} & \textbf{Vai trò và trường dữ liệu quan trọng} \\
+        \hline
+        users & Lưu tài khoản, email, mật khẩu đã băm, vai trò, trạng thái khóa, thông tin hồ sơ cá nhân, đường dẫn avatar, đường dẫn CV và nội dung CV đã trích xuất phục vụ tìm kiếm, ứng tuyển và chức năng AI. \\
+        \hline
+        companies & Lưu hồ sơ công ty, mã số thuế, lĩnh vực, quy mô, địa điểm, mô tả, trạng thái duyệt, trạng thái khóa và mã định danh logic của người tạo. \\
+        \hline
+        jobs & Lưu tin tuyển dụng, mô tả công việc, yêu cầu, mức lương, địa điểm, trạng thái mở hoặc đóng, mã định danh công ty và mã định danh logic của nhà tuyển dụng sở hữu tin. \\
+        \hline
+        applications & Lưu hồ sơ ứng tuyển theo từng tin tuyển dụng, bao gồm mã định danh logic của ứng viên, mã định danh logic của tin tuyển dụng, đường dẫn CV, trạng thái xử lý, ghi chú và điểm đánh giá do nhà tuyển dụng cập nhật; điểm này có thể được nhập thủ công hoặc tham khảo từ kết quả đánh giá CV bằng AI. \\
+        \hline
+    \end{tabular}
+    \caption{Mô tả các collection chính trong hệ thống}
+    \label{tab:collections}
+\end{table}
 
-\subsubsection{Chức năng cho Ứng viên}
-\begin{itemize}
-    \item \textbf{Tìm kiếm và xem việc làm:} Bản phác thảo giao diện hiển thị danh sách các công việc, đi kèm thanh tìm kiếm, bộ lọc chi tiết ở cột trái và danh sách thẻ việc làm ở giữa.
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=0.8\textwidth]{"so-do-chuong-3/ui_wireframe_danh_sach_viec_lam.png"}
-        \caption{Bản phác thảo giao diện (Wireframe) trang danh sách việc làm.}
-        \label{fig:ui-danh-sach-viec-lam}
-    \end{figure}
+\section{Thiết kế giao diện}
+\label{sec:thiet-ke-giao-dien}
 
-    \item \textbf{Tư vấn phỏng vấn với AI (AI Coach):} Bản phác thảo giao diện phỏng vấn giả lập, khung chat hiển thị tin nhắn phản hồi của AI ở cột trái và người dùng ở cột phải.
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=0.8\textwidth]{"so-do-chuong-3/ui_wireframe_ai_coach.png"}
-        \caption{Bản phác thảo giao diện (Wireframe) chức năng phỏng vấn thử với AI Coach.}
-        \label{fig:ui-phong-van-ai}
-    \end{figure}
-\end{itemize}
+Thiết kế giao diện của hệ thống được tổ chức theo vai trò người dùng nhằm giảm độ phức tạp trong điều hướng. Người dùng chưa đăng nhập tiếp cận các trang công khai như trang chủ, danh sách việc làm, danh sách công ty, đăng ký và đăng nhập.
 
-\subsubsection{Chức năng cho Nhà tuyển dụng}
-\begin{itemize}
-    \item \textbf{Quản lý tin tuyển dụng:} Bản phác thảo giao diện hiển thị bảng danh sách các tin tuyển dụng đang hoạt động và nút đăng tin mới.
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=0.8\textwidth]{"so-do-chuong-3/ui_wireframe_quan_ly_tin_tuyen_dung.png"}
-        \caption{Bản phác thảo giao diện (Wireframe) trang quản lý tin tuyển dụng.}
-        \label{fig:ui-dang-tin}
-    \end{figure}
+Sau khi đăng nhập, ứng viên được điều hướng đến các chức năng hồ sơ, ứng tuyển và AI Coach; nhà tuyển dụng được điều hướng đến khu vực quản lý công ty, tin tuyển dụng và ứng viên; quản trị viên được điều hướng đến dashboard và các trang quản trị hệ thống.
 
-    \item \textbf{Quản lý ứng viên và phân tích CV:} Bản phác thảo giao diện hiển thị CV ứng viên ở cột trái và khung phân tích AI (đánh giá mức độ phù hợp, điểm số và nhận xét) ở cột phải.
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=1\textwidth]{"so-do-chuong-3/ui_wireframe_ai_danh_gia_cv.png"}
-        \caption{Bản phác thảo giao diện (Wireframe) quản lý ứng viên tích hợp AI chấm điểm CV.}
-        \label{fig:ui-quan-ly-ung-vien}
-    \end{figure}
-\end{itemize}
+Các wireframe trong Hình \ref{fig:wireframe-dang-nhap} đến Hình \ref{fig:wireframe-admin-dashboard} minh họa cách chuyển yêu cầu nghiệp vụ thành bố cục giao diện. Nhóm màn hình xác thực tập trung vào đăng nhập và đăng ký. Nhóm màn hình ứng viên tập trung vào tìm kiếm việc làm, xem chi tiết job và sử dụng AI Coach sau khi có ngữ cảnh ứng tuyển. Nhóm màn hình nhà tuyển dụng ưu tiên quản lý tin tuyển dụng, theo dõi ứng viên và đánh giá CV bằng AI. Màn hình quản trị tập trung vào số liệu tổng quan và các thao tác kiểm soát hệ thống.
 
-\subsubsection{Chức năng cho Quản trị viên}
-\begin{itemize}
-    \item \textbf{Dashboard quản trị:} Bản phác thảo giao diện dashboard hiển thị tổng quan số lượng người dùng, công ty và các chỉ số vận hành hệ thống cùng bảng chờ phê duyệt doanh nghiệp.
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=0.9\textwidth]{"so-do-chuong-3/ui_wireframe_admin_dashboard.png"}
-        \caption{Bản phác thảo giao diện (Wireframe) dashboard dành cho quản trị viên (Admin).}
-        \label{fig:ui-admin-dashboard}
-    \end{figure}
-\end{itemize}
+\newcommand{\wireframeImage}[1]{%
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{#1}%
+    }%
+}
 
-\subsection{Thiết kế triển khai và DevOps}
-Phần này trình bày thiết kế triển khai hệ thống theo hướng DevOps, tập trung vào cách đóng gói, triển khai và tự động hóa quá trình phát hành. Mục tiêu là đảm bảo hệ thống có thể triển khai nhanh, nhất quán và dễ mở rộng.
-
-\subsubsection{Đóng gói dịch vụ bằng Docker}
-Mỗi microservice (Auth, Jobs, AI, Gateway) và Frontend được đóng gói thành một Docker image riêng. Thiết kế này đảm bảo tính nhất quán môi trường và cho phép triển khai độc lập từng thành phần. Các image được chuẩn hóa theo cấu trúc dự án để phục vụ build tự động trong pipeline.
-
-\subsubsection{Triển khai trên Kubernetes (AKS)}
-Hệ thống được triển khai trên Azure Kubernetes Service (AKS). Mỗi service chạy trong một Deployment riêng, cấu hình Service nội bộ để giao tiếp và Ingress cho truy cập từ bên ngoài. Thiết kế này hỗ trợ scale-out theo từng service, giúp tối ưu tài nguyên và khả năng chịu tải.
-
-\subsubsection{Quy trình CI/CD theo mô hình GitOps}
-Quy trình CI/CD được thiết kế theo GitOps: mã nguồn khi được đẩy lên sẽ kích hoạt GitHub Actions để build, test và đẩy image lên Azure Container Registry (ACR). Sau đó, Argo CD đồng bộ cấu hình triển khai từ repository GitOps, tự động cập nhật các phiên bản mới lên cluster. Cách tiếp cận này giúp kiểm soát tốt lịch sử triển khai và dễ rollback khi cần.
+\begin{figure}[H]\centering\wireframeImage{Chuong/so-do-chuong-3/wireframe/ui_wireframe_dang_nhap.png}\caption{Wireframe màn hình đăng nhập}\label{fig:wireframe-dang-nhap}\end{figure}
+\begin{figure}[H]\centering\wireframeImage{Chuong/so-do-chuong-3/wireframe/ui_wireframe_dang_ky.png}\caption{Wireframe màn hình đăng ký}\label{fig:wireframe-dang-ky}\end{figure}
+\begin{figure}[H]\centering\wireframeImage{Chuong/so-do-chuong-3/wireframe/ui_wireframe_danh_sach_viec_lam.png}\caption{Wireframe màn hình danh sách việc làm}\label{fig:wireframe-danh-sach-viec-lam}\end{figure}
+\begin{figure}[H]\centering\wireframeImage{Chuong/so-do-chuong-3/wireframe/ui_wireframe_ai_coach.png}\caption{Wireframe màn hình AI Interview Coach}\label{fig:wireframe-ai-coach}\end{figure}
+\begin{figure}[H]\centering\wireframeImage{Chuong/so-do-chuong-3/wireframe/ui_wireframe_quan_ly_tin_tuyen_dung.png}\caption{Wireframe màn hình quản lý tin tuyển dụng}\label{fig:wireframe-quan-ly-tin-tuyen-dung}\end{figure}
+\begin{figure}[H]\centering\wireframeImage{Chuong/so-do-chuong-3/wireframe/ui_wireframe_ai_danh_gia_cv.png}\caption{Wireframe màn hình AI đánh giá CV ứng viên}\label{fig:wireframe-ai-danh-gia-cv}\end{figure}
+\begin{figure}[H]\centering\wireframeImage{Chuong/so-do-chuong-3/wireframe/ui_wireframe_admin_dashboard.png}\caption{Wireframe màn hình dashboard quản trị}\label{fig:wireframe-admin-dashboard}\end{figure}
 
 \section{Kết chương}
-Trong chương này, hệ thống được phân tích từ yêu cầu đến thiết kế, thể hiện rõ cách các chức năng cốt lõi vận hành và cách dữ liệu, giao diện, cũng như triển khai được tổ chức. Các sơ đồ Use Case và CSDL giúp làm rõ luồng nghiệp vụ, còn phần UI/UX và DevOps cho thấy hướng hiện thực hóa cụ thể. Đây là nền tảng để bước sang Chương 4, nơi các thành phần sẽ được triển khai và đánh giá trên môi trường thực tế.
+
+Chương này đã phân tích và thiết kế hệ thống JobBridge AI theo hướng bám sát nghiệp vụ tuyển dụng và các chức năng đã triển khai. Các yêu cầu được tổ chức theo tác nhân, use case tổng quát và use case chi tiết làm rõ phạm vi tương tác; các bảng đặc tả mô tả đầy đủ 15 use case; sequence diagram làm rõ trình tự xử lý nghiệp vụ; phần dữ liệu và giao diện mô tả cách hệ thống lưu trữ, hiển thị và hỗ trợ thao tác của người dùng. Đây là cơ sở để Chương 4 trình bày kết quả hiện thực hóa, thử nghiệm và đánh giá hệ thống.
 
 \end{document}

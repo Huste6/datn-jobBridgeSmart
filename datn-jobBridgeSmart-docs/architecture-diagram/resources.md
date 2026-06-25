@@ -128,28 +128,28 @@ Contains: Tất cả resources bên dưới
 
 ```
 ┌─────────────────────────────────────────┐
-│  Azure Application Gateway              │
-│  SKU: WAF_v2                            │
-│  Features:                              │
-│  • HTTPS Listener (:443)                │
-│  • HTTP → HTTPS redirect                │
-│  • OWASP 3.2 WAF rules                  │
-│  • Backend pool → AKS Ingress IP        │
+│  Azure Load Balancer (AKS Provisioned)  │
+│  SKU: Standard                          │
+│  Purpose: Exposes NGINX Ingress         │
+│  Controller to public internet          │
+│  with a Public IP address.              │
 └─────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────┐
-│  Azure NAT Gateway                      │
-│  Attached to: Public Subnet             │
-│  Purpose: Outbound internet for         │
-│  private subnet pods (OpenAI,           │
-│  Cloudinary API calls)                  │
+│  Default Azure Outbound Routing         │
+│  Purpose: Standard outbound internet    │
+│  access for AKS nodes (handling         │
+│  OpenAI & Cloudinary API calls)         │
+│  via load balancer outbound rules       │
+│  without requiring a paid NAT Gateway.  │
 └─────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────┐
-│  Azure Bastion                          │
-│  Purpose: Secure SSH/RDP access         │
-│  to AKS nodes without exposing          │
-│  port 22 to internet                    │
+│  Secure Kubernetes API Server Access    │
+│  Purpose: Cluster management via        │
+│  kubectl authenticated through Azure    │
+│  CLI/AD, removing the need for a        │
+│  costly Azure Bastion host.             │
 └─────────────────────────────────────────┘
 ```
 
@@ -280,9 +280,9 @@ Contains: Tất cả resources bên dưới
 | Container Registry | ACR | acrjobbridge | Basic |
 | Secrets | Key Vault | kv-jobbridge | Standard |
 | Terraform State | Blob Storage | satfjobbridge | LRS |
-| Load Balancer | Application Gateway | agw-jobbridge | WAF_v2 |
-| Outbound NAT | NAT Gateway | nat-jobbridge | Standard |
-| Remote Access | Azure Bastion | bastion-jobbridge | Basic |
+| Load Balancer | Azure Load Balancer | (AKS standard LB) | Standard |
+| Outbound IP/NAT | Outbound Rules | (via standard LB) | Built-in |
+| Remote Access | Azure API Server | (authenticated connection) | Secured via Azure CLI |
 | Monitoring | Azure Monitor | (built-in AKS) | Free tier |
 | Monitoring | Prometheus+Grafana | in-cluster | Open source |
 | DNS | DuckDNS | jobbridge.duckdns.org | Free |

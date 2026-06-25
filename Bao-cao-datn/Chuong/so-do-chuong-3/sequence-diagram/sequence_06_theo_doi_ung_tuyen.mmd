@@ -1,0 +1,14 @@
+sequenceDiagram
+    title UC06 - Theo dõi ứng tuyển
+    participant U as Ứng viên
+    participant FE as Frontend
+    participant GW as API Gateway
+    participant JOBS as Jobs Service
+    participant DB as MongoDB
+    U->>FE: Mở trang hồ sơ đã ứng tuyển
+    FE->>GW: GET /api/applications/me
+    GW->>JOBS: Xác thực role seeker
+    JOBS->>DB: Lấy applications theo user_id
+    DB-->>JOBS: Trả application và thông tin job
+    JOBS-->>FE: Trả danh sách trạng thái
+    FE-->>U: Hiển thị lịch sử ứng tuyển

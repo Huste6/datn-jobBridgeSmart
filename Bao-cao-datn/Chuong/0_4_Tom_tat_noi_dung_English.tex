@@ -1,13 +1,17 @@
 \documentclass[../DoAn.tex]{subfiles}
 \begin{document}
 
-\begin{center}
-    \Large{\textbf{ABSTRACT}}\\
-\end{center}
-\vspace{1cm}
-Mục này khuyến khích sinh viên viết lại mục “Tóm tắt” đồ án tốt nghiệp ở trang trước bằng tiếng Anh. Phần này phải có đầy đủ các nội dung như trong phần tóm tắt bằng tiếng Việt.
-Sinh viên không nhất thiết phải trình bày mục này. 
+\chapter*{ABSTRACT}
+\addcontentsline{toc}{chapter}{Abstract}
 
-Nhưng nếu lựa chọn trình bày, sinh viên cần đảm bảo câu từ và ngữ pháp chuẩn tắc, nếu không sẽ có tác dụng ngược, gây phản cảm.
+In the current labor market, traditional recruitment processes still reveal several limitations. Human resource departments often spend considerable time manually screening a large number of resumes, while candidates lack practical tools to prepare for interviews based on real job descriptions. At the same time, building a modern recruitment platform requires a system that is scalable, maintainable, secure, and capable of being deployed automatically in a cloud-native environment.
+
+To address these challenges, this thesis designs and implements JobBridge AI, an intelligent recruitment platform based on a microservices architecture. The system provides core recruitment features such as account management, candidate profile management, job search, company profile browsing, job application submission, recruitment post management, candidate tracking, and administrative control. In addition, the system integrates artificial intelligence features to support candidates through interview coaching and interview quiz generation, while also assisting recruiters in evaluating the relevance between a candidate's CV and a specific job description.
+
+A key contribution of the thesis is the combination of AI-based recruitment support with a cloud-native DevOps deployment model. The backend services are containerized and organized around separated domains including authentication, job management, applications, and AI processing. The system is deployed on Azure Kubernetes Service, while CI/CD and GitOps practices are used to automate the build, delivery, and synchronization process. Supporting technologies such as Azure Container Registry, Azure Key Vault, Kubernetes Ingress, Prometheus, Grafana, and Terraform help improve deployment reliability, observability, and operational maintainability.
+
+The result of the thesis is a working JobBridge AI platform that demonstrates the feasibility of applying AI and microservices to improve recruitment workflows. The system supports both candidates and recruiters, reduces manual effort in candidate screening, and provides a technical foundation for future extension in terms of recommendation, ranking, and large-scale enterprise deployment.
+
+\textbf{Keywords:} Artificial Intelligence, Recruitment Platform, Microservices, DevOps, CI/CD, GitOps, Kubernetes, Azure Kubernetes Service, Cloud-Native System.
 
 \end{document}

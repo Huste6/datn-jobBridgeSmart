@@ -1,410 +1,300 @@
 \documentclass[../DoAn.tex]{subfiles}
 \begin{document}
 
-\section{Tổng quan}
-Chương 3 đã trình bày chi tiết về phân tích yêu cầu, thiết kế Use Case, cơ sở dữ liệu và giao diện của hệ thống. Dựa trên bản thiết kế đó, chương này trình bày toàn bộ quá trình xây dựng, hiện thực hóa và kiểm thử hệ thống ``JobBridge AI''. Nội dung bao gồm kiến trúc phần mềm được áp dụng, các công nghệ và công cụ sử dụng, kết quả xây dựng, minh họa các chức năng chính, kịch bản kiểm thử, và quy trình triển khai lên môi trường thực tế.
+\section{Tổng quan triển khai và đánh giá}
 
-\section{Thiết kế kiến trúc}
-\label{sec:thiet-ke-kien-truc}
+Chương này trình bày quá trình triển khai hệ thống JobBridge AI và đánh giá thực nghiệm trên môi trường đã triển khai. Khác với Chương 3, nơi tập trung vào phân tích yêu cầu và thiết kế nghiệp vụ, chương này tập trung vào kết quả hiện thực hóa hệ thống, cách các chức năng được cung cấp cho người dùng, quy trình phát hành tự động và khả năng vận hành dưới tải.
 
-\subsection{Lựa chọn kiến trúc phần mềm}
-\label{ssec:lua-chon-kien-truc}
-Hệ thống ``JobBridge AI'' được xây dựng theo kiến trúc \textbf{Microservices} kết hợp với mô hình \textbf{Clean Architecture} (Handler -- Repository -- Model) bên trong mỗi service. Đây là sự lựa chọn phù hợp vì:
+Mục tiêu đánh giá thực nghiệm gồm ba nội dung chính. Thứ nhất, kiểm chứng hệ thống có thể được phát hành tự động từ mã nguồn đến môi trường production thông qua CI/CD và Argo CD. Thứ hai, kiểm chứng các chức năng người dùng chính đã được triển khai thành giao diện hoàn chỉnh. Thứ ba, đánh giá khả năng vận hành của hệ thống khi tải tăng, đặc biệt là khả năng giám sát và tự động mở rộng số lượng Pod thông qua Horizontal Pod Autoscaler.
 
-\begin{itemize}
-    \item \textbf{Tách biệt trách nhiệm:} Mỗi service chỉ đảm nhận một miền nghiệp vụ duy nhất (xác thực, việc làm, AI), giúp mã nguồn dễ hiểu và bảo trì.
-    \item \textbf{Triển khai độc lập:} Mỗi service được đóng gói thành Docker image riêng, có thể cập nhật mà không ảnh hưởng service khác.
-    \item \textbf{Mở rộng linh hoạt:} Khi tải tăng, chỉ cần scale riêng service bị quá tải (ví dụ AI Service) mà không cần scale toàn hệ thống.
-\end{itemize}
+\section{Kết quả hiện thực hóa hệ thống}
+\label{sec:hien-thuc-hoa-he-thong}
 
-Hệ thống bao gồm 4 service backend viết bằng Go, một ứng dụng Frontend React, và một cơ sở dữ liệu MongoDB dùng chung.
+Hệ thống được hiện thực theo mô hình web application. Phía giao diện sử dụng React và TypeScript; phía backend gồm các service viết bằng Go, kết hợp với MongoDB, Cloudinary và LLM API.
 
-\begin{itemize}
-    \item \textbf{API Gateway (Port 8080):} Điểm vào duy nhất, chịu trách nhiệm xác thực JWT và định tuyến request đến đúng service.
-    \item \textbf{Auth Service (Port 8081):} Quản lý người dùng, xác thực, phân quyền, upload avatar/CV lên Cloudinary, trích xuất text từ PDF.
-    \item \textbf{Jobs Service (Port 8082):} CRUD tin tuyển dụng, tìm kiếm với bộ lọc đa tiêu chí, quản lý hồ sơ ứng tuyển.
-    \item \textbf{AI Service (Port 8085):} Tích hợp OpenAI API để cung cấp chức năng Interview Coach, Interview Quiz và đánh giá CV.
-\end{itemize}
+Các thành phần này được đóng gói bằng container, triển khai lên Azure Kubernetes Service và được quản lý bằng Helm chart.
 
-\subsection{Thiết kế tổng quan (UML Package Diagram)}
-\label{ssec:thiet-ke-tong-quan}
-Hình \ref{fig:package-diagram} thể hiện sơ đồ gói UML mô tả sự phân tầng và phụ thuộc giữa các module trong hệ thống. Các gói được tổ chức theo nguyên tắc một chiều: tầng trên phụ thuộc tầng dưới, không có phụ thuộc ngược.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.85\textwidth]{so-do-chuong-4/package_diagram.png}
-    \caption{Sơ đồ gói UML (Package Diagram) của hệ thống JobBridge AI.}
-    \label{fig:package-diagram}
-\end{figure}
-
-Tầng \texttt{Frontend} (React SPA) phụ thuộc vào \texttt{API Gateway}. Gateway định tuyến đến ba service: \texttt{Auth}, \texttt{Jobs}, \texttt{AI}. Các service này phụ thuộc vào tầng \texttt{Data} (MongoDB). Riêng AI Service tương tác thêm với \texttt{OpenAI API} bên ngoài.
-
-\subsection{Thiết kế chi tiết gói (UML Class Diagram)}
-\label{ssec:thiet-ke-class}
-Hình \ref{fig:class-diagram} mô tả thiết kế lớp chi tiết cho các package chính. Mỗi service áp dụng mô hình Handler -- Repository -- Model:
-
-\begin{itemize}
-    \item \textbf{Handler:} Tiếp nhận HTTP request, validate dữ liệu đầu vào, gọi Repository, trả về response.
-    \item \textbf{Repository:} Thực hiện các thao tác với MongoDB (CRUD), trừu tượng hóa tầng dữ liệu.
-    \item \textbf{Model:} Định nghĩa cấu trúc dữ liệu (struct Go) ánh xạ với document MongoDB.
-\end{itemize}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.95\textwidth]{so-do-chuong-4/class_diagram.png}
-    \caption{Sơ đồ lớp UML (Class Diagram) của các package Auth, Jobs và AI.}
-    \label{fig:class-diagram}
-\end{figure}
-
-Các mối quan hệ chính: \texttt{AIHandler} phụ thuộc \texttt{ApplicationRepository}, \texttt{UserRepository} và \texttt{JobRepository} để thu thập đầy đủ ngữ cảnh trước khi gọi OpenAI. \texttt{AuthHandler} sở hữu cả \texttt{UserRepository} và \texttt{CompanyRepository}.
-
-\section{Xây dựng ứng dụng}
-\label{sec:xay-dung-ung-dung}
-
-\subsection{Thư viện và công cụ sử dụng}
-\label{ssec:thu-vien-cong-cu}
-Bảng \ref{tab:tools} liệt kê các công cụ, ngôn ngữ và thư viện chính được sử dụng trong quá trình phát triển hệ thống.
+Bảng \ref{tab:implemented-components} tổng hợp các thành phần chính đã được hiện thực trong phạm vi đồ án.
 
 \begin{table}[H]
 \centering
-\caption{Danh sách công cụ và thư viện sử dụng.}
-\label{tab:tools}
-\begin{tabular}{|l|l|l|}
+\caption{Thành phần hệ thống đã hiện thực}
+\label{tab:implemented-components}
+\begin{tabular}{|p{0.28\textwidth}|p{0.58\textwidth}|}
 \hline
-\textbf{Mục đích} & \textbf{Công cụ / Thư viện} & \textbf{Phiên bản} \\ \hline
-Ngôn ngữ Backend & Go (Golang) & 1.24.1 \\ \hline
-Web Framework & Gin Gonic & v1.10.0 \\ \hline
-Database Driver & MongoDB Driver Go & v2.5.0 \\ \hline
-Xác thực & golang-jwt & v5.3.1 \\ \hline
-Mã hóa mật khẩu & bcrypt (x/crypto) & v0.48.0 \\ \hline
-Trích xuất PDF & ledongthuc/pdf & latest \\ \hline
-Upload file & Cloudinary SDK & -- \\ \hline
-Ngôn ngữ Frontend & TypeScript & $\sim$5.9.3 \\ \hline
-UI Framework & React & v19.2.4 \\ \hline
-Build Tool & Vite & v8.0.0 \\ \hline
-CSS Framework & Tailwind CSS & v4.2.1 \\ \hline
-Icon Library & lucide-react & v0.577.0 \\ \hline
-Unit Test FE & Vitest & v3.2.4 \\ \hline
-Container & Docker (multi-stage) & 27.x \\ \hline
-Orchestration & Kubernetes (AKS) & 1.29.x \\ \hline
-Package Manager & Helm & v3.x \\ \hline
-GitOps & ArgoCD & v2.x \\ \hline
-CI Pipeline & GitHub Actions & -- \\ \hline
-IaC & Terraform & v1.7.x \\ \hline
-Giám sát & Prometheus + Grafana & -- \\ \hline
-IDE & Visual Studio Code & latest \\ \hline
+\textbf{Nhóm thành phần} & \textbf{Kết quả hiện thực} \\ \hline
+Frontend & Giao diện cho khách truy cập, ứng viên, nhà tuyển dụng và quản trị viên. \\ \hline
+Backend service & Gateway, Auth Service, Jobs Service và AI Service. \\ \hline
+Cơ sở dữ liệu & MongoDB với các collection chính phục vụ người dùng, công ty, tin tuyển dụng và hồ sơ ứng tuyển. \\ \hline
+Lưu trữ tệp & Cloudinary lưu avatar và CV; MongoDB lưu đường dẫn tệp và nội dung CV đã trích xuất. \\ \hline
+AI & AI Interview Coach, AI Interview Quiz và đánh giá CV theo JD. \\ \hline
+Triển khai & Docker image, Helm chart, AKS, ACR, Argo CD, Prometheus và Grafana. \\ \hline
 \end{tabular}
 \end{table}
 
-\subsection{Kết quả đạt được}
-\label{ssec:ket-qua-dat-duoc}
-Sau quá trình xây dựng, hệ thống ``JobBridge AI'' đã được hoàn thiện với các thành phần được thống kê trong Bảng \ref{tab:stats}.
+Sản phẩm được triển khai trên tên miền công khai của hệ thống. Các chức năng đã triển khai bám sát 15 use case ở Chương 3, trong đó các màn hình chính được trình bày ở phần tiếp theo.
 
-\begin{table}[H]
-\centering
-\caption{Thống kê mã nguồn và thành phần hệ thống.}
-\label{tab:stats}
-\begin{tabular}{|l|l|}
-\hline
-\textbf{Chỉ số} & \textbf{Giá trị} \\ \hline
-Số microservice backend & 4 (Gateway, Auth, Jobs, AI) \\ \hline
-Số collection MongoDB & 4 (users, companies, jobs, applications) \\ \hline
-Số API endpoint & $\sim$30 endpoint \\ \hline
-Số trang giao diện & $\sim$20 trang (Admin, HR, Seeker, Public) \\ \hline
-Số Dockerfile & 7 file \\ \hline
-Số Terraform layer & 3 (Foundation, Cluster, Security) \\ \hline
-Số Helm template & 8 file \\ \hline
-Số GitHub Actions workflow & 4 workflow \\ \hline
-\end{tabular}
-\end{table}
+\section{Giao diện chức năng đã triển khai}
+\label{sec:giao-dien-da-trien-khai}
 
-Sản phẩm đầu ra gồm hai thành phần chính: (1) Bộ mã nguồn backend Go và frontend TypeScript/React được tổ chức theo monorepo; (2) Bộ cấu hình hạ tầng triển khai trên Azure (Terraform + Helm + ArgoCD). Toàn bộ hệ thống được vận hành tại địa chỉ \texttt{jobbridge.duckdns.org}.
+\subsection{Giao diện xác thực người dùng}
 
-\subsection{Minh họa các chức năng chính}
-\label{ssec:minh-hoa-chuc-nang}
+Hình \ref{fig:ui-auth} minh họa hai màn hình xác thực cơ bản của hệ thống. Ở màn hình đăng ký, phần bên trái là biểu mẫu tạo tài khoản gồm họ tên, email, mật khẩu, điều khoản sử dụng và nút đăng ký; phần bên phải là khối nhận diện thương hiệu JobBridge AI, mô tả giá trị của hệ thống và thông điệp hỗ trợ người dùng khởi đầu sự nghiệp.
 
-\subsubsection{Luồng xác thực và khởi tạo tài khoản}
-Người dùng mới thực hiện đăng ký bằng email, sau đó được chuyển hướng đến trang onboarding để chọn vai trò (ứng viên hoặc nhà tuyển dụng) và điền thông tin cơ bản. Sau bước này, hệ thống cấp phát JWT và cho phép truy cập các chức năng tương ứng với vai trò đã chọn.
+Ở màn hình đăng nhập, bố cục được đảo chiều để tạo sự khác biệt thị giác. Bên trái là phần giới thiệu thương hiệu và lời chào người dùng quay lại hệ thống; bên phải là biểu mẫu đăng nhập gồm email, mật khẩu, liên kết quên mật khẩu, nút đăng nhập và các lựa chọn đăng nhập bằng tài khoản mạng xã hội. Cách bố trí này giúp người dùng nhận diện rõ hành động chính trong từng màn hình.
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}[b]{0.48\textwidth}
+    \makebox[\textwidth][c]{%
+    \begin{subfigure}[b]{0.55\textwidth}
         \centering
         \includegraphics[width=\textwidth]{so-do-chuong-4/screens/màn hình đăng ký.png}
-        \caption{Màn hình đăng ký tài khoản}
+        \caption{Màn hình đăng ký}
     \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.48\textwidth}
+    \hspace{0.03\textwidth}
+    \begin{subfigure}[b]{0.55\textwidth}
         \centering
         \includegraphics[width=\textwidth]{so-do-chuong-4/screens/man_hinh_dang_nhap.png}
         \caption{Màn hình đăng nhập}
-    \end{subfigure}
-    \caption{Giao diện xác thực người dùng.}
+    \end{subfigure}%
+    }
+    \caption{Giao diện xác thực người dùng}
     \label{fig:ui-auth}
 \end{figure}
 
-\subsubsection{Tìm kiếm và ứng tuyển việc làm}
-Ứng viên có thể tìm kiếm việc làm theo từ khóa, lọc theo địa điểm, mức lương, loại hình công việc và cấp độ kinh nghiệm. Giao diện hiển thị danh sách kết quả với thông tin tóm tắt; nhấp vào từng thẻ sẽ hiển thị chi tiết mô tả công việc, yêu cầu và quyền lợi. Ứng viên nộp hồ sơ chỉ với một thao tác, hệ thống tự động liên kết CV đã upload trên hồ sơ cá nhân.
+\subsection{Giao diện tìm kiếm việc làm}
+
+Hình \ref{fig:ui-job-list} là giao diện danh sách việc làm dành cho ứng viên. Phía trên cùng là thanh điều hướng và khu vực tìm kiếm nhanh theo vị trí, kỹ năng hoặc công ty. Bên trái màn hình là bộ lọc theo mức lương và hình thức làm việc, giúp ứng viên thu hẹp danh sách kết quả mà không cần rời khỏi trang.
+
+Khu vực bên phải là danh sách các tin tuyển dụng. Mỗi thẻ việc làm hiển thị tên vị trí, công ty, địa điểm, mức lương, hình thức làm việc, nhóm kỹ năng và ngày đăng. Cách trình bày dạng thẻ giúp người dùng so sánh nhanh nhiều vị trí trước khi mở chi tiết hoặc ứng tuyển.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{so-do-chuong-4/screens/màn hình danh sách việc làm.png}
-    \caption{Giao diện trang tìm kiếm và danh sách việc làm.}
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{so-do-chuong-4/screens/màn hình danh sách việc làm.png}%
+    }
+    \caption{Giao diện tìm kiếm và danh sách việc làm}
     \label{fig:ui-job-list}
 \end{figure}
 
-\subsubsection{AI Interview Coach}
-Đây là tính năng nổi bật dành cho ứng viên. Sau khi đã ứng tuyển một vị trí, ứng viên có thể chọn job đó trong giao diện AI Coach và bắt đầu phiên luyện tập phỏng vấn. Hệ thống AI đóng vai một nhà tuyển dụng senior, đặt câu hỏi dựa trên JD và CV của ứng viên, đánh giá câu trả lời và đưa ra phản hồi chi tiết. Toàn bộ lịch sử hội thoại được gửi kèm trong mỗi request để duy trì ngữ cảnh liên tục.
+\subsection{Giao diện AI Interview Coach}
+
+Hình \ref{fig:ui-ai-coach} thể hiện màn hình luyện phỏng vấn bằng AI dành cho ứng viên. Bên trái là cột ngữ cảnh, gồm danh sách job đã ứng tuyển, thông tin CV hiện tại và khu vực tạo quiz theo JD. Nhờ đó, ứng viên có thể kiểm soát dữ liệu đầu vào mà AI sử dụng trước khi bắt đầu luyện tập.
+
+Bên phải là vùng hội thoại chính với AI Interview Coach. Khu vực này hiển thị các phản hồi của AI, ô nhập câu hỏi hoặc câu trả lời của ứng viên và nút gửi. Việc tách cột ngữ cảnh và cột hội thoại giúp người dùng vừa theo dõi vị trí đang luyện tập, vừa tập trung vào nội dung phỏng vấn.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{so-do-chuong-4/screens/màn hình ai-coach.png}
-    \caption{Giao diện tính năng AI Interview Coach.}
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{so-do-chuong-4/screens/màn hình ai-coach.png}%
+    }
+    \caption{Giao diện AI Interview Coach}
     \label{fig:ui-ai-coach}
 \end{figure}
 
-\subsubsection{Quản lý tuyển dụng và đánh giá CV bằng AI}
-Nhà tuyển dụng có thể tạo, chỉnh sửa và đóng/mở các tin tuyển dụng. Khi xem danh sách ứng viên của một vị trí, nhà tuyển dụng nhấn ``Phân tích CV'' để AI tự động đọc CV của ứng viên, đối chiếu với JD và trả về điểm phù hợp (0--100) cùng nhận xét ngắn gọn. Tính năng này giúp tiết kiệm đáng kể thời gian sàng lọc hồ sơ thủ công.
+\subsection{Giao diện quản lý tin tuyển dụng}
+
+Hình \ref{fig:ui-hr-manage-jobs} minh họa màn hình quản lý tin tuyển dụng của nhà tuyển dụng. Bên trái là thanh điều hướng theo chức năng HR, giúp chuyển giữa các nhóm thao tác như quản lý công ty, quản lý job, danh sách ứng viên và đánh giá CV. Phần trung tâm là biểu mẫu tạo hoặc cập nhật tin tuyển dụng, gồm tiêu đề job, tên công ty, địa điểm, mức lương, loại hình làm việc, cấp độ kinh nghiệm và trạng thái tin.
+
+Bên phải là danh sách job hiện có của nhà tuyển dụng. Khi chọn một job trong danh sách, thông tin chi tiết được đưa vào biểu mẫu ở giữa để chỉnh sửa. Cách bố trí này giúp nhà tuyển dụng vừa xem được toàn bộ danh sách vị trí đang đăng, vừa cập nhật nhanh từng tin tuyển dụng mà không phải chuyển trang nhiều lần.
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}[b]{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{so-do-chuong-4/screens/quản lý tin tuyển dụng.png}
-        \caption{Quản lý tin tuyển dụng}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{so-do-chuong-4/screens/màn hình AI đánh giá cv ứng viên.png}
-        \caption{AI đánh giá CV ứng viên}
-    \end{subfigure}
-    \caption{Giao diện chức năng dành cho Nhà tuyển dụng.}
-    \label{fig:ui-hr}
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{so-do-chuong-4/screens/quản lý tin tuyển dụng.png}%
+    }
+    \caption{Giao diện quản lý tin tuyển dụng của nhà tuyển dụng}
+    \label{fig:ui-hr-manage-jobs}
 \end{figure}
 
-\subsubsection{Dashboard Quản trị viên}
-Quản trị viên theo dõi tổng quan hệ thống qua dashboard hiển thị số lượng người dùng, công ty và tin tuyển dụng. Admin có thể duyệt/từ chối công ty mới đăng ký (thay đổi \texttt{status: pending → approved/rejected}) và khóa/mở tài khoản người dùng vi phạm (\texttt{is\_locked}).
+\subsection{Giao diện AI đánh giá CV}
+
+Hình \ref{fig:ui-hr-ai-evaluate} là màn hình hỗ trợ nhà tuyển dụng đánh giá CV bằng AI. Bên trái hiển thị thông tin ứng viên, vị trí ứng tuyển và trình xem PDF của CV gốc. Nhà tuyển dụng có thể mở CV để kiểm tra nội dung chi tiết trước khi đưa ra quyết định.
+
+Bên phải là kết quả phân tích của AI, gồm điểm tương thích tổng thể, phần nhận xét, nhóm kỹ năng phù hợp, điểm mạnh và các điểm cần cải thiện. Thiết kế này không thay thế quyết định của nhà tuyển dụng, mà đóng vai trò công cụ hỗ trợ sàng lọc ban đầu và giúp việc đọc CV có định hướng hơn.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{so-do-chuong-4/screens/màn hình dashboard dành cho admin.png}
-    \caption{Giao diện Dashboard dành cho Quản trị viên.}
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{so-do-chuong-4/screens/màn hình AI đánh giá cv ứng viên.png}%
+    }
+    \caption{Giao diện AI đánh giá CV ứng viên}
+    \label{fig:ui-hr-ai-evaluate}
+\end{figure}
+
+\subsection{Giao diện dashboard quản trị}
+
+Hình \ref{fig:ui-admin} là dashboard dành cho quản trị viên. Bên trái là thanh điều hướng quản trị, gồm các mục Dashboard, Users và Companies. Phía dưới thanh điều hướng có khu vực System Health để thể hiện trạng thái tổng quan của API chính.
+
+Khu vực bên phải là nội dung dashboard, gồm các thẻ thống kê tổng số người dùng, tổng số công ty và tổng số tin tuyển dụng. Góc phải phía trên hiển thị trạng thái hoạt động của hệ thống và thông tin tài khoản quản trị viên. Giao diện này phục vụ việc quan sát nhanh tình trạng nền tảng và đi đến các màn hình quản trị chi tiết khi cần.
+
+\begin{figure}[H]
+    \centering
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{so-do-chuong-4/screens/màn hình dashboard dành cho admin.png}%
+    }
+    \caption{Giao diện dashboard dành cho quản trị viên}
     \label{fig:ui-admin}
 \end{figure}
 
-\section{Kiểm thử}
-\label{sec:kiem-thu}
-
-\subsection{Phương pháp kiểm thử}
-Hệ thống được kiểm thử theo hai hướng: kiểm thử tự động (unit test) ở cấp độ hàm/module và kiểm thử tích hợp thủ công ở cấp độ API và giao diện.
-
-\subsection{Biểu đồ trình tự các luồng nghiệp vụ chính}
-Hình \ref{fig:sequence-diagram} mô tả luồng truyền thông điệp giữa các thành phần hệ thống cho các use case quan trọng: ứng tuyển việc làm và luyện phỏng vấn với AI.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.95\textwidth]{so-do-chuong-4/sequence_diagram.png}
-    \caption{Biểu đồ trình tự (Sequence Diagram) cho luồng ứng tuyển và AI Interview.}
-    \label{fig:sequence-diagram}
-\end{figure}
-
-\subsection{Các trường hợp kiểm thử}
-
-\subsubsection{Kiểm thử chức năng Đăng ký / Đăng nhập}
-\begin{table}[H]
-\centering
-\caption{Test cases cho chức năng xác thực.}
-\label{tab:tc-auth}
-\begin{tabular}{|c|p{4cm}|p{3.5cm}|p{3.5cm}|}
-\hline
-\textbf{TC} & \textbf{Đầu vào} & \textbf{Kết quả mong đợi} & \textbf{Kết quả thực tế} \\ \hline
-TC01 & Email hợp lệ, mật khẩu $\geq$6 ký tự & Tạo tài khoản, trả JWT & Đạt \\ \hline
-TC02 & Email đã tồn tại & HTTP 409 Conflict & Đạt \\ \hline
-TC03 & Email sai định dạng & HTTP 400 Bad Request & Đạt \\ \hline
-TC04 & Đăng nhập đúng thông tin & Trả JWT hợp lệ & Đạt \\ \hline
-TC05 & Đăng nhập sai mật khẩu & HTTP 401 Unauthorized & Đạt \\ \hline
-TC06 & Tài khoản bị khóa & HTTP 403 Forbidden & Đạt \\ \hline
-\end{tabular}
-\end{table}
-
-\subsubsection{Kiểm thử chức năng Ứng tuyển việc làm}
-\begin{table}[H]
-\centering
-\caption{Test cases cho chức năng ứng tuyển.}
-\label{tab:tc-apply}
-\begin{tabular}{|c|p{4cm}|p{3.5cm}|p{3.5cm}|}
-\hline
-\textbf{TC} & \textbf{Đầu vào} & \textbf{Kết quả mong đợi} & \textbf{Kết quả thực tế} \\ \hline
-TC07 & Seeker có CV, job đang mở & Tạo application thành công & Đạt \\ \hline
-TC08 & Ứng tuyển trùng job & HTTP 409 Conflict & Đạt \\ \hline
-TC09 & Job đã đóng & HTTP 400 Bad Request & Đạt \\ \hline
-TC10 & Recruiter cố ứng tuyển & HTTP 403 Forbidden & Đạt \\ \hline
-\end{tabular}
-\end{table}
-
-\subsubsection{Kiểm thử chức năng AI Interview Coach}
-\begin{table}[H]
-\centering
-\caption{Test cases cho AI Interview Coach.}
-\label{tab:tc-ai}
-\begin{tabular}{|c|p{4cm}|p{3.5cm}|p{3.5cm}|}
-\hline
-\textbf{TC} & \textbf{Đầu vào} & \textbf{Kết quả mong đợi} & \textbf{Kết quả thực tế} \\ \hline
-TC11 & Seeker đã apply, gửi câu hỏi & AI trả lời bằng tiếng Việt & Đạt \\ \hline
-TC12 & Seeker chưa apply job đó & HTTP 403 Forbidden & Đạt \\ \hline
-TC13 & Recruiter gọi endpoint seeker & HTTP 403 Forbidden & Đạt \\ \hline
-TC14 & CV có sẵn trong DB & AI dùng cv\_text, không fetch lại & Đạt \\ \hline
-\end{tabular}
-\end{table}
-
-\subsection{Kết quả tổng hợp kiểm thử}
-Tổng cộng 14 trường hợp kiểm thử đã được thực hiện, tất cả đều đạt kết quả đúng với kỳ vọng. Ngoài ra, 12 unit test tự động được tích hợp trong pipeline CI (Go test) chạy tự động mỗi khi có commit mới, bao gồm kiểm thử các hàm xác thực token, truy vấn repository và xử lý lỗi.
-
-\section{Triển khai và Vận hành}
+\section{Triển khai tự động bằng CI/CD và GitOps}
+\label{sec:trien-khai-cicd}
 \label{sec:trien-khai}
 
-\subsection{Quy trình CI/CD và Vận hành GitOps}
-Hệ thống áp dụng quy trình CI/CD hoàn toàn tự động theo mô hình GitOps, được minh họa tổng quan kiến trúc hạ tầng trong Hình \ref{fig:deployment}.
+Hệ thống được triển khai theo quy trình CI/CD tự động kết hợp GitOps. Khi mã nguồn được đưa lên nhánh chính, GitHub Actions kích hoạt pipeline để kiểm tra mã nguồn, build image cho các service, quét lỗ hổng bảo mật và đẩy image lên Azure Container Registry. Sau đó, pipeline triển khai cập nhật phiên bản image trong cấu hình Helm dùng cho môi trường production.
+
+Argo CD chạy trong cụm AKS theo dõi repository cấu hình triển khai. Khi phát hiện tag image mới, Argo CD tự động đồng bộ trạng thái mong muốn từ Git vào cluster theo cơ chế rolling update.
+
+Trong lần quan sát ở Hình \ref{fig:argocd-live}, giao diện Argo CD ghi nhận ứng dụng ở trạng thái khỏe mạnh, đã đồng bộ và lần đồng bộ gần nhất hoàn tất sau khoảng một phút. Điều này cho thấy quy trình phát hành không cần thao tác thủ công trực tiếp trên cluster.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{so-do-chuong-4/deployment_architecture.png}
-    \caption{Sơ đồ kiến trúc triển khai trên Azure Kubernetes Service.}
-    \label{fig:deployment}
-\end{figure}
-
-Luồng triển khai diễn ra theo các bước:
-\begin{enumerate}
-    \item \textbf{Developer push code} lên nhánh \texttt{main} của GitHub repository.
-    \item \textbf{GitHub Actions CI Pipeline} tự động kích hoạt theo thứ tự:
-    \begin{itemize}
-        \item \textbf{Kiểm tra chất lượng mã nguồn:} Chạy bộ unit test Go và tích hợp \textbf{SonarCloud} để phân tích tĩnh mã nguồn, phát hiện code smell, lỗ hổng bảo mật và độ bao phủ kiểm thử. Pipeline dừng lại nếu SonarCloud Quality Gate không đạt.
-        \item \textbf{Build image với Kaniko:} Thay vì dùng Docker daemon (yêu cầu quyền root), hệ thống sử dụng \textbf{Kaniko} để build Docker image trực tiếp trong container GitHub Actions mà không cần đặc quyền. Các service Go biên dịch binary trong \texttt{golang:1.24} rồi copy vào base image \textit{distroless} (không có shell, kích thước tối thiểu). Frontend build trong \texttt{node:22} rồi serve bằng \texttt{nginx:1.27}.
-        \item \textbf{Quét bảo mật image (Trivy):} Sau khi build, \textbf{Trivy} quét toàn bộ image tìm kiếm các lỗ hổng CVE ở mức độ \texttt{HIGH} và \texttt{CRITICAL}. Pipeline thất bại và không đẩy image nếu phát hiện lỗ hổng nghiêm trọng.
-        \item \textbf{Đẩy image lên ACR:} Image được tag bằng \textbf{7 ký tự đầu của SHA commit} (ví dụ: \texttt{gateway:3e3e215}) giúp truy vết chính xác phiên bản đang chạy trên production.
-    \end{itemize}
-    \item \textbf{CD workflow} tự động cập nhật trường \texttt{image.tag} trong file \texttt{values-azure-argocd.yaml} với SHA tag mới và tạo commit lên repository cấu hình GitOps.
-    \item \textbf{ArgoCD} (chạy trong AKS) phát hiện sự thay đổi giữa trạng thái mong muốn (Desired State) trên Git và trạng thái thực tế (Actual State) trong Cluster, tiến hành đồng bộ tự động theo chiến lược Rolling Update.
-\end{enumerate}
-
-Để quản lý trạng thái đồng bộ này, giao diện quản trị ArgoCD hiển thị trực quan các tài nguyên Kubernetes được triển khai và mối quan hệ giữa chúng, được minh họa thực tế ở Hình \ref{fig:argocd-live}.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.95\textwidth]{so-do-chuong-4/screens/argocd_live.png}
-    \caption{Trạng thái đồng bộ hóa GitOps của ứng dụng JobBridge trên giao diện ArgoCD.}
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{so-do-chuong-4/screens/argocd_live.png}%
+    }
+    \caption{Trạng thái đồng bộ GitOps của ứng dụng trên Argo CD}
     \label{fig:argocd-live}
 \end{figure}
 
-Giao diện ArgoCD xác nhận toàn bộ hệ thống gồm Ingress, Frontend, Gateway và các microservices (Auth, Jobs, AI, MongoDB) đều ở trạng thái \texttt{Healthy} và \texttt{Synced} thành công về phiên bản commit mới nhất mà không gây gián đoạn dịch vụ (Zero-downtime rolling update).
+So với triển khai thủ công, quy trình này tối ưu ở ba điểm. Thứ nhất, thời gian phát hành ngắn hơn vì quá trình build, gắn tag image và cập nhật cấu hình triển khai được tự động hóa. Thứ hai, khả năng truy vết tốt hơn vì mỗi phiên bản chạy trên cluster gắn với một commit cụ thể. Thứ ba, rủi ro sai khác môi trường giảm xuống vì trạng thái triển khai được khai báo trong Git và Argo CD liên tục so sánh với trạng thái thực tế của cluster.
 
-\subsection{Cấu hình tài nguyên Kubernetes}
-\label{ssec:k8s-resource-config}
-Ngoài các tài nguyên Deployment và Service cơ bản, hệ thống còn cấu hình hai tài nguyên quan trọng để đảm bảo tính sẵn sàng và khả năng co giãn tự động: Horizontal Pod Autoscaler (HPA) và Pod Disruption Budget (PDB). Bảng \ref{tab:k8s-hpa} tổng hợp cấu hình thực tế được áp dụng.
+\section{Đánh giá khả năng vận hành và mở rộng}
+\label{sec:danh-gia-van-hanh}
+
+\subsection{Cấu hình tài nguyên triển khai}
+
+Để hệ thống có khả năng phản ứng trước tải biến thiên, các service quan trọng được cấu hình Horizontal Pod Autoscaler. Bảng \ref{tab:k8s-hpa} trình bày cấu hình HPA và Pod Disruption Budget đang áp dụng trên môi trường AKS.
 
 \begin{table}[H]
 \centering
-\caption{Cấu hình HPA và PDB của các dịch vụ trên AKS.}
+\caption{Cấu hình HPA và PDB của các service trên AKS}
 \label{tab:k8s-hpa}
 \small
-\begin{tabular}{|p{3cm}|p{2.2cm}|p{2.2cm}|p{2.2cm}|p{2.5cm}|}
+\begin{tabular}{|p{3cm}|p{2.1cm}|p{2.1cm}|p{2.4cm}|p{2.5cm}|}
 \hline
-\textbf{Dịch vụ} & \textbf{Min Replicas} & \textbf{Max Replicas} & \textbf{CPU Threshold} & \textbf{PDB minAvailable} \\ \hline
-API Gateway       & 1 & 5 & 70\% & 1 \\ \hline
-Auth Service      & 1 & 5 & 70\% & 1 \\ \hline
-Jobs Service      & 1 & 5 & 70\% & 1 \\ \hline
-AI Service        & 1 & 3 & 75\% & 1 \\ \hline
-Frontend (nginx)  & 1 & 3 & 75\% & 1 \\ \hline
+\textbf{Service} & \textbf{Replica tối thiểu} & \textbf{Replica tối đa} & \textbf{Ngưỡng CPU} & \textbf{Pod tối thiểu sẵn sàng} \\ \hline
+Frontend & 1 & 3 & 75\% & 1 \\ \hline
+Gateway & 1 & 5 & 70\% & 1 \\ \hline
+Auth Service & 1 & 5 & 70\% & 1 \\ \hline
+Jobs Service & 1 & 5 & 70\% & 1 \\ \hline
+AI Service & 1 & 3 & 75\% & 1 \\ \hline
 \end{tabular}
 \end{table}
 
-\subsection{Giám sát hệ thống (Observability)}
-Để đảm bảo khả năng chịu tải và tính ổn định của hệ thống microservices vận hành trên AKS, một giải pháp giám sát tập trung sử dụng Prometheus và Grafana đã được tích hợp trong namespace \texttt{monitoring}. Prometheus thu thập metric từ các endpoint \texttt{/metrics} của mỗi Pod theo chu kỳ 30 giây, lưu trữ dữ liệu time-series trong 10 ngày với dung lượng 20Gi.
+Với cấu hình trên, hệ thống có thể tự động tăng số lượng replica khi CPU vượt ngưỡng. Đây là cơ sở để đáp ứng yêu cầu phi chức năng về khả năng phục vụ nhiều người dùng đồng thời, thay vì cố định mỗi service ở một Pod duy nhất.
 
-Hệ thống xây dựng hai Grafana dashboard phục vụ hai mục đích giám sát khác nhau:
+\subsection{Giám sát hệ thống}
 
-\textbf{Dashboard 1 -- JobBridge: API \& Pod Health:} Tập trung theo dõi sức khỏe tổng thể dịch vụ thông qua metric của ingress-nginx. Hình \ref{fig:grafana-live} minh họa dashboard này với các panel chính:
+Hệ thống sử dụng Prometheus và Grafana để thu thập, lưu trữ và trực quan hóa metric vận hành. Prometheus lấy dữ liệu từ các Pod và ingress, còn Grafana cung cấp dashboard theo dõi tình trạng API, Pod và tài nguyên. Việc có hệ thống giám sát giúp quá trình đánh giá không chỉ dựa trên cảm nhận giao diện mà dựa trên các chỉ số như tỷ lệ lỗi, lưu lượng request, độ trễ và mức sử dụng CPU/memory.
+
+Hình \ref{fig:grafana-live} minh họa dashboard theo dõi sức khỏe API và Pod. Dashboard này cho phép quan sát tỷ lệ Pod sẵn sàng, tỷ lệ lỗi HTTP, lưu lượng request đi qua ingress, độ trễ request và lưu lượng mạng theo Pod. Khi triển khai thực tế, các chỉ số này giúp phát hiện sớm lỗi 5xx, service chậm hoặc Pod hoạt động bất thường.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{so-do-chuong-4/screens/grafana_live.png}
-    \caption{Dashboard \textit{API \& Pod Health} -- giám sát sức khỏe API và trạng thái Pod trên Grafana.}
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{so-do-chuong-4/screens/grafana_live.png}%
+    }
+    \caption{Dashboard Grafana giám sát sức khỏe API và Pod}
     \label{fig:grafana-live}
 \end{figure}
 
-\begin{itemize}
-    \item \textbf{Pod Ready (\%):} Đạt mức $100\%$, tất cả các replica của microservice đều hoạt động tốt và sẵn sàng nhận request.
-    \item \textbf{HTTP Error Rate 4xx/5xx (\%):} Giữ ở mức $0\%$, không ghi nhận lỗi hệ thống hay crash server trong thời gian đo đạc.
-    \item \textbf{Incoming Request Rate (req/s):} Biểu đồ lưu lượng thời gian thực qua ingress-nginx, hỗ trợ phát hiện bất thường về tải.
-    \item \textbf{P99 Request Latency:} Độ trễ phân vị 99 của request qua ingress, giúp phát hiện sớm các service bị chậm trước khi ảnh hưởng người dùng.
-    \item \textbf{Traffic by Pod (Rx/Tx bytes/s):} Băng thông vào/ra chi tiết theo từng Pod (Frontend, Gateway, AI, Auth), hỗ trợ định lượng tài nguyên khi cần scale.
-\end{itemize}
-
-\textbf{Dashboard 2 -- JobBridge: Pod Stress Test:} Được thiết kế để quan sát hành vi hệ thống dưới tải đột biến và xác minh cơ chế HPA hoạt động đúng. Hình \ref{fig:grafana-stress} minh họa dashboard này khi hệ thống chịu tải.
+Hình \ref{fig:grafana-stress} minh họa dashboard dùng trong quá trình thử tải. Dashboard này tập trung vào mức sử dụng CPU, memory, network và số lần restart của Pod. Các panel này giúp xác định service nào trở thành điểm nghẽn khi tải tăng, đồng thời kiểm chứng cơ chế tự động mở rộng có kích hoạt đúng ngưỡng hay không.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{so-do-chuong-4/screens/grafana_stress_test.png}
-    \caption{Dashboard \textit{Pod Stress Test} -- theo dõi CPU, Memory, Network và Pod restarts dưới tải.}
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{so-do-chuong-4/screens/grafana_stress_test.png}%
+    }
+    \caption{Dashboard Grafana theo dõi tài nguyên trong quá trình thử tải}
     \label{fig:grafana-stress}
 \end{figure}
 
-Dashboard này hiển thị 4 panel chính:
-\begin{itemize}
-    \item \textbf{CPU Usage vs Limit (\%) theo Pod:} So sánh mức CPU hiện tại với CPU Limit được cấp phát, cho thấy dịch vụ nào đang tiệm cận ngưỡng HPA.
-    \item \textbf{Memory Usage vs Limit (Mi) theo Pod:} Theo dõi xu hướng tăng bộ nhớ theo thời gian, phát hiện memory leak tiềm ẩn.
-    \item \textbf{Network Receive/Transmit (bytes/s):} Lưu lượng mạng vào/ra theo thời gian thực cho từng Pod.
-    \item \textbf{Pod Restart Count:} Đếm số lần Pod bị khởi động lại do OOMKilled hay liveness probe thất bại, giúp phát hiện sự cố âm thầm.
-\end{itemize}
+\subsection{Kịch bản thực nghiệm tải}
 
-\subsection{Cấu hình Môi trường triển khai}
+Mục đích của thực nghiệm tải là kiểm chứng khả năng xử lý request đồng thời và phản ứng tự động của HPA khi service chịu áp lực. Kịch bản được thực hiện bằng k6 trong cluster, tập trung vào API danh sách việc làm. Đây là nhóm API phù hợp để thử nghiệm vì request đi qua Gateway, đến Jobs Service và truy vấn MongoDB, tạo tải thực tế lên cả tầng định tuyến lẫn tầng nghiệp vụ.
+
+Kịch bản tải tăng dần lên 1.500 virtual users trong 30 giây, tiếp tục tăng và duy trì ở mức 3.000 virtual users trong 2 phút, sau đó giảm dần về 0. Trong quá trình thử nghiệm, các chỉ số CPU, số lượng replica, tỷ lệ lỗi và trạng thái Pod được quan sát qua Grafana và Kubernetes metrics.
+
 \begin{table}[H]
 \centering
-\caption{Cấu hình môi trường triển khai thực tế trên Azure.}
-\label{tab:deployment-config}
-\begin{tabular}{|l|l|}
+\caption{Mục tiêu và kết quả quan sát của thực nghiệm tải}
+\label{tab:load-test-result}
+\begin{tabular}{|p{0.34\textwidth}|p{0.5\textwidth}|}
 \hline
-\textbf{Thành phần} & \textbf{Cấu hình} \\ \hline
-Nền tảng & Azure Kubernetes Service (AKS) \\ \hline
-Số node & 1 node (tối ưu chi phí) \\ \hline
-Network plugin & kubenet \\ \hline
-Container Registry & Azure Container Registry (acrjobbridge) \\ \hline
-Secrets & Azure Key Vault (kv-jobbridge) \\ \hline
-DNS & DuckDNS (jobbridge.duckdns.org) \\ \hline
-TLS & Let's Encrypt (cert-manager) \\ \hline
-File storage & Cloudinary CDN (avatar, CV) \\ \hline
-Giám sát & Prometheus + Grafana (namespace: monitoring) \\ \hline
+\textbf{Nội dung đánh giá} & \textbf{Kết quả quan sát} \\ \hline
+Nghiệp vụ thử nghiệm & API danh sách việc làm, đi qua Gateway và Jobs Service. \\ \hline
+Mức tải cao nhất & 3.000 virtual users trong giai đoạn duy trì tải. \\ \hline
+Service chịu tải chính & Gateway và Jobs Service. \\ \hline
+Phản ứng autoscaling & Jobs Service tăng từ 1 lên 4 Pod; Gateway tăng từ 1 lên 2 Pod khi CPU vượt ngưỡng. \\ \hline
+Mức CPU quan sát được & Jobs Service đạt khoảng 222\% so với ngưỡng 70\%; Gateway đạt khoảng 130\% so với ngưỡng 70\%. \\ \hline
+Tỷ lệ lỗi kết nối & Không ghi nhận lỗi kết nối hoặc timeout trong lần quan sát. \\ \hline
 \end{tabular}
 \end{table}
 
-\subsection{Kết quả vận hành thực nghiệm}
-Hệ thống đã được triển khai thành công lên Azure AKS và vận hành ổn định. Các Pod của 4 service backend và frontend đều ở trạng thái \texttt{Running} ổn định. Thời gian phản hồi trung bình của các API thông thường dưới 200ms; các API gọi OpenAI phụ thuộc vào thời gian inference của mô hình, trung bình từ 2--4 giây. Nhờ cơ chế cache CV text, thời gian chuẩn bị dữ liệu đầu vào cho AI được rút ngắn đáng kể, giúp tăng trải nghiệm người dùng.
+Kết quả trên cho thấy hệ thống đã được tối ưu ở mức vận hành cơ bản: khi tải tăng, Gateway và Jobs Service không giữ nguyên một replica mà tự động mở rộng để chia tải. Điều này tốt hơn triển khai tĩnh vì giúp tài nguyên được dùng linh hoạt: lúc tải thấp hệ thống tiết kiệm chi phí bằng số Pod tối thiểu, lúc tải cao hệ thống tự tăng replica để duy trì khả năng phục vụ.
 
-Để kiểm chứng tính năng tự động co giãn (Auto-scaling) đã cấu hình, một kịch bản kiểm thử tải (stress test) đã được thực hiện bằng công cụ \texttt{k6} chạy trực tiếp bên trong cluster. Kịch bản giả lập tải tăng dần từ 0 lên 150 VUs trong 30 giây đầu, đạt đỉnh 300 VUs và duy trì liên tục trong 2 phút, sau đó giảm dần về 0. Endpoint được thử nghiệm là \texttt{/api/jobs} đi qua API Gateway để truy vấn cơ sở dữ liệu MongoDB nhằm tạo tải thực tế lên tài nguyên CPU và I/O của hệ thống.
+Tuy nhiên, kết quả này chưa đồng nghĩa với việc hệ thống đã sẵn sàng cho quy mô một triệu người dùng đồng thời. Môi trường thực nghiệm hiện tại sử dụng cấu hình tiết kiệm chi phí, trong đó số node AKS và số replica tối đa còn giới hạn.
 
-Kết quả kiểm thử tải cho thấy cơ chế Horizontal Pod Autoscaler (HPA) phản ứng rất chính xác và kịp thời:
-\begin{itemize}
-    \item Khi số lượng request đồng thời tăng cao, mức độ sử dụng CPU của dịch vụ \texttt{jobbridge-jobs} nhanh chóng vượt ngưỡng cấu hình (đạt đỉnh ở mức $222\% / 70\%$) và dịch vụ \texttt{jobbridge-gateway} đạt $130\% / 70\%$.
-    \item Ngay lập tức, bộ điều khiển HPA nhận diện sự tăng tải này và thực hiện scale-up: số lượng bản sao (replicas) của dịch vụ \texttt{jobbridge-jobs} được tự động nâng từ 1 lên 4 Pods, và \texttt{jobbridge-gateway} nâng từ 1 lên 2 Pods để chia sẻ tải lượng xử lý (Hình \ref{fig:hpa-watch}).
-    \item Các Pod mới của các dịch vụ được khởi tạo và chuyển trạng thái từ \texttt{Pending} sang \texttt{ContainerCreating} và chuyển sang \texttt{Running} ổn định trong vòng vài giây (Hình \ref{fig:pods-watch}), giúp hệ thống duy trì tỷ lệ thành công của các request ở mức $100\%$ không xảy ra lỗi kết nối hay timeout.
-\end{itemize}
+Để tiến tới quy mô rất lớn, hệ thống cần mở rộng thêm node pool, tăng giới hạn HPA, tối ưu cache cho dữ liệu đọc nhiều, bổ sung rate limiting, tách MongoDB sang cụm managed có replica/sharding và đưa các tác vụ AI tốn thời gian vào hàng đợi bất đồng bộ.
+
+\section{Đánh giá mức độ đáp ứng yêu cầu phi chức năng}
+
+\subsection{Tự động hóa triển khai}
+
+Về tự động hóa triển khai, hệ thống đã đáp ứng mục tiêu phát hành tự động: commit mới trên nhánh chính có thể kích hoạt CI/CD, cập nhật image và để Argo CD đồng bộ lên môi trường production. Lợi ích chính là giảm thao tác thủ công, tăng khả năng rollback và giúp phiên bản triển khai luôn có dấu vết trong Git.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{so-do-chuong-4/screens/hpa-watch.png}
-    \caption{Trạng thái HPA tự động co giãn (scale-up) số lượng Replicas khi phát hiện quá tải CPU.}
-    \label{fig:hpa-watch}
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{so-do-chuong-4/evaluation/cicd_gitops.png}%
+    }
+    \caption{Đánh giá phi chức năng về tự động hóa triển khai CI/CD và GitOps}
+    \label{fig:nfr-cicd-gitops}
 \end{figure}
 
+\subsection{Khả năng mở rộng}
+
+Về khả năng mở rộng, hệ thống đã chứng minh được khả năng scale ngang ở cấp Pod trong kịch bản tải cao. Việc Jobs Service và Gateway tự tăng replica cho thấy kiến trúc triển khai không bị khóa vào một instance đơn lẻ. Đây là tiền đề quan trọng để mở rộng lên mức 1.000 người dùng đồng thời và cao hơn khi bổ sung thêm tài nguyên node.
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{so-do-chuong-4/screens/pods-watch.png}
-    \caption{Danh sách các Pods tự động khởi chạy thành công dưới sự điều khiển của HPA.}
-    \label{fig:pods-watch}
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{so-do-chuong-4/evaluation/autoscalling.png}%
+    }
+    \caption{Đánh giá phi chức năng về khả năng mở rộng bằng Horizontal Pod Autoscaler}
+    \label{fig:nfr-autoscaling}
+\end{figure}
+
+\subsection{Khả năng quan sát}
+
+Về khả năng quan sát, Prometheus và Grafana cung cấp các chỉ số cần thiết để đánh giá vận hành thay vì chỉ dựa vào trạng thái ``chạy được''. Các dashboard hiện tại cho phép theo dõi lỗi HTTP, độ trễ, lưu lượng request, CPU, memory, network và số lần restart Pod. Khi có thêm dữ liệu thử tải ở các phiên bản tiếp theo, các biểu đồ này có thể được dùng để trình bày rõ hơn độ trễ ở các phân vị cao và tỷ lệ lỗi trong báo cáo in.
+
+\begin{figure}[H]
+    \centering
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{so-do-chuong-4/evaluation/observ.png}%
+    }
+    \caption{Đánh giá phi chức năng về khả năng quan sát hệ thống bằng Prometheus và Grafana}
+    \label{fig:nfr-observability}
+\end{figure}
+
+\subsection{Giới hạn và hướng tối ưu tiếp theo}
+
+Về giới hạn, các chức năng AI phụ thuộc vào thời gian phản hồi của LLM API bên ngoài nên không thể đánh giá giống các API đọc dữ liệu thông thường. Với nhóm API AI, hướng tối ưu tiếp theo là giới hạn tần suất gọi, cache ngữ cảnh đã xử lý, đưa tác vụ dài vào queue và tách riêng autoscaling cho AI Service dựa trên số request hoặc hàng đợi thay vì chỉ dựa trên CPU.
+
+\begin{figure}[H]
+    \centering
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{so-do-chuong-4/evaluation/gioi_han_huong_toi_uu.png}%
+    }
+    \caption{Giới hạn hiện tại và định hướng tối ưu khi mở rộng hệ thống}
+    \label{fig:nfr-limit-optimization}
 \end{figure}
 
 \section{Kết chương}
-Chương này đã trình bày toàn bộ quá trình hiện thực hóa hệ thống ``JobBridge AI'': kiến trúc phần mềm microservices, danh sách công cụ, kết quả xây dựng, minh họa chức năng chính, kịch bản kiểm thử, và quy trình triển khai thực tế trên Azure AKS với pipeline CI/CD tích hợp SonarCloud, Trivy và Kaniko; cấu hình HPA/PDB đảm bảo tính sẵn sàng; hệ thống giám sát tập trung Prometheus/Grafana với hai dashboard chuyên dụng cho sức khỏe API và stress test. Hệ thống đã đáp ứng đầy đủ các yêu cầu chức năng và phi chức năng đề ra ở Chương 3. Chương tiếp theo sẽ đi sâu phân tích các giải pháp kỹ thuật nổi bật và đóng góp cốt lõi của đồ án.
+
+Chương này đã trình bày kết quả triển khai hệ thống JobBridge AI trên môi trường AKS, mô tả các giao diện chức năng chính, phân tích quy trình CI/CD GitOps và đánh giá khả năng vận hành thông qua giám sát cùng thực nghiệm tải. Kết quả cho thấy hệ thống không chỉ hiện thực được các chức năng nghiệp vụ chính mà còn có khả năng phát hành tự động, quan sát trạng thái vận hành và tự động mở rộng một số service khi tải tăng.
+
+Các kết quả thực nghiệm cũng chỉ ra giới hạn cần tiếp tục tối ưu nếu hướng tới quy mô rất lớn, đặc biệt là mở rộng node pool, tối ưu cơ sở dữ liệu, cache dữ liệu đọc nhiều và xử lý bất đồng bộ cho các tác vụ AI. Những nội dung này là cơ sở để Chương 5 phân tích sâu hơn các giải pháp kỹ thuật và đóng góp nổi bật của đồ án.
 
 \end{document}

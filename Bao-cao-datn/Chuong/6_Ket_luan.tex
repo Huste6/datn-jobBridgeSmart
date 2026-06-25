@@ -1,66 +1,48 @@
 \documentclass[../DoAn.tex]{subfiles}
 \begin{document}
 
-\section{Tổng quan}
-Sau quá trình nghiên cứu, thiết kế và hiện thực hóa qua các chương trước, chương này tổng kết toàn bộ những gì đồ án đã đạt được, đánh giá trung thực các hạn chế còn tồn tại và đề xuất định hướng phát triển cụ thể cho hệ thống ``JobBridge AI'' trong tương lai.
+\section{Tổng kết kết quả đạt được}
+
+Đồ án đã nghiên cứu, phân tích, thiết kế và triển khai hệ thống JobBridge AI, một nền tảng hỗ trợ kết nối giữa ứng viên và nhà tuyển dụng có tích hợp các chức năng Trí tuệ nhân tạo. Hệ thống được xây dựng theo kiến trúc microservices, trong đó các nhóm chức năng chính như xác thực người dùng, quản lý hồ sơ, quản lý công ty, quản lý tin tuyển dụng, ứng tuyển và xử lý AI được tách thành các thành phần độc lập. Cách tổ chức này giúp hệ thống dễ mở rộng, dễ triển khai riêng từng service và phù hợp với định hướng vận hành trên Kubernetes.
+
+Về mặt nghiệp vụ, hệ thống đã hiện thực các chức năng cơ bản của một nền tảng tuyển dụng trực tuyến. Ứng viên có thể đăng ký, đăng nhập, cập nhật hồ sơ, tải CV, tìm kiếm việc làm, xem công ty, ứng tuyển và theo dõi trạng thái ứng tuyển. Nhà tuyển dụng có thể quản lý công ty, đăng tin tuyển dụng, xem danh sách ứng viên theo từng job và sử dụng chức năng AI để tham khảo đánh giá mức độ phù hợp của CV. Quản trị viên có thể theo dõi số liệu tổng quan, quản lý người dùng và kiểm soát trạng thái công ty trên hệ thống.
+
+Về mặt ứng dụng AI, đồ án đã tích hợp các chức năng hỗ trợ ứng viên và nhà tuyển dụng theo ngữ cảnh dữ liệu thật của hệ thống. AI Interview Coach hỗ trợ ứng viên luyện tập phỏng vấn dựa trên thông tin job và hồ sơ cá nhân; AI Interview Quiz sinh câu hỏi trắc nghiệm theo nội dung tuyển dụng; chức năng đánh giá CV bằng AI hỗ trợ nhà tuyển dụng có thêm nguồn tham khảo trong quá trình sàng lọc. Các chức năng này không thay thế hoàn toàn quyết định của con người, nhưng góp phần giảm thao tác thủ công và nâng cao chất lượng tương tác trong quy trình tuyển dụng.
+
+Về mặt triển khai hệ thống, JobBridge AI đã được container hóa, lưu trữ image trên Azure Container Registry và triển khai lên Azure Kubernetes Service. Hạ tầng được mô tả bằng Terraform, giúp quá trình tạo tài nguyên cloud có khả năng tái lập và dễ kiểm soát thay đổi. Các thông tin bí mật như khóa API, chuỗi kết nối cơ sở dữ liệu và thông tin xác thực dịch vụ ngoài được quản lý thông qua Azure Key Vault kết hợp Secrets Store CSI Driver, qua đó hạn chế việc đưa secret trực tiếp vào mã nguồn hoặc manifest triển khai.
+
+Về mặt vận hành, đồ án đã xây dựng quy trình CI/CD kết hợp GitOps. Khi có thay đổi trên nhánh chính, pipeline có thể build, kiểm thử, quét chất lượng, đóng gói container image, cập nhật Helm values và để Argo CD đồng bộ trạng thái triển khai lên môi trường AKS. Hệ thống cũng được cấu hình Horizontal Pod Autoscaler, Pod Disruption Budget, Prometheus và Grafana để phục vụ đánh giá khả năng mở rộng, tính sẵn sàng và trạng thái tài nguyên trong quá trình thử nghiệm.
+
+\section{Đánh giá mức độ đáp ứng mục tiêu}
+
+So với mục tiêu đặt ra ở phần mở đầu, đồ án đã xây dựng được một hệ thống có đầy đủ luồng nghiệp vụ chính của bài toán tuyển dụng và có khả năng vận hành trên môi trường cloud. Điểm nổi bật của hệ thống không chỉ nằm ở các chức năng web, mà còn ở việc kết hợp phát triển phần mềm, triển khai Kubernetes, tự động hóa phát hành, quản lý bí mật và giám sát tập trung thành một quy trình tương đối hoàn chỉnh.
+
+Ở góc độ người dùng, hệ thống hỗ trợ hai nhóm đối tượng chính là ứng viên và nhà tuyển dụng. Ứng viên không chỉ tìm kiếm và ứng tuyển việc làm, mà còn có công cụ luyện phỏng vấn theo ngữ cảnh cụ thể. Nhà tuyển dụng không chỉ đăng tin và quản lý ứng viên, mà còn có công cụ AI hỗ trợ đọc và đánh giá CV. Điều này giúp hệ thống khác với các website tuyển dụng chỉ đóng vai trò là nơi đăng tin và nhận hồ sơ thụ động.
+
+Ở góc độ phi chức năng, hệ thống đã chứng minh được khả năng triển khai tự động và mở rộng ngang ở phạm vi thực nghiệm. Kết quả quan sát ở Chương 4 cho thấy pipeline GitOps có thể đưa thay đổi lên môi trường production trong thời gian ngắn, Argo CD duy trì trạng thái đồng bộ, còn HPA có thể tăng số lượng Pod khi tải lên service tăng. Các kết quả này là cơ sở để đánh giá rằng kiến trúc triển khai có khả năng mở rộng tiếp, dù để phục vụ quy mô rất lớn vẫn cần thêm các tối ưu chuyên sâu.
+
+\section{Hạn chế hiện tại}
+
+Bên cạnh các kết quả đã đạt được, hệ thống vẫn còn một số hạn chế cần được nhìn nhận rõ. Thứ nhất, chức năng tìm kiếm việc làm hiện chủ yếu dựa trên bộ lọc và truy vấn văn bản, chưa sử dụng tìm kiếm ngữ nghĩa dựa trên embedding. Vì vậy, hệ thống chưa thể đánh giá sâu mức độ tương đồng giữa CV của ứng viên và mô tả công việc ở tầng ngữ nghĩa.
+
+Thứ hai, các chức năng AI hiện phụ thuộc vào LLM API bên ngoài. Cách tiếp cận này phù hợp với phạm vi đồ án vì giúp tích hợp nhanh và tận dụng chất lượng mô hình sẵn có, nhưng vẫn tồn tại rủi ro về độ trễ, chi phí vận hành và tính sẵn sàng khi dịch vụ ngoài gặp sự cố. Với các nghiệp vụ có lượng request lớn, cần có thêm cơ chế kiểm soát tần suất gọi API, hàng đợi xử lý bất đồng bộ và chiến lược fallback.
+
+Thứ ba, thực nghiệm tải mới dừng ở quy mô kiểm chứng cơ chế autoscaling trên một số nhóm API trọng tâm. Hệ thống chưa có đánh giá đầy đủ theo độ trễ ở các phân vị cao, thông lượng theo từng loại nghiệp vụ, chi phí vận hành theo tải và khả năng chịu lỗi khi một service hoặc một node gặp sự cố. Đây là các nội dung cần bổ sung nếu hệ thống được triển khai trong môi trường sản xuất thực tế.
+
+Thứ tư, hệ thống chưa có cơ chế thông báo thời gian thực cho các sự kiện như hồ sơ ứng tuyển được cập nhật trạng thái, công ty được duyệt hoặc ứng viên được mời phỏng vấn. Người dùng hiện vẫn phụ thuộc vào thao tác truy cập lại giao diện hoặc gọi API để biết thay đổi mới.
+
+\section{Hướng phát triển}
+
+Trong giai đoạn ngắn hạn, hệ thống cần được hoàn thiện theo hướng nâng cao trải nghiệm người dùng và tăng độ tin cậy vận hành. Các chức năng thông báo thời gian thực có thể được triển khai bằng WebSocket hoặc Server-Sent Events để cập nhật trạng thái ứng tuyển, lịch phỏng vấn và phản hồi từ nhà tuyển dụng. Bên cạnh đó, hệ thống nên bổ sung cơ chế gửi email tự động cho các sự kiện quan trọng nhằm bảo đảm người dùng không bỏ lỡ thông tin.
+
+Trong giai đoạn trung hạn, hệ thống có thể mở rộng năng lực tìm kiếm và gợi ý việc làm bằng vector database như Qdrant, Milvus hoặc MongoDB Atlas Vector Search. Khi CV và JD được biểu diễn dưới dạng embedding, hệ thống có thể tính độ tương đồng ngữ nghĩa để gợi ý job phù hợp hơn cho ứng viên và gợi ý ứng viên tiềm năng hơn cho nhà tuyển dụng. Đây là hướng phát triển phù hợp với mục tiêu tăng chất lượng kết nối hai phía của thị trường lao động.
+
+Ở tầng vận hành, hệ thống cần được bổ sung các cơ chế tối ưu cho quy mô lớn hơn. Các hướng quan trọng gồm rate limiting tại gateway hoặc ingress, cache cho dữ liệu đọc nhiều, hàng đợi bất đồng bộ cho tác vụ AI, tách môi trường staging và production, bổ sung alerting trong Prometheus/Grafana, theo dõi SLO theo từng service và kiểm thử tải có kịch bản rõ ràng hơn. Những cải tiến này giúp hệ thống có cơ sở tiến tới phục vụ số lượng người dùng lớn hơn thay vì chỉ dừng ở mức chạy đúng chức năng.
+
+Trong giai đoạn dài hạn, hệ thống có thể nghiên cứu triển khai mô hình ngôn ngữ nguồn mở trong hạ tầng riêng thông qua vLLM, KServe hoặc các nền tảng phục vụ mô hình tương đương. Hướng này giúp giảm phụ thuộc vào API bên ngoài, chủ động hơn về dữ liệu và chi phí, nhưng đòi hỏi năng lực hạ tầng GPU, giám sát mô hình, kiểm soát chất lượng phản hồi và cơ chế bảo vệ dữ liệu chặt chẽ hơn.
 
 \section{Kết luận}
-Đồ án tốt nghiệp ``Xây dựng hệ thống hỗ trợ tuyển dụng và chuẩn bị phỏng vấn tích hợp Trí tuệ nhân tạo (JobBridge AI)'' đã hoàn thành đầy đủ các mục tiêu đề ra ban đầu, giải quyết trọn vẹn cả khía cạnh nghiên cứu lý thuyết lẫn ứng dụng thực tiễn công nghệ.
 
-\subsection{Những kết quả thực tiễn đạt được}
-Thông qua quá trình nghiên cứu và xây dựng, đồ án đã đạt được các kết quả cụ thể sau:
-\begin{enumerate}
-    \item \textbf{Xây dựng hoàn chỉnh hệ thống phần mềm:} Hiện thực hóa nền tảng tuyển dụng hiện đại theo kiến trúc Microservices gồm 4 dịch vụ cốt lõi (Gateway, Auth, Jobs, AI) viết bằng ngôn ngữ Go hiệu năng cao, kết hợp cùng Frontend React/TypeScript trực quan.
-    \item \textbf{Tích hợp thành công Trí tuệ nhân tạo thực tiễn:} Triển khai ba tính năng AI đột phá: (1) \textit{AI Interview Coach} giúp ứng viên luyện phỏng vấn giả lập thời gian thực thích ứng ngữ cảnh cao; (2) \textit{AI Interview Quiz} sinh bộ câu hỏi trắc nghiệm theo JD; (3) \textit{AI Evaluate CV} hỗ trợ nhà tuyển dụng chấm điểm và phân tích CV tự động.
-    \item \textbf{Giải quyết các bài toán kỹ thuật tối ưu:}
-    \begin{itemize}
-        \item Đề xuất và triển khai cơ chế trích xuất và cache văn bản từ PDF CV, giúp rút ngắn độ trễ chuẩn bị dữ liệu AI từ $1.5$ giây xuống dưới $20$ mili-giây.
-        \item Thiết kế kiến trúc bảo mật phân lớp nghiêm ngặt (API Gateway JWT kết hợp Role-based Middleware và Business Verification) giúp ngăn chặn $100\%$ lỗi rò rỉ quyền hạn tài nguyên dữ liệu.
-    \end{itemize}
-    \item \textbf{Chuẩn hóa quy trình vận hành đám mây (DevOps/Observability):} Tự động hóa hoàn toàn chu trình từ mã nguồn đến môi trường production Azure AKS bằng GitOps (ArgoCD) và hạ tầng khai báo Terraform. Thiết lập hệ thống giám sát tập trung Prometheus và Grafana với tỷ lệ sẵn sàng của cụm đạt $100\%$.
-\end{enumerate}
-
-\subsection{Đánh giá và So sánh}
-So với các nền tảng tuyển dụng truyền thống chỉ đóng vai trò là bảng tin đăng tuyển dụng tĩnh, JobBridge AI mang lại sự khác biệt lớn nhờ khả năng tương tác chủ động dựa trên AI. Hệ thống không chỉ kết nối nhu cầu tuyển dụng mà còn đồng hành cùng ứng viên nâng cao năng lực phỏng vấn và hỗ trợ doanh nghiệp sàng lọc ứng viên tự động dựa trên kỹ nghệ Prompt tối ưu.
-
-\subsection{Bài học kinh nghiệm rút ra}
-Quá trình thực hiện đồ án đã giúp em tích lũy được nhiều bài học kinh nghiệm quý báu:
-\begin{itemize}
-    \item Làm chủ tư duy thiết kế hệ thống phân tán microservices, cách thiết lập giao tiếp bảo mật và tin cậy giữa các dịch vụ nội bộ Kubernetes.
-    \item Nâng cao năng lực DevOps, tự động hóa hạ tầng đám mây và kỹ năng phân tích số liệu đo lường hệ thống (Observability).
-    \item Nắm vững phương pháp Kỹ nghệ Prompt (Prompt Engineering) chuyên nghiệp để kiểm soát và điều hướng các mô hình ngôn ngữ lớn hoạt động ổn định trong môi trường sản xuất.
-\end{itemize}
-
-\section{Hạn chế và Hướng phát triển}
-Mặc dù hệ thống đã hoạt động ổn định và đạt hiệu năng cao, đồ án vẫn còn một số điểm hạn chế cần tiếp tục nghiên cứu và hoàn thiện.
-
-\subsection{Hạn chế hiện tại}
-\begin{enumerate}
-    \item \textbf{Thiếu thông báo thời gian thực (Real-time Notification):} Các hành động cập nhật trạng thái ứng tuyển hoặc kết quả duyệt doanh nghiệp hiện tại vẫn dựa trên cơ chế tải lại trang hoặc gọi API thông thường, chưa hỗ trợ đẩy thông báo thời gian thực qua WebSockets.
-    \item \textbf{Tìm kiếm dựa trên từ khóa truyền thống:} Việc tìm kiếm việc làm của ứng viên hiện đang dựa trên truy vấn văn bản truyền thống của MongoDB, chưa áp dụng công nghệ tìm kiếm ngữ nghĩa sâu (Semantic Search) dựa trên Vector Embedding để so khớp mức độ tương thích trực tiếp giữa CV và JD.
-    \item \textbf{Sự phụ thuộc vào bên thứ ba:} Hệ thống AI hiện phụ thuộc hoàn toàn vào dịch vụ OpenAI API trả phí bên ngoài, có nguy cơ gián đoạn nếu dịch vụ này gặp sự cố và làm tăng chi phí vận hành lâu dài.
-\end{enumerate}
-
-\subsection{Hướng phát triển tương lai}
-Để khắc phục các hạn chế trên và nâng tầm hệ thống JobBridge AI, em đề xuất định hướng phát triển theo ba giai đoạn:
-
-\subsubsection{Ngắn hạn (1 -- 3 tháng)}
-\begin{itemize}
-    \item Triển khai \textbf{WebSockets Notification Service} để đẩy thông báo thời gian thực cho ứng viên khi CV được nhà tuyển dụng duyệt hoặc khi có lịch phỏng vấn mới.
-    \item Tích hợp cơ chế tự động gửi email tổng kết kết quả luyện tập phỏng vấn AI Coach định kỳ về hòm thư cá nhân của ứng viên.
-\end{itemize}
-
-\subsubsection{Trung hạn (3 -- 6 tháng)}
-\begin{itemize}
-    \item Tích hợp cơ sở dữ liệu Vector (như \textbf{Qdrant} hoặc \textbf{Milvus}) kết hợp mô hình \texttt{text-embedding-3-small} của OpenAI để xây dựng hệ thống gợi ý việc làm thông minh (Recommendation Engine) dựa trên độ tương đồng Cosine (Cosine Similarity) giữa CV của ứng viên và JD của doanh nghiệp.
-\end{itemize}
-
-\subsubsection{Dài hạn (Trên 6 tháng)}
-\begin{itemize}
-    \item Nghiên cứu triển khai các mô hình ngôn ngữ lớn nguồn mở quy mô nhỏ chạy cục bộ (như \textbf{Llama 3-8B} hoặc \textbf{Mistral-7B}) trực tiếp bên trong cụm AKS riêng tư bằng KServe hoặc vLLM. Giải pháp này sẽ loại bỏ hoàn toàn chi phí sử dụng OpenAI API bên ngoài, đồng thời bảo mật tuyệt đối dữ liệu CV và thông tin tuyển dụng nhạy cảm.
-\end{itemize}
-
-\section{Kết chương}
-Đồ án ``JobBridge AI'' đã chứng minh khả năng kết hợp hiệu quả giữa phát triển phần mềm hiện đại theo kiến trúc Microservices, ứng dụng thực tiễn các mô hình ngôn ngữ lớn (LLM) và vận hành hệ thống đám mây theo chuẩn DevOps/GitOps. Với nền tảng kỹ thuật vững chắc đã được xây dựng, hệ thống hoàn toàn có tiềm năng tiếp tục phát triển và mở rộng quy mô để trở thành một nền tảng tuyển dụng thông minh toàn diện trong tương lai.
+JobBridge AI đã chứng minh khả năng kết hợp giữa một hệ thống tuyển dụng trực tuyến, các chức năng AI theo ngữ cảnh và nền tảng triển khai cloud hiện đại. Đồ án không chỉ hiện thực các nghiệp vụ chính của bài toán tuyển dụng, mà còn xây dựng được quy trình vận hành gồm Terraform, Kubernetes, CI/CD GitOps, autoscaling và observability. Đây là nền tảng quan trọng để hệ thống tiếp tục được hoàn thiện, mở rộng và tiến gần hơn đến một sản phẩm tuyển dụng thông minh có khả năng vận hành thực tế.
 
 \end{document}

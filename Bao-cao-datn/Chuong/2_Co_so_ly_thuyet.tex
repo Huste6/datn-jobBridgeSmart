@@ -4,193 +4,114 @@
 \label{chapter:2}
 
 \section{Tổng quan}
-Chương 1 đã giới thiệu tổng quan về đề tài, xác định các vấn đề cần giải quyết và đề xuất định hướng giải pháp cho hệ thống "JobBridge AI". Chương này sẽ đi sâu vào việc trình bày các cơ sở lý thuyết, công nghệ và kiến trúc nền tảng đã được lựa chọn và áp dụng để xây dựng hệ thống. Việc hiểu rõ các khái niệm này là tiền đề quan trọng để theo dõi các phần phân tích, thiết kế và hiện thực hệ thống trong các chương tiếp theo.
+Chương 1 đã trình bày bối cảnh, bài toán và định hướng xây dựng hệ thống JobBridge AI. Để hiện thực hóa một nền tảng tuyển dụng có tích hợp trí tuệ nhân tạo, đồ án cần dựa trên nhiều nhóm công nghệ khác nhau, từ kiến trúc phần mềm, phát triển giao diện, xây dựng API, lưu trữ dữ liệu, đến triển khai và vận hành trên môi trường đám mây. Chương này trình bày các cơ sở lý thuyết và công nghệ nền tảng được sử dụng trong hệ thống, đồng thời làm rõ vai trò của từng lựa chọn công nghệ đối với bài toán tuyển dụng thông minh.
 
-Nội dung chính của chương bao gồm:
-\begin{itemize}
-    \item Giới thiệu về kiến trúc Microservices và lý do lựa chọn.
-    \item Trình bày về các công nghệ cốt lõi được sử dụng ở phía Backend (Go, Gin) và Frontend (React, TypeScript).
-    \item Mô tả về công nghệ container hóa với Docker và nền tảng điều phối container với Kubernetes.
-    \item Giới thiệu các khái niệm cơ bản về Trí tuệ nhân tạo, đặc biệt là các Mô hình ngôn ngữ lớn (LLMs) và cách ứng dụng chúng.
-\end{itemize}
+Nội dung của chương được tổ chức theo các nhóm vấn đề chính: kiến trúc microservices cho backend, công nghệ phát triển ứng dụng phía server và client, nền tảng container hóa và điều phối bằng Kubernetes, quy trình CI/CD theo mô hình GitOps, và cuối cùng là cơ sở lý thuyết về mô hình ngôn ngữ lớn được ứng dụng trong các chức năng AI của hệ thống.
 
 \section{Kiến trúc Microservices}
 \label{section:2.1}
-Kiến trúc microservices là một phương pháp phát triển phần mềm, trong đó một ứng dụng lớn được xây dựng dưới dạng một tập hợp các dịch vụ nhỏ, độc lập và có khả năng triển khai riêng lẻ. Mỗi dịch vụ thực thi một quy trình nghiệp vụ cụ thể và giao tiếp với các dịch vụ khác thông qua các giao diện lập trình ứng dụng (API) được định nghĩa rõ ràng, thường là qua giao thức HTTP.
+Microservices là phong cách kiến trúc trong đó hệ thống được chia thành nhiều dịch vụ nhỏ, độc lập, mỗi dịch vụ đảm nhiệm một miền nghiệp vụ rõ ràng và giao tiếp với nhau thông qua API. Khác với kiến trúc nguyên khối, nơi toàn bộ chức năng được đóng gói trong một ứng dụng duy nhất, microservices cho phép từng thành phần được phát triển, kiểm thử, triển khai và mở rộng một cách tương đối độc lập. Cách tiếp cận này phù hợp với JobBridge AI vì hệ thống có nhiều nhóm chức năng khác nhau như xác thực người dùng, quản lý tin tuyển dụng, quản lý hồ sơ ứng tuyển và xử lý AI.
 
-Việc lựa chọn kiến trúc microservices cho dự án "JobBridge AI" xuất phát từ những ưu điểm vượt trội mà nó mang lại so với kiến trúc nguyên khối (monolithic) truyền thống, đặc biệt phù hợp với một hệ thống phức tạp và có định hướng phát triển lâu dài:
-\begin{itemize}
-    \item \textbf{Tính linh hoạt và khả năng mở rộng:} Mỗi microservice có thể được phát triển, triển khai và mở rộng quy mô một cách độc lập mà không ảnh hưởng đến các thành phần khác của hệ thống. Ví dụ, khi dịch vụ AI cần nhiều tài nguyên xử lý hơn, chúng ta có thể tăng số lượng bản sao (replicas) của chỉ dịch vụ đó.
-    \item \textbf{Lựa chọn công nghệ đa dạng:} Mặc dù trong dự án này, tất cả các service đều được viết bằng Go, kiến trúc microservices cho phép mỗi dịch vụ có thể được xây dựng bằng một công nghệ khác nhau, tùy thuộc vào yêu cầu cụ thể của từng bài toán.
-    \item \textbf{Tăng cường khả năng bảo trì và phát triển:} Các dịch vụ nhỏ hơn, tập trung vào một nghiệp vụ duy nhất sẽ dễ hiểu, dễ phát triển và bảo trì hơn. Các nhóm phát triển khác nhau có thể làm việc song song trên các dịch vụ khác nhau, giúp đẩy nhanh tiến độ dự án.
-    \item \textbf{Nâng cao khả năng chịu lỗi:} Nếu một dịch vụ gặp sự cố, nó sẽ không làm sập toàn bộ hệ thống. Các dịch vụ khác vẫn có thể tiếp tục hoạt động bình thường.
-\end{itemize}
-
-Như được minh họa trong Hình \ref{fig:microservices-architecture}, kiến trúc của "JobBridge AI" bao gồm các thành phần chính sau:
+Trong hệ thống JobBridge AI, phần backend được tổ chức thành bốn dịch vụ chính viết bằng Go. API Gateway chạy ở cổng 8080 đóng vai trò điểm vào duy nhất của frontend và thực hiện định tuyến request theo đường dẫn đến các service phía sau. Auth Service chạy ở cổng 8081 xử lý đăng ký, đăng nhập, phát hành và xác thực JWT, quản lý hồ sơ người dùng, công ty, avatar và CV. Jobs Service chạy ở cổng 8082 xử lý danh sách việc làm, tin tuyển dụng của nhà tuyển dụng và hồ sơ ứng tuyển. AI Service chạy ở cổng 8085 phụ trách các chức năng Interview Coach, Interview Quiz và đánh giá CV bằng mô hình ngôn ngữ lớn. Cả Auth, Jobs và AI Service đều truy cập MongoDB để lấy dữ liệu nghiệp vụ cần thiết; riêng AI Service còn gọi OpenAI-compatible API để sinh nội dung AI.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{Chuong/so-do-chuong-2/microservices_architecture.png}
-    \caption{Sơ đồ kiến trúc Microservices của JobBridge AI}
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{Chuong/so-do-chuong-2/microservices_architecture.png}%
+    }
+    \caption{Sơ đồ kiến trúc microservices của JobBridge AI}
     \label{fig:microservices-architecture}
 \end{figure}
 
-\begin{itemize}
-    \item \textbf{Frontend (React SPA):} Là điểm tương tác duy nhất của người dùng. Tất cả các yêu cầu nghiệp vụ từ phía client sẽ được gửi đến API Gateway.
-    \item \textbf{API Gateway:} Đóng vai trò là một lớp trung gian, là cổng vào duy nhất cho hệ thống backend. Nó chịu trách nhiệm xác thực, định tuyến yêu cầu đến các microservice phù hợp, giới hạn tần suất yêu cầu (rate limiting) và tổng hợp dữ liệu trả về cho client.
-    \item \textbf{Các Microservices (Go):}
-    \begin{itemize}
-        \item \textbf{Auth Service:} Chịu trách nhiệm toàn bộ về việc xác thực và quản lý người dùng (đăng ký, đăng nhập, quản lý tài khoản, cấp phát và xác thực token JWT).
-        \item \textbf{Jobs Service:} Xử lý các nghiệp vụ liên quan đến việc làm như quản lý tin tuyển dụng, tìm kiếm, và quy trình ứng tuyển.
-        \item \textbf{AI Service:} Là bộ não của hệ thống, thực hiện các tác vụ thông minh như luyện tập phỏng vấn và chấm điểm CV bằng cách tương tác với các dịch vụ bên ngoài như OpenAI API.
-    \end{itemize}
-    \item \textbf{Cơ sở dữ liệu:}
-    \begin{itemize}
-        \item \textbf{MongoDB:} Được sử dụng làm cơ sở dữ liệu chính cho Auth Service và Jobs Service để lưu trữ dữ liệu người dùng, công ty, việc làm, và hồ sơ.
-        \item \textbf{Vector DB (ChromaDB):} Được đưa vào trong thiết kế kiến trúc mục tiêu để lưu trữ và truy vấn ngữ cảnh hội thoại, giúp tính năng phỏng vấn thử trở nên thông minh và liền mạch hơn.
-    \end{itemize}
-\end{itemize}
+Điểm quan trọng trong thiết kế hiện tại là API Gateway không trực tiếp xác thực JWT hay quyết định quyền nghiệp vụ. Gateway chủ yếu đóng vai trò reverse proxy, còn việc xác thực và phân quyền được thực hiện tại từng service thông qua middleware và logic xử lý nghiệp vụ. Ví dụ, các chức năng AI dành cho ứng viên yêu cầu người dùng có vai trò ứng viên và JWT hợp lệ; chức năng đánh giá CV yêu cầu người dùng có vai trò nhà tuyển dụng, đồng thời kiểm tra nhà tuyển dụng có sở hữu tin tuyển dụng liên quan hay không. Cách tổ chức này giúp mỗi service tự bảo vệ tài nguyên của mình và hạn chế phụ thuộc vào giả định rằng mọi request đều đi qua một lớp gateway duy nhất.
 
-Luồng hoạt động cơ bản của hệ thống diễn ra theo trình tự: người dùng tương tác trên Frontend, yêu cầu được gửi đến API Gateway, Gateway xác thực và chuyển tiếp đến microservice tương ứng để xử lý, và cuối cùng kết quả được trả về cho người dùng. Mô hình này đảm bảo sự phân tách rõ ràng về trách nhiệm, giúp hệ thống trở nên linh hoạt và dễ dàng quản lý.
+Kiến trúc microservices mang lại ba lợi ích chính cho đồ án. Thứ nhất, hệ thống được tách theo miền nghiệp vụ nên dễ bảo trì và dễ mở rộng. Thứ hai, mỗi service có thể được đóng gói thành Docker image riêng và triển khai độc lập trên Kubernetes. Thứ ba, khi một nhóm chức năng có tải cao hơn, chẳng hạn Jobs Service trong quá trình tìm kiếm việc làm hoặc AI Service trong quá trình gọi mô hình, hệ thống có thể mở rộng riêng service đó mà không cần nhân bản toàn bộ ứng dụng.
 
 \section{Các công nghệ sử dụng}
 \label{section:2.2}
-Việc lựa chọn một bộ công nghệ (technology stack) phù hợp là yếu tố then chốt quyết định đến hiệu năng, khả năng mở rộng và bảo trì của một hệ thống phần mềm. Đối với "JobBridge AI", các công nghệ được lựa chọn đều là những công nghệ hiện đại, có cộng đồng phát triển lớn và đã được chứng minh hiệu quả trong các hệ thống quy mô lớn. Hình \ref{fig:tech-stack} cung cấp một cái nhìn tổng quan về các công nghệ được sử dụng trong dự án.
+Việc lựa chọn công nghệ trong JobBridge AI dựa trên ba tiêu chí: phù hợp với yêu cầu nghiệp vụ tuyển dụng, hỗ trợ phát triển nhanh trong phạm vi đồ án tốt nghiệp, và đủ khả năng mở rộng khi triển khai trên môi trường container hóa. Hình \ref{fig:tech-stack} minh họa tổng quan các công nghệ chính được sử dụng trong hệ thống.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{Chuong/so-do-chuong-2/4_technology_stack.png}
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{Chuong/so-do-chuong-2/4_technology_stack.png}%
+    }
     \caption{Các công nghệ chính được sử dụng trong dự án}
     \label{fig:tech-stack}
 \end{figure}
 
 \subsection{Công nghệ phía Backend}
 \label{subsection:2.2.1}
-Phía backend của hệ thống được xây dựng hoàn toàn bằng ngôn ngữ Go, kết hợp với các công nghệ hỗ trợ để đảm bảo hiệu suất và sự ổn định.
+Backend của hệ thống được phát triển bằng Go, một ngôn ngữ biên dịch có hiệu năng tốt, cú pháp gọn và khả năng đóng gói thuận lợi cho môi trường container. Go phù hợp với các dịch vụ REST API vì có thư viện chuẩn mạnh cho lập trình mạng, đồng thời hỗ trợ xử lý đồng thời bằng goroutine. Trong đồ án, Go được sử dụng thống nhất cho Gateway, Auth Service, Jobs Service và AI Service nhằm giảm độ phức tạp khi phát triển, kiểm thử và triển khai.
 
-\subsubsection{Ngôn ngữ Go (Golang)}
-Go là một ngôn ngữ lập trình biên dịch, mã nguồn mở được phát triển bởi Google. Go được lựa chọn làm ngôn ngữ chính cho việc xây dựng các microservice của "JobBridge AI" vì những lý do sau:
-\begin{itemize}
-    \item \textbf{Hiệu năng cao:} Là một ngôn ngữ biên dịch, Go cung cấp hiệu suất gần tương đương với các ngôn ngữ như C++ hay Java, rất phù hợp cho các tác vụ xử lý yêu cầu nhanh và hiệu quả.
-    \item \textbf{Hỗ trợ đồng thời (Concurrency) mạnh mẽ:} Go có cơ chế hỗ trợ lập trình đồng thời ngay từ trong nhân của ngôn ngữ thông qua Goroutines và Channels. Điều này giúp việc xây dựng các ứng dụng có khả năng xử lý hàng nghìn yêu cầu cùng lúc trở nên đơn giản và hiệu quả hơn rất nhiều so với các cơ chế đa luồng truyền thống.
-    \item \textbf{Tối ưu cho ứng dụng mạng và microservice:} Go có một thư viện chuẩn mạnh mẽ, đặc biệt là trong lĩnh vực ứng dụng mạng. Cú pháp đơn giản, thời gian biên dịch nhanh và việc tạo ra một file thực thi duy nhất không có phụ thuộc ngoài giúp cho việc đóng gói và triển khai trong các container trở nên cực kỳ dễ dàng.
-\end{itemize}
+Gin Gonic được sử dụng làm web framework cho các service backend. Framework này cung cấp cơ chế routing, middleware, binding dữ liệu đầu vào và trả response JSON một cách đơn giản. Trong hệ thống, Gin được dùng để tổ chức các nhóm API theo miền nghiệp vụ như xác thực, hồ sơ người dùng, việc làm, hồ sơ ứng tuyển và chức năng AI. Các middleware xác thực JWT và kiểm tra vai trò được áp dụng ở những route cần bảo vệ, trong khi các route công khai như xem danh sách việc làm hoặc xem công ty có thể truy cập mà không cần đăng nhập.
 
-\subsubsection{Gin Web Framework}
-Gin là một framework phát triển web hiệu suất cao được viết bằng Go. Nó cung cấp các tính năng cần thiết để xây dựng API một cách nhanh chóng nhưng vẫn giữ được hiệu năng tốt. Các đặc điểm nổi bật của Gin bao gồm hệ thống định tuyến (routing) nhanh, khả năng mở rộng thông qua các middleware (ví dụ: logging, xác thực), và khả năng xử lý lỗi tốt.
+MongoDB được chọn làm cơ sở dữ liệu chính vì dữ liệu tuyển dụng có cấu trúc linh hoạt, bao gồm hồ sơ người dùng, thông tin công ty, tin tuyển dụng, đường dẫn CV, nội dung CV đã trích xuất và trạng thái ứng tuyển. Hệ thống sử dụng các collection chính gồm người dùng, công ty, tin tuyển dụng và hồ sơ ứng tuyển. Các quan hệ như người dùng sở hữu công ty, nhà tuyển dụng sở hữu tin tuyển dụng hoặc ứng viên ứng tuyển vào một vị trí được quản lý ở tầng ứng dụng thông qua mã định danh logic, thay vì dùng ràng buộc khóa ngoại như trong cơ sở dữ liệu quan hệ.
 
-\subsubsection{Cơ sở dữ liệu MongoDB}
-MongoDB là một hệ quản trị cơ sở dữ liệu NoSQL, hướng tài liệu (document-oriented). Thay vì lưu dữ liệu trong các bảng với các hàng và cột như cơ sở dữ liệu quan hệ, MongoDB lưu trữ dữ liệu dưới dạng các tài liệu BSON (một dạng nhị phân của JSON). Lựa chọn này mang lại nhiều lợi ích cho dự án:
-\begin{itemize}
-    \item \textbf{Cấu trúc linh hoạt (Flexible Schema):} Rất phù hợp để lưu trữ dữ liệu có cấu trúc đa dạng và có thể thay đổi theo thời gian như hồ sơ ứng viên (CVs) hay mô tả công việc (JDs).
-    \item \textbf{Khả năng mở rộng ngang:} MongoDB được thiết kế để có thể mở rộng quy mô một cách dễ dàng bằng cách thêm nhiều máy chủ vào cluster.
-    \item \textbf{Hiệu năng truy vấn tốt:} Hỗ trợ các chỉ mục (indexes) mạnh mẽ và cung cấp một ngôn ngữ truy vấn phong phú cho các tài liệu JSON.
-\end{itemize}
+Đối với lưu trữ tệp, hệ thống sử dụng Cloudinary để lưu avatar và CV. Khi ứng viên tải CV lên, Auth Service gửi tệp lên Cloudinary, nhận về đường dẫn truy cập, đồng thời trích xuất nội dung văn bản từ PDF và lưu lại trong hồ sơ người dùng. Cơ chế này giúp AI Service có thể lấy nội dung CV trực tiếp từ MongoDB trong các lần xử lý sau, giảm chi phí tải lại và phân tích lại tệp.
 
 \subsection{Công nghệ phía Frontend}
 \label{subsection:2.2.2}
-Giao diện người dùng của "JobBridge AI" được xây dựng dưới dạng một ứng dụng trang đơn (Single Page Application - SPA) sử dụng các công nghệ hiện đại nhất trong hệ sinh thái JavaScript.
+Frontend được xây dựng bằng React kết hợp TypeScript và Vite. React hỗ trợ tổ chức giao diện thành các component có thể tái sử dụng, phù hợp với hệ thống có nhiều trang theo vai trò như public user, ứng viên, nhà tuyển dụng và admin. TypeScript giúp kiểm soát kiểu dữ liệu ở tầng giao diện và API client, giảm lỗi trong quá trình phát triển. Vite được sử dụng làm công cụ build và dev server, giúp rút ngắn thời gian khởi động và hỗ trợ hot module replacement trong quá trình lập trình.
 
-\subsubsection{React và TypeScript}
-\begin{itemize}
-    \item \textbf{React:} Là một thư viện JavaScript do Facebook phát triển, được sử dụng để xây dựng giao diện người dùng. React cho phép chia nhỏ giao diện thành các thành phần (components) độc lập và có thể tái sử dụng, giúp quản lý trạng thái ứng dụng một cách hiệu quả và làm cho mã nguồn trở nên có tổ chức, dễ bảo trì.
-    \item \textbf{TypeScript:} Là một ngôn ngữ lập trình được xây dựng trên nền tảng JavaScript, bổ sung thêm hệ thống kiểu tĩnh (static type system). Việc sử dụng TypeScript giúp phát hiện sớm các lỗi tiềm ẩn ngay trong quá trình phát triển, cải thiện chất lượng mã nguồn và tăng cường khả năng hỗ trợ từ các công cụ lập trình (code completion, refactoring).
-\end{itemize}
-
-\subsubsection{Vite}
-Vite là một công cụ xây dựng (build tool) và máy chủ phát triển (dev server) thế hệ mới. So với các công cụ truyền thống như Webpack, Vite cung cấp một trải nghiệm phát triển vượt trội nhờ vào:
-\begin{itemize}
-    \item \textbf{Khởi động máy chủ cực nhanh:} Tận dụng cơ chế native ES modules của trình duyệt, Vite có thể khởi động máy chủ phát triển gần như ngay lập tức.
-    \item \textbf{Hot Module Replacement (HMR) siêu tốc:} Khi có sự thay đổi trong mã nguồn, Vite có thể cập nhật các thay đổi đó trên trình duyệt mà không cần tải lại toàn bộ trang, giúp chu trình phát triển diễn ra nhanh hơn đáng kể.
-\end{itemize}
+Về giao diện, hệ thống sử dụng Tailwind CSS để xây dựng bố cục và định dạng theo hướng nhất quán. Các biểu tượng được cung cấp bởi thư viện Lucide React. Ứng dụng frontend được tổ chức theo các nhóm chức năng như xác thực, việc làm, công ty, khu vực ứng viên, khu vực nhà tuyển dụng và khu vực quản trị. Cách tổ chức này giúp tách biệt logic gọi API theo miền nghiệp vụ và giao diện hiển thị theo vai trò người dùng.
 
 \section{Nền tảng triển khai và DevOps}
 \label{section:2.3}
-DevOps là một tập hợp các phương pháp luận kết hợp giữa phát triển phần mềm (Development) và vận hành công nghệ thông tin (Operations) nhằm mục đích rút ngắn vòng đời phát triển hệ thống và cung cấp các bản cập nhật, tính năng và sửa lỗi một cách liên tục, đồng thời đảm bảo chất lượng của phần mềm. Dự án "JobBridge AI" áp dụng triệt để các nguyên tắc DevOps thông qua việc sử dụng các công nghệ container hóa, điều phối và tự động hóa quy trình CI/CD.
+Hệ thống JobBridge AI được thiết kế không chỉ như một ứng dụng web đơn lẻ mà còn như một hệ thống có thể triển khai và vận hành trên môi trường Kubernetes. Vì vậy, các công nghệ DevOps đóng vai trò quan trọng trong việc bảo đảm tính nhất quán môi trường, khả năng tái tạo và khả năng cập nhật tự động.
 
 \subsection{Container hóa với Docker}
 \label{subsection:2.3.1}
-Docker là một nền tảng mã nguồn mở cho phép tự động hóa việc triển khai ứng dụng bên trong các "container". Một container là một đơn vị phần mềm nhẹ, độc lập, có thể thực thi, bao gồm mọi thứ cần thiết để chạy một ứng dụng: mã nguồn, runtime, các công cụ hệ thống, và thư viện.
-
-Trong dự án "JobBridge AI", mỗi microservice (Auth, Jobs, AI, Gateway) và cả ứng dụng Frontend đều được đóng gói vào một Docker image riêng biệt thông qua một file `Dockerfile`. Việc sử dụng Docker mang lại các lợi ích cốt lõi:
-\begin{itemize}
-    \item \textbf{Tính nhất quán môi trường:} Đảm bảo rằng ứng dụng sẽ chạy theo cùng một cách, bất kể nó được triển khai ở đâu, từ máy tính cá nhân của lập trình viên cho đến môi trường production trên đám mây. Điều này giúp loại bỏ hoàn toàn vấn đề "It works on my machine".
-    \item \textbf{Tính di động:} Docker container có thể chạy trên bất kỳ hệ thống nào có cài đặt Docker, từ Windows, macOS, Linux cho đến các nền tảng đám mây.
-    \item \textbf{Tách biệt và bảo mật:} Các container chạy độc lập với nhau và với hệ điều hành chủ, giúp tăng cường tính bảo mật và ổn định.
-    \item \textbf{Hiệu quả và nhẹ nhàng:} So với máy ảo (Virtual Machine), container chia sẻ nhân (kernel) của hệ điều hành chủ, giúp chúng khởi động nhanh hơn và tiêu thụ ít tài nguyên hơn đáng kể.
-\end{itemize}
+Docker được sử dụng để đóng gói từng thành phần của hệ thống thành container image. Mỗi service backend và frontend đều có cấu hình đóng gói riêng, giúp ứng dụng chạy nhất quán giữa môi trường phát triển, CI và Kubernetes. Với backend Go, image có thể được tối ưu bằng multi-stage build: giai đoạn đầu biên dịch chương trình, giai đoạn sau chỉ chứa tệp thực thi và các thành phần runtime tối thiểu. Với frontend, giai đoạn build tạo ra các tệp tĩnh và Nginx phục vụ kết quả đó ở môi trường production.
 
 \subsection{Điều phối với Kubernetes}
 \label{subsection:2.3.2}
-Khi một ứng dụng bao gồm nhiều container (như kiến trúc microservices), việc quản lý, kết nối và mở rộng quy mô chúng một cách thủ công sẽ trở nên vô cùng phức tạp. Kubernetes (thường được viết tắt là K8s) là một hệ thống điều phối container mã nguồn mở, được thiết kế để tự động hóa việc triển khai, mở rộng và vận hành các ứng dụng container hóa.
-
-Dự án sử dụng Azure Kubernetes Service (AKS), một dịch vụ Kubernetes được quản lý hoàn toàn bởi Microsoft Azure, giúp đơn giản hóa việc triển khai và quản lý cluster. Các khái niệm chính của Kubernetes được áp dụng trong dự án được mô tả trong Hình \ref{fig:kubernetes-deployment}:
+Kubernetes là nền tảng điều phối container được sử dụng để chạy các service của JobBridge AI trên Azure Kubernetes Service. Trong Kubernetes, mỗi service được triển khai dưới dạng Deployment và được expose nội bộ bằng Service. Frontend và Gateway được truy cập từ bên ngoài thông qua Ingress, trong khi Auth, Jobs, AI và MongoDB chủ yếu phục vụ traffic nội bộ trong cluster. Helm chart được dùng để quản lý các manifest Kubernetes theo dạng template, cho phép tái sử dụng cấu hình giữa môi trường local và Azure.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{Chuong/so-do-chuong-2/kubernetes_deploymeny.png}
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.22\textwidth]{Chuong/so-do-chuong-2/kubernetes_deploymeny.png}%
+    }
     \caption{Kiến trúc triển khai trên Azure Kubernetes Service}
     \label{fig:kubernetes-deployment}
 \end{figure}
 
-\begin{itemize}
-    \item \textbf{Pod:} Là đơn vị nhỏ nhất có thể triển khai trong Kubernetes, chứa một hoặc nhiều container. Trong dự án này, mỗi Pod sẽ chạy một container của một microservice.
-    \item \textbf{Deployment:} Là một tài nguyên của Kubernetes dùng để quản lý các Pod. Nó đảm bảo rằng một số lượng bản sao (replicas) nhất định của một Pod luôn ở trạng thái sẵn sàng, đồng thời quản lý quá trình cập nhật phiên bản (rolling update) một cách an toàn.
-    \item \textbf{Service:} Cung cấp một điểm truy cập mạng ổn định (một địa chỉ IP và DNS name cố định) cho một nhóm các Pod. Điều này cho phép các microservice giao tiếp với nhau một cách dễ dàng bên trong cluster.
-    \item \textbf{Ingress:} Quản lý truy cập từ bên ngoài vào các Service trong cluster, thường là các yêu cầu HTTP/HTTPS. Nó hoạt động như một bộ định tuyến thông minh, hướng lưu lượng truy cập đến đúng dịch vụ dựa trên tên miền hoặc đường dẫn.
-\end{itemize}
+Trong triển khai Azure, hệ thống sử dụng Azure Container Registry để lưu trữ image, Azure Key Vault để quản lý bí mật như JWT secret, OpenAI API key và Cloudinary URL, đồng thời sử dụng Secrets Store CSI Driver để đưa các bí mật này vào pod. Các tài nguyên Kubernetes quan trọng gồm Deployment, Service, Ingress, StatefulSet cho MongoDB, Horizontal Pod Autoscaler, Pod Disruption Budget và SecretProviderClass.
 
 \subsection{CI/CD với GitHub Actions và Argo CD}
 \label{subsection:2.3.3}
-Quy trình Tích hợp liên tục (CI) và Triển khai liên tục (CD) là trái tim của thực hành DevOps, giúp tự động hóa toàn bộ quá trình từ việc viết mã cho đến khi sản phẩm đến tay người dùng. Dự án áp dụng một quy trình CI/CD hiện đại dựa trên GitOps, được minh họa trong Hình \ref{fig:ci-cd-flow}.
+Quy trình CI/CD của hệ thống được thiết kế theo hướng GitOps. Khi mã nguồn thay đổi, GitHub Actions thực hiện các bước kiểm tra chất lượng, chạy kiểm thử, build image, quét bảo mật image bằng Trivy và đẩy image lên Azure Container Registry. Image được gắn tag theo mã commit để có thể truy vết phiên bản triển khai. Sau đó, pipeline triển khai cập nhật cấu hình Helm dùng cho Argo CD để trỏ đến phiên bản image mới.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{Chuong/so-do-chuong-2/ci_cd_flow.png}
-    \caption{Sơ đồ luồng CI/CD của dự án}
-    \label{fig:ci-cd-flow}
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{Chuong/so-do-chuong-2/ci_flow.png}%
+    }
+    \caption{Sơ đồ luồng tích hợp liên tục của dự án}
+    \label{fig:ci-flow}
 \end{figure}
 
-\subsubsection{Tích hợp liên tục (CI) với GitHub Actions}
-Quy trình CI được kích hoạt mỗi khi có mã nguồn mới được đẩy lên repository trên GitHub.
-\begin{enumerate}
-    \item \textbf{Build và Test:} GitHub Actions tự động biên dịch mã nguồn và chạy các bộ kiểm thử (unit test) để đảm bảo chất lượng và tính đúng đắn của các thay đổi.
-    \item \textbf{Build Docker Image:} Nếu tất cả các bài kiểm thử đều thành công, quy trình sẽ tiến hành xây dựng các Docker image cho từng microservice.
-    \item \textbf{Push to Azure Container Registry (ACR):} Các image sau khi được build sẽ được đẩy lên và lưu trữ tại ACR, một dịch vụ registry container riêng tư trên Azure.
-\end{enumerate}
+\begin{figure}[H]
+    \centering
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.15\textwidth]{Chuong/so-do-chuong-2/cd_flow.png}%
+    }
+    \caption{Sơ đồ luồng triển khai liên tục của dự án}
+    \label{fig:cd-flow}
+\end{figure}
 
-\subsubsection{Triển khai liên tục (CD) theo mô hình GitOps với Argo CD}
-GitOps là một phương pháp thực hành CD, trong đó một repository Git (GitOps repo) được coi là "nguồn chân lý" (source of truth) duy nhất cho việc định nghĩa trạng thái mong muốn của hệ thống.
-\begin{enumerate}
-    \item \textbf{Update GitOps Repo:} Sau khi CI thành công, một bước tự động sẽ cập nhật file cấu hình (ví dụ: file `values.yaml` của Helm) trong một repository Git thứ hai (GitOps repo), trỏ đến phiên bản image mới nhất vừa được đẩy lên ACR.
-    \item \textbf{Argo CD:} Là một công cụ GitOps chạy trong cluster Kubernetes. Nó liên tục theo dõi GitOps repo.
-    \item \textbf{Sync and Deploy:} Khi phát hiện có sự thay đổi trong GitOps repo, Argo CD sẽ tự động so sánh trạng thái mong muốn trong repo với trạng thái hiện tại trên cluster. Nếu có sự khác biệt, nó sẽ tự động "đồng bộ" (sync) bằng cách ra lệnh cho Kubernetes kéo image mới về và triển khai phiên bản cập nhật của ứng dụng.
-\end{enumerate}
-Mô hình này đảm bảo rằng tất cả các thay đổi đối với môi trường vận hành đều được theo dõi, có thể kiểm tra và dễ dàng phục hồi thông qua lịch sử của Git.
+Argo CD chạy trong AKS và liên tục so sánh trạng thái mong muốn trong Git với trạng thái thực tế của cluster. Khi phát hiện cấu hình Helm thay đổi, Argo CD đồng bộ tài nguyên Kubernetes và triển khai phiên bản mới theo cơ chế rolling update. Mô hình GitOps giúp toàn bộ thay đổi triển khai được ghi nhận trong lịch sử Git, dễ kiểm tra, dễ rollback và hạn chế thao tác thủ công trực tiếp trên cluster.
 
-\section{Trí tuệ nhân tạo và Mô hình ngôn ngữ lớn (LLM)}
+\section{Trí tuệ nhân tạo và Mô hình ngôn ngữ lớn}
 \label{section:2.4}
-Trí tuệ nhân tạo (Artificial Intelligence - AI) là một lĩnh vực rộng lớn của khoa học máy tính, tập trung vào việc tạo ra các hệ thống thông minh có khả năng thực hiện các tác vụ mà thông thường đòi hỏi trí thông minh của con người. Trong những năm gần đây, một nhánh của AI đã có những bước phát triển đột phá và thu hút sự chú ý đặc biệt, đó là các Mô hình ngôn ngữ lớn (Large Language Models - LLMs).
+Trí tuệ nhân tạo là lĩnh vực nghiên cứu và xây dựng các hệ thống có khả năng thực hiện những tác vụ thường đòi hỏi trí thông minh của con người. Trong phạm vi đồ án này, trọng tâm không phải là huấn luyện mô hình AI từ đầu mà là ứng dụng mô hình ngôn ngữ lớn thông qua API để giải quyết các bài toán xử lý ngôn ngữ tự nhiên trong tuyển dụng.
 
-\subsubsection{Mô hình ngôn ngữ lớn (LLM)}
-LLMs là các mô hình AI được huấn luyện trên một khối lượng dữ liệu văn bản khổng lồ, giúp chúng có được khả năng hiểu và tạo ra ngôn ngữ tự nhiên của con người một cách đáng kinh ngạc. Các mô hình này, chẳng hạn như dòng mô hình GPT (Generative Pre-trained Transformer) của OpenAI, có thể thực hiện một loạt các tác vụ ngôn ngữ phức tạp mà không cần được huấn luyện lại một cách cụ thể cho từng tác vụ.
+Mô hình ngôn ngữ lớn, hay Large Language Model, là mô hình được huấn luyện trên khối lượng dữ liệu văn bản rất lớn, có khả năng hiểu ngữ cảnh, sinh văn bản, tóm tắt, so sánh và trả lời theo chỉ dẫn. Với JobBridge AI, LLM được sử dụng trong ba tình huống chính: hỗ trợ ứng viên luyện phỏng vấn theo JD và CV, sinh bộ câu hỏi trắc nghiệm phỏng vấn theo vị trí đã ứng tuyển, và hỗ trợ nhà tuyển dụng đánh giá mức độ phù hợp của CV ứng viên so với mô tả công việc.
 
-Thay vì phải xây dựng các thuật toán riêng biệt cho mỗi bài toán, chúng ta có thể "ra lệnh" cho LLM thực hiện các yêu cầu thông qua các câu lệnh (prompts). Trong phạm vi của dự án "JobBridge AI", hai khả năng cốt lõi của LLM được tận dụng là:
-\begin{itemize}
-    \item \textbf{Khả năng hội thoại và nhập vai (Role-playing):} Mô hình có thể đóng vai một nhà tuyển dụng, đưa ra câu hỏi và cung cấp những phản hồi, nhận xét như một chuyên gia thực thụ.
-    \item \textbf{Khả năng phân tích, so sánh và tóm tắt nội dung:} Mô hình có thể đọc, hiểu và đối chiếu thông tin từ nhiều nguồn văn bản khác nhau (cụ thể là CV và mô tả công việc) để đưa ra đánh giá và chấm điểm.
-\end{itemize}
-Kiến trúc nền tảng của hầu hết các LLM hiện đại là kiến trúc Transformer, cho phép mô hình xử lý các chuỗi dữ liệu (như câu chữ) và nắm bắt được mối quan hệ ngữ cảnh giữa các từ, kể cả khi chúng ở xa nhau trong một đoạn văn.
-
-\subsubsection{Ứng dụng LLM trong JobBridge AI}
-Dự án "JobBridge AI" không xây dựng một mô hình LLM từ đầu, mà tận dụng sức mạnh của các mô hình đã được huấn luyện sẵn thông qua các giao diện lập trình ứng dụng (API), cụ thể là OpenAI API. Cách tiếp cận này cho phép dự án tích hợp các khả năng AI tiên tiến một cách nhanh chóng và hiệu quả mà không đòi hỏi nguồn lực tính toán khổng lồ cho việc huấn luyện mô hình.
-\begin{itemize}
-    \item \textbf{Trong tính năng luyện tập phỏng vấn:} Hệ thống gửi câu hỏi phỏng vấn và câu trả lời của người dùng đến LLM. Với vai trò là một chuyên gia tuyển dụng, LLM sẽ phân tích câu trả lời dựa trên các tiêu chí như sự liên quan, độ rõ ràng, cách diễn đạt và đưa ra những phản hồi mang tính xây dựng, giúp người dùng cải thiện kỹ năng của mình.
-    \item \textbf{Trong tính năng chấm điểm CV:} Hệ thống trích xuất nội dung văn bản từ file CV của ứng viên và mô tả công việc (JD) từ nhà tuyển dụng. Cả hai nội dung này sẽ được đưa vào LLM. Mô hình sẽ thực hiện việc so sánh, đối chiếu kinh nghiệm, kỹ năng trong CV với các yêu cầu trong JD để đưa ra một điểm số đánh giá mức độ phù hợp và một bản tóm tắt ngắn gọn về điểm mạnh, điểm yếu của ứng viên.
-\end{itemize}
-Bằng cách này, "JobBridge AI" đã biến một công nghệ AI phức tạp thành một công cụ hữu ích và dễ tiếp cận, trực tiếp giải quyết các bài toán thực tế trong quy trình tuyển dụng.
+Để kết quả AI bám sát dữ liệu thực tế, hệ thống xây dựng prompt từ nhiều lớp ngữ cảnh. Đối với ứng viên, prompt bao gồm hồ sơ cá nhân, mô tả công việc, yêu cầu công việc, nội dung CV đã trích xuất và lịch sử hội thoại gần nhất. Đối với nhà tuyển dụng, prompt bao gồm thông tin ứng viên, JD, CV text và yêu cầu đánh giá. Bên cạnh đó, hệ thống áp dụng các kiểm tra nghiệp vụ trước khi gọi mô hình, chẳng hạn chỉ ứng viên đã ứng tuyển mới được sử dụng AI Coach cho job đó, và chỉ nhà tuyển dụng sở hữu job mới được đánh giá CV của ứng viên trong job tương ứng. Điều này giúp hạn chế việc sử dụng AI sai ngữ cảnh và tăng tính an toàn dữ liệu.
 
 \section{Kết chương}
-Chương này đã trình bày một cách có hệ thống các cơ sở lý thuyết và công nghệ nền tảng của dự án "JobBridge AI". Từ kiến trúc Microservices, các công nghệ cụ thể cho backend và frontend, cho đến nền tảng triển khai DevOps hiện đại và các khái niệm về AI, tất cả đều là những mảnh ghép quan trọng tạo nên hệ thống. Những kiến thức này sẽ là cơ sở để đi vào chương tiếp theo, Chương 3, nơi sẽ trình bày chi tiết về việc phân tích và thiết kế hệ thống dựa trên các nền tảng đã chọn.
+Chương này đã trình bày các nền tảng lý thuyết và công nghệ chính được sử dụng trong JobBridge AI. Kiến trúc microservices giúp hệ thống tách biệt các miền nghiệp vụ và mở rộng linh hoạt; Go, Gin, React, TypeScript và MongoDB là các công nghệ cốt lõi để xây dựng ứng dụng; Docker, Kubernetes, Helm, GitHub Actions, Argo CD, Terraform và Azure Key Vault tạo nên nền tảng triển khai và vận hành; mô hình ngôn ngữ lớn cung cấp khả năng phân tích và sinh phản hồi thông minh cho các chức năng tuyển dụng. Các nội dung này là cơ sở để chuyển sang Chương 3, nơi hệ thống được phân tích và thiết kế chi tiết hơn theo các yêu cầu nghiệp vụ.
 
 \end{document}

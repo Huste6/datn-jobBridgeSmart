@@ -1,0 +1,14 @@
+sequenceDiagram
+    title UC14 - Quản lý người dùng
+    participant U as Quản trị viên
+    participant FE as Frontend
+    participant GW as API Gateway
+    participant AUTH as Auth Service
+    participant DB as MongoDB
+    U->>FE: Lọc/tìm hoặc khóa tài khoản
+    FE->>GW: GET/PUT /api/admin/users
+    GW->>AUTH: Kiểm tra role admin
+    AUTH->>DB: Truy vấn hoặc cập nhật trạng thái user
+    DB-->>AUTH: Trả dữ liệu người dùng
+    AUTH-->>FE: Trả kết quả quản lý
+    FE-->>U: Cập nhật danh sách người dùng
