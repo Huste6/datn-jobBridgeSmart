@@ -199,3 +199,53 @@ func TestBuildInterviewQuizPromptMessages_IncludesRequestedCount(t *testing.T) {
 		t.Fatalf("expected request message to include question count, got %q", last)
 	}
 }
+
+func TestParseInterviewQuizQuestions_MalformedJSONWithLooseObjects(t *testing.T) {
+	raw := `<quiz>
+{
+  "questions": [
+    {
+      "number": 8,
+      "question": "Trong hệ thống gợi ý, bạn sử dụng model ranking dựa trên implicit feedback (view, click, apply). Để tránh bias do position effect (người dùng thường click vào vị trí đầu), bạn nên áp dụng kỹ thuật nào trong quá trình huấn luyện?",
+      {
+      "label": "A",
+      "text": "Position bias correction bằng inverse propensity scoring (IPS)"
+    },
+      "options": [
+        {"label": "A", "text": "Position bias correction bằng inverse propensity scoring (IPS)"},
+        {"label": "B", "text": "Sử dụng trọng số sample theo số lần click"},
+        {"label": "C", "text": "Lọc bỏ các mẫu có vị trí > 3 trong tập huấn luyện"},
+        {"label": "D", "text": "Huấn luyện model trên tập data đã shuffle ngẫu nhiên vị trí"}
+      ],
+      "correct_answer": "A",
+      "explanation": "IPS là phương pháp chuẩn để sửa position bias trong implicit feedback."
+    }
+  ]
+}
+</quiz>`
+
+	questions, err := parseInterviewQuizQuestions(raw, 1)
+	if err != nil {
+		t.Fatalf("expected parser to parse loose/malformed JSON, got error: %v", err)
+	}
+	if len(questions) != 1 {
+		t.Fatalf("expected 1 parsed question, got %d", len(questions))
+	}
+	q := questions[0]
+	if q.Question == "" || !strings.Contains(q.Question, "Trong hệ thống gợi ý") {
+		t.Fatalf("unexpected question text: %q", q.Question)
+	}
+	if len(q.Options) != 4 {
+		t.Fatalf("expected 4 options, got %d", len(q.Options))
+	}
+	if q.Options[0].Text != "Position bias correction bằng inverse propensity scoring (IPS)" {
+		t.Fatalf("unexpected Option A: %q", q.Options[0].Text)
+	}
+	if q.CorrectAnswer != "A" {
+		t.Fatalf("unexpected correct answer: got %q, want A", q.CorrectAnswer)
+	}
+	if q.Explanation != "IPS là phương pháp chuẩn để sửa position bias trong implicit feedback." {
+		t.Fatalf("unexpected explanation: got %q", q.Explanation)
+	}
+}
+

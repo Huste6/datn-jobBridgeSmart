@@ -652,9 +652,10 @@ Yêu cầu bắt buộc:
 - Câu nhiễu (đáp án sai) phải hợp lý, gần đúng về mặt kỹ thuật, tránh đáp án sai quá lộ liễu.
 - Tránh các câu chỉ hỏi nhớ lại thông tin hiển nhiên từ CV/JD theo kiểu nhận diện đơn giản.
 - Bám sát stack trong JD và kinh nghiệm trong CV để cá nhân hóa câu hỏi.
-- Trả kết quả ở dạng JSON hợp lệ duy nhất, không markdown, không giải thích ngoài JSON.
+- Trả kết quả ở dạng JSON hợp lệ duy nhất bọc ở giữa hai thẻ <quiz> và </quiz>. Không kèm markdown code block, không giải thích ngoài JSON.
 
-Schema JSON bắt buộc:
+Ví dụ định dạng trả về bắt buộc:
+<quiz>
 {
   "questions": [
     {
@@ -670,7 +671,9 @@ Schema JSON bắt buộc:
       "explanation": "..."
     }
   ]
-}`
+}
+</quiz>`
+
 
 	candidateContext := strings.TrimSpace(fmt.Sprintf(
 		"Ứng viên: %s\nEmail: %s\nHeadline: %s\nSĐT: %s\nThành phố: %s\nCV_URL: %s",
@@ -841,6 +844,7 @@ func parseHRScoreAndNotes(raw string) (int, string) {
 }
 
 func parseInterviewQuizQuestions(raw string, requestedCount int) ([]interviewQuizQuestion, error) {
+	// 1. Try standard JSON parsing
 	jsonCandidate := extractJSONObject(raw)
 	if jsonCandidate != "" {
 		questions, err := parseInterviewQuizQuestionsFromJSON(jsonCandidate, requestedCount)
@@ -848,6 +852,7 @@ func parseInterviewQuizQuestions(raw string, requestedCount int) ([]interviewQui
 			return questions, nil
 		}
 
+		// 2. Try to repair and parse JSON
 		repaired := repairQuizJSON(jsonCandidate)
 		if repaired != jsonCandidate {
 			questions, repairErr := parseInterviewQuizQuestionsFromJSON(repaired, requestedCount)
@@ -857,6 +862,13 @@ func parseInterviewQuizQuestions(raw string, requestedCount int) ([]interviewQui
 		}
 	}
 
+	// 3. Fallback: Parse loosely using field extraction (highly robust for malformed JSON)
+	looseQuestions, looseErr := parseInterviewQuizQuestionsLoosely(raw, requestedCount)
+	if looseErr == nil && len(looseQuestions) > 0 {
+		return looseQuestions, nil
+	}
+
+	// 4. Fallback: Parse from plain text formatting
 	questions, err := parseInterviewQuizQuestionsFromText(raw, requestedCount)
 	if err == nil {
 		return questions, nil
@@ -868,9 +880,137 @@ func parseInterviewQuizQuestions(raw string, requestedCount int) ([]interviewQui
 	}
 
 	_, parseErr := parseInterviewQuizQuestionsFromJSON(jsonCandidate, requestedCount)
-	log.Printf("ERROR: Failed to parse interview quiz. Error: %v. Raw Reply:\n%s", parseErr, raw)
+	log.Printf("ERROR: Failed to parse interview quiz. Error: %v (Loose parsing error: %v). Raw Reply:\n%s", parseErr, looseErr, raw)
 	return nil, fmt.Errorf("cannot parse quiz json: %w", parseErr)
 }
+
+func parseInterviewQuizQuestionsLoosely(raw string, requestedCount int) ([]interviewQuizQuestion, error) {
+	// Search for all question values using regex
+	questionRegex := regexp.MustCompile(`"question"\s*:\s*"((?:[^"\\]|\\.)*)"`)
+	matches := questionRegex.FindAllStringSubmatchIndex(raw, -1)
+	if len(matches) == 0 {
+		return nil, fmt.Errorf("no questions found in text")
+	}
+
+	normalized := make([]interviewQuizQuestion, 0, len(matches))
+
+	for i := 0; i < len(matches); i++ {
+		// Define the segment of the current question
+		startIdx := matches[i][0]
+		endIdx := len(raw)
+		if i+1 < len(matches) {
+			endIdx = matches[i+1][0]
+		}
+		segment := raw[startIdx:endIdx]
+
+		// 1. Extract Question Text
+		qText := raw[matches[i][2]:matches[i][3]]
+		qText = unescapeJSONString(qText)
+
+		// 2. Extract Options
+		optRegex1 := regexp.MustCompile(`\{\s*"label"\s*:\s*"([A-D])"\s*,\s*"text"\s*:\s*"((?:[^"\\]|\\.)*)"\s*\}`)
+		optRegex2 := regexp.MustCompile(`\{\s*"text"\s*:\s*"((?:[^"\\]|\\.)*)"\s*,\s*"label"\s*:\s*"([A-D])"\s*\}`)
+
+		optionTexts := map[string]string{}
+		
+		m1 := optRegex1.FindAllStringSubmatch(segment, -1)
+		for _, m := range m1 {
+			label := strings.ToUpper(m[1])
+			text := unescapeJSONString(m[2])
+			if optionTexts[label] == "" {
+				optionTexts[label] = text
+			}
+		}
+
+		m2 := optRegex2.FindAllStringSubmatch(segment, -1)
+		for _, m := range m2 {
+			label := strings.ToUpper(m[2])
+			text := unescapeJSONString(m[1])
+			if optionTexts[label] == "" {
+				optionTexts[label] = text
+			}
+		}
+
+		if len(optionTexts) < 4 {
+			looseOptRegex := regexp.MustCompile(`"label"\s*:\s*"([A-D])".*?"text"\s*:\s*"((?:[^"\\]|\\.)*)"`)
+			mLoose := looseOptRegex.FindAllStringSubmatch(segment, -1)
+			for _, m := range mLoose {
+				label := strings.ToUpper(m[1])
+				text := unescapeJSONString(m[2])
+				if optionTexts[label] == "" {
+					optionTexts[label] = text
+				}
+			}
+		}
+
+		// 3. Extract Correct Answer
+		correctAnswer := "A"
+		ansRegex := regexp.MustCompile(`"correct_answer"\s*:\s*"?([A-D])"?`)
+		if mAns := ansRegex.FindStringSubmatch(segment); len(mAns) == 2 {
+			correctAnswer = strings.ToUpper(mAns[1])
+		}
+
+		// 4. Extract Explanation
+		explanation := ""
+		expRegex := regexp.MustCompile(`"explanation"\s*:\s*"((?:[^"\\]|\\.)*)"`)
+		if mExp := expRegex.FindStringSubmatch(segment); len(mExp) == 2 {
+			explanation = unescapeJSONString(mExp[1])
+		}
+
+		options := []interviewQuizOption{
+			{Label: "A", Text: optionTexts["A"]},
+			{Label: "B", Text: optionTexts["B"]},
+			{Label: "C", Text: optionTexts["C"]},
+			{Label: "D", Text: optionTexts["D"]},
+		}
+
+		hasOptions := false
+		for _, opt := range options {
+			if opt.Text != "" {
+				hasOptions = true
+				break
+			}
+		}
+
+		if hasOptions {
+			for idx, opt := range options {
+				if opt.Text == "" {
+					options[idx].Text = "(Không rõ đáp án này)"
+				}
+			}
+
+			normalized = append(normalized, interviewQuizQuestion{
+				Question:      qText,
+				Options:       options,
+				CorrectAnswer: correctAnswer,
+				Explanation:   explanation,
+			})
+		}
+	}
+
+	if len(normalized) == 0 {
+		return nil, fmt.Errorf("could not extract any valid questions from text")
+	}
+
+	if requestedCount > 0 && len(normalized) > requestedCount {
+		normalized = normalized[:requestedCount]
+	}
+
+	for i := range normalized {
+		normalized[i].Number = i + 1
+	}
+
+	return normalized, nil
+}
+
+func unescapeJSONString(s string) string {
+	s = strings.ReplaceAll(s, `\"`, `"`)
+	s = strings.ReplaceAll(s, `\\`, `\`)
+	s = strings.ReplaceAll(s, `\n`, ` `)
+	s = strings.ReplaceAll(s, `\t`, ` `)
+	return sanitizeAssistantReply(s)
+}
+
 
 func parseInterviewQuizQuestionsFromJSON(rawJSON string, requestedCount int) ([]interviewQuizQuestion, error) {
 	type payloadQuestion struct {
@@ -1156,15 +1296,23 @@ func extractJSONObject(raw string) string {
 		return ""
 	}
 
+	// 1. Try to extract content between <quiz> and </quiz> tags
+	startTag := "<quiz>"
+	endTag := "</quiz>"
+	startIdx := strings.Index(trimmed, startTag)
+	endIdx := strings.LastIndex(trimmed, endTag)
+	if startIdx >= 0 && endIdx > startIdx {
+		trimmed = strings.TrimSpace(trimmed[startIdx+len(startTag) : endIdx])
+	}
+
+	// 2. Remove typical markdown code block markers
 	trimmed = strings.TrimPrefix(trimmed, "```json")
+	trimmed = strings.TrimPrefix(trimmed, "```JSON")
 	trimmed = strings.TrimPrefix(trimmed, "```")
 	trimmed = strings.TrimSuffix(trimmed, "```")
 	trimmed = strings.TrimSpace(trimmed)
 
-	if strings.HasPrefix(trimmed, "{") && strings.HasSuffix(trimmed, "}") {
-		return trimmed
-	}
-
+	// 3. Extract the outermost JSON object if there's surrounding text
 	start := strings.Index(trimmed, "{")
 	end := strings.LastIndex(trimmed, "}")
 	if start >= 0 && end > start {

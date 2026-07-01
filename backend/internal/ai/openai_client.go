@@ -29,11 +29,16 @@ type OpenAIClient struct {
 	httpClient *http.Client
 }
 
+type responseFormat struct {
+	Type string `json:"type"`
+}
+
 type chatCompletionRequest struct {
-	Model       string       `json:"model"`
-	Messages    []LLMMessage `json:"messages"`
-	Temperature float64      `json:"temperature"`
-	MaxTokens   *int         `json:"max_tokens,omitempty"`
+	Model          string          `json:"model"`
+	Messages       []LLMMessage    `json:"messages"`
+	Temperature    float64         `json:"temperature"`
+	MaxTokens      *int            `json:"max_tokens,omitempty"`
+	ResponseFormat *responseFormat `json:"response_format,omitempty"`
 }
 
 type chatCompletionResponse struct {
@@ -99,11 +104,21 @@ func (c *OpenAIClient) Complete(ctx context.Context, messages []LLMMessage) (str
 		return "", fmt.Errorf("messages cannot be empty")
 	}
 
+	// 1. Detect if JSON Mode should be requested (if system prompt asks for JSON/quiz)
+	var respFormat *responseFormat
+	for _, m := range messages {
+		if m.Role == "system" && (strings.Contains(strings.ToLower(m.Content), "json") || strings.Contains(m.Content, "<quiz>")) {
+			respFormat = &responseFormat{Type: "json_object"}
+			break
+		}
+	}
+
 	payload := chatCompletionRequest{
-		Model:       c.model,
-		Messages:    messages,
-		Temperature: 0.35,
-		MaxTokens:   nil,
+		Model:          c.model,
+		Messages:       messages,
+		Temperature:    0.35,
+		MaxTokens:      nil,
+		ResponseFormat: respFormat,
 	}
 
 	body, err := json.Marshal(payload)
@@ -128,6 +143,29 @@ func (c *OpenAIClient) Complete(ctx context.Context, messages []LLMMessage) (str
 	resBody, err := io.ReadAll(io.LimitReader(res.Body, 2<<20))
 	if err != nil {
 		return "", err
+	}
+
+	// 2. Fallback: If 400 Bad Request occurs (possibly due to unsupported response_format parameter on some routers/models),
+	// retry the request without the response_format parameter.
+	if res.StatusCode == http.StatusBadRequest && respFormat != nil {
+		payload.ResponseFormat = nil
+		bodyFallback, errFallback := json.Marshal(payload)
+		if errFallback == nil {
+			reqFallback, errReq := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(bodyFallback))
+			if errReq == nil {
+				reqFallback.Header.Set("Authorization", "Bearer "+c.apiKey)
+				reqFallback.Header.Set("Content-Type", "application/json")
+				resFallback, errRes := c.doWithRetry(reqFallback)
+				if errRes == nil {
+					defer resFallback.Body.Close()
+					resBodyFallback, errRead := io.ReadAll(io.LimitReader(resFallback.Body, 2<<20))
+					if errRead == nil && resFallback.StatusCode < http.StatusBadRequest {
+						res = resFallback
+						resBody = resBodyFallback
+					}
+				}
+			}
+		}
 	}
 
 	if res.StatusCode >= http.StatusBadRequest {
