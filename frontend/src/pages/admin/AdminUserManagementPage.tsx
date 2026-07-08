@@ -14,7 +14,7 @@ const AdminUserManagementPage: React.FC = () => {
     setIsLoading(true)
     try {
       const data = await fetchAdminUsers({ page, limit: 10, q: search })
-      setUsers(data.users)
+      setUsers(data.users || [])
       setTotal(data.total)
     } catch (err: any) {
       setError(err.message || 'Failed to fetch users')

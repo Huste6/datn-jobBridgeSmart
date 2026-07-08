@@ -65,7 +65,7 @@ type updateSelfRequest struct {
 type companyUpsertRequest struct {
 	Name        string `json:"name" binding:"required,min=2"`
 	TaxCode     string `json:"tax_code" binding:"required,min=5"`
-	Website     string `json:"website" binding:"omitempty,url"`
+	Website     string `json:"website" binding:"omitempty"`
 	Industry    string `json:"industry" binding:"required,min=2"`
 	Size        string `json:"size" binding:"required,min=1"`
 	Location    string `json:"location" binding:"required,min=2"`
@@ -387,7 +387,16 @@ func (h *Handler) CompleteOnboarding(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"user": u.ToPublic()})
+	token, err := GenerateAccessToken(h.jwtSecret, h.jwtIssuer, h.tokenTTL, *u)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not issue token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"access_token": token,
+		"user":         u.ToPublic(),
+	})
 }
 
 func (h *Handler) UpdateMe(c *gin.Context) {

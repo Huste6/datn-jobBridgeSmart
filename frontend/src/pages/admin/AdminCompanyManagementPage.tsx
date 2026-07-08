@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { fetchAdminCompanies } from '../../features/auth/api/auth'
+import { fetchAdminCompanies, approveCompany } from '../../features/auth/api/auth'
 
 const AdminCompanyManagementPage: React.FC = () => {
   const [companies, setCompanies] = useState<any[]>([])
@@ -14,12 +14,21 @@ const AdminCompanyManagementPage: React.FC = () => {
     setIsLoading(true)
     try {
       const data = await fetchAdminCompanies({ page, limit: 10, q: search, status })
-      setCompanies(data.companies)
+      setCompanies(data.companies || [])
       setTotal(data.total)
     } catch (err: any) {
       setError(err.message || 'Failed to fetch companies')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleApprove = async (companyId: string, newStatus: 'approved' | 'rejected') => {
+    try {
+      await approveCompany(companyId, newStatus)
+      loadCompanies()
+    } catch (err: any) {
+      alert(err.message || 'Failed to update company status')
     }
   }
 
@@ -80,12 +89,13 @@ const AdminCompanyManagementPage: React.FC = () => {
                 <th className="px-8 py-5">Corporate Entity</th>
                 <th className="px-8 py-5">Hq Location</th>
                 <th className="px-8 py-5">Validation</th>
+                <th className="px-8 py-5 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {isLoading ? (
                 <tr>
-                  <td colSpan={3} className="px-8 py-20 text-center">
+                  <td colSpan={4} className="px-8 py-20 text-center">
                     <div className="flex flex-col items-center space-y-3">
                       <div className="w-8 h-8 border-2 border-blue-600/20 border-t-blue-600 rounded-full animate-spin" />
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Scanning network...</span>
@@ -94,7 +104,7 @@ const AdminCompanyManagementPage: React.FC = () => {
                 </tr>
               ) : companies.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-8 py-20 text-center">
+                  <td colSpan={4} className="px-8 py-20 text-center">
                     <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No entities detected</p>
                   </td>
                 </tr>
@@ -121,6 +131,26 @@ const AdminCompanyManagementPage: React.FC = () => {
                         }`}>
                         {company.status}
                       </span>
+                    </td>
+                    <td className="px-8 py-5 text-right">
+                      <div className="flex items-center justify-end space-x-2">
+                        {company.status !== 'approved' && (
+                          <button
+                            onClick={() => handleApprove(company.id, 'approved')}
+                            className="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-600 text-xs font-bold transition-all active:scale-95 shadow-sm border border-emerald-100"
+                          >
+                            Approve
+                          </button>
+                        )}
+                        {company.status !== 'rejected' && (
+                          <button
+                            onClick={() => handleApprove(company.id, 'rejected')}
+                            className="px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold transition-all active:scale-95 shadow-sm border border-red-100"
+                          >
+                            Reject
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))

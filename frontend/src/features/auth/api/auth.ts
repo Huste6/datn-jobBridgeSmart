@@ -150,7 +150,7 @@ export async function completeOnboarding(payload: {
         throw new Error('Missing access token')
     }
 
-    const data = await request<MeResponse>('/api/users/me/onboarding', {
+    const data = await request<AuthResponse>('/api/users/me/onboarding', {
         method: 'POST',
         headers: {
             Authorization: `Bearer ${token}`,
@@ -158,8 +158,9 @@ export async function completeOnboarding(payload: {
         body: JSON.stringify(payload),
     })
 
+    saveAccessToken(data.access_token)
     meCache = data.user
-    meCacheToken = token
+    meCacheToken = data.access_token
     return data.user
 }
 

@@ -10,6 +10,7 @@ import {
     Send,
     ShieldCheck,
     Sparkles,
+    Trash2,
     UserCircle2,
 } from 'lucide-react'
 import type { AuthUser } from '../../features/auth/api/auth'
@@ -201,6 +202,11 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
         [appliedJobs, selectedJobId],
     )
 
+    const chatStorageKey = useMemo(() => {
+        if (!currentUser?.id || !selectedJobId) return null
+        return `jobbridge_chat_history_${currentUser.id}_${selectedJobId}`
+    }, [currentUser?.id, selectedJobId])
+
     const initials = (currentUser?.full_name ?? '')
         .split(' ')
         .filter(Boolean)
@@ -259,8 +265,24 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
     }, [currentUser?.cv_url, cvFileName])
 
     useEffect(() => {
+        if (!chatStorageKey) {
+            setMessages([defaultAssistantMessage])
+            return
+        }
+        const saved = localStorage.getItem(chatStorageKey)
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved) as ChatMessage[]
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    setMessages(parsed)
+                    return
+                }
+            } catch (e) {
+                console.error('Failed to load chat history from localStorage', e)
+            }
+        }
         setMessages([defaultAssistantMessage])
-    }, [selectedJobId])
+    }, [chatStorageKey])
 
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -331,17 +353,30 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
             time: nowLabel(),
         }
 
-        setMessages((prev) => [...prev, userMessage])
+        setMessages((prev) => {
+            const updated = [...prev, userMessage]
+            if (chatStorageKey) {
+                localStorage.setItem(chatStorageKey, JSON.stringify(updated))
+            }
+            return updated
+        })
         if (options?.clearInput) {
             setInput('')
         }
         setIsSending(true)
 
         try {
+            const historyPayload = messages
+                .filter((m) => m.id !== 'm1')
+                .map((m) => ({
+                    role: m.role,
+                    content: m.content,
+                }))
+
             const aiResponse = await coachInterview({
                 jobId: selectedJobId,
                 message: trimmed,
-                history: [],
+                history: historyPayload,
             })
 
             const assistantMessage: ChatMessage = {
@@ -350,7 +385,13 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
                 content: aiResponse.reply,
                 time: nowLabel(),
             }
-            setMessages((prev) => [...prev, assistantMessage])
+            setMessages((prev) => {
+                const updated = [...prev, assistantMessage]
+                if (chatStorageKey) {
+                    localStorage.setItem(chatStorageKey, JSON.stringify(updated))
+                }
+                return updated
+            })
 
             if (aiResponse.cv_ready) {
                 setCvStatus('ready')
@@ -369,7 +410,13 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
                 content: `Mình chưa gọi được AI backend: ${error instanceof Error ? error.message : 'unknown error'}`,
                 time: nowLabel(),
             }
-            setMessages((prev) => [...prev, assistantMessage])
+            setMessages((prev) => {
+                const updated = [...prev, assistantMessage]
+                if (chatStorageKey) {
+                    localStorage.setItem(chatStorageKey, JSON.stringify(updated))
+                }
+                return updated
+            })
         } finally {
             setIsSending(false)
         }
@@ -401,7 +448,13 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
             content: `Tạo quiz ${quizQuestionCount} câu theo JD đã chọn`,
             time: nowLabel(),
         }
-        setMessages((prev) => [...prev, userMessage])
+        setMessages((prev) => {
+            const updated = [...prev, userMessage]
+            if (chatStorageKey) {
+                localStorage.setItem(chatStorageKey, JSON.stringify(updated))
+            }
+            return updated
+        })
         setIsSending(true)
 
         try {
@@ -417,7 +470,13 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
                 time: nowLabel(),
                 quiz: mapQuizFromApi(quizResponse),
             }
-            setMessages((prev) => [...prev, assistantMessage])
+            setMessages((prev) => {
+                const updated = [...prev, assistantMessage]
+                if (chatStorageKey) {
+                    localStorage.setItem(chatStorageKey, JSON.stringify(updated))
+                }
+                return updated
+            })
 
             if (quizResponse.cv_ready) {
                 setCvStatus('ready')
@@ -436,9 +495,23 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
                 content: `Mình chưa tạo được quiz từ AI backend: ${error instanceof Error ? error.message : 'unknown error'}`,
                 time: nowLabel(),
             }
-            setMessages((prev) => [...prev, assistantMessage])
+            setMessages((prev) => {
+                const updated = [...prev, assistantMessage]
+                if (chatStorageKey) {
+                    localStorage.setItem(chatStorageKey, JSON.stringify(updated))
+                }
+                return updated
+            })
         } finally {
             setIsSending(false)
+        }
+    }
+
+    const handleClearHistory = () => {
+        if (!chatStorageKey) return
+        if (window.confirm('Bạn có chắc chắn muốn xóa toàn bộ lịch sử hội thoại của Job này không?')) {
+            setMessages([defaultAssistantMessage])
+            localStorage.removeItem(chatStorageKey)
         }
     }
 
@@ -651,11 +724,21 @@ const AiInterviewCoachPage = ({ onNavigate, currentUser, role, onLogout }: Props
                     </aside>
 
                     <div className="rounded-2xl border border-slate-200 bg-white flex flex-col h-[72vh] lg:h-[calc(100vh-110px)] lg:sticky lg:top-20 lg:self-start">
-                        <div className="border-b border-slate-200 px-4 py-3 flex items-center gap-2">
-                            <Bot className="w-5 h-5 text-blue-600" />
-                            <div>
+                        <div className="border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <Bot className="w-5 h-5 text-blue-600" />
                                 <h3 className="text-sm font-semibold text-slate-900">AI Interview Coach</h3>
                             </div>
+                            {messages.length > 1 && (
+                                <button
+                                    onClick={handleClearHistory}
+                                    className="inline-flex items-center gap-1 text-slate-500 hover:text-rose-600 px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors text-xs font-medium cursor-pointer"
+                                    title="Xóa lịch sử trò chuyện"
+                                >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>Xóa lịch sử</span>
+                                </button>
+                            )}
                         </div>
 
                         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
